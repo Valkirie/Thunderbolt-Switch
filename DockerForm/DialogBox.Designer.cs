@@ -72,20 +72,21 @@
             // label3
             // 
             this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(9, 65);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(96, 13);
+            this.label3.Size = new System.Drawing.Size(110, 13);
             this.label3.TabIndex = 3;
             this.label3.Text = "DATABASE FILES";
             // 
             // button1
             // 
             this.button1.DialogResult = System.Windows.Forms.DialogResult.Yes;
-            this.button1.Location = new System.Drawing.Point(111, 60);
+            this.button1.Location = new System.Drawing.Point(125, 60);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(261, 23);
+            this.button1.Size = new System.Drawing.Size(247, 23);
             this.button1.TabIndex = 4;
-            this.button1.Text = "OVERWRITE GAME SETTINGS";
+            this.button1.Text = "OVERWRITE GAME FILES";
             this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.button1.UseVisualStyleBackColor = true;
             // 
@@ -110,22 +111,23 @@
             // button2
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.button2.Location = new System.Drawing.Point(111, 121);
+            this.button2.Location = new System.Drawing.Point(125, 121);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(261, 23);
+            this.button2.Size = new System.Drawing.Size(247, 23);
             this.button2.TabIndex = 7;
-            this.button2.Text = "UPDATE DATABASE SETTINGS";
+            this.button2.Text = "UPDATE DATABASE FILES";
             this.button2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.button2.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(9, 126);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(73, 13);
+            this.label6.Size = new System.Drawing.Size(80, 13);
             this.label6.TabIndex = 6;
-            this.label6.Text = "LOCAL FILES";
+            this.label6.Text = "GAME FILES";
             // 
             // label7
             // 
@@ -138,9 +140,9 @@
             // button3
             // 
             this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button3.Location = new System.Drawing.Point(111, 174);
+            this.button3.Location = new System.Drawing.Point(125, 174);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(261, 23);
+            this.button3.Size = new System.Drawing.Size(247, 23);
             this.button3.TabIndex = 10;
             this.button3.Text = "CANCEL - DON\'T COPY ANYTHING NOW";
             this.button3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -148,9 +150,9 @@
             // 
             // label8
             // 
-            this.label8.Location = new System.Drawing.Point(108, 200);
+            this.label8.Location = new System.Drawing.Point(125, 200);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(264, 34);
+            this.label8.Size = new System.Drawing.Size(247, 34);
             this.label8.TabIndex = 11;
             this.label8.Text = "NOTE: You\'ll have to choose one of the other two options at next application star" +
     "t.";
