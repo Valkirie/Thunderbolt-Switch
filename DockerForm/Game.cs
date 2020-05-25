@@ -17,12 +17,21 @@ namespace DockerForm
         {
         }
 
-        public GameSettings(string _type, string _uri, bool _enabled, bool _relative)
+        public GameSettings(DockerGame _thisGame, string _type, string _uri, bool _enabled, bool _relative)
         {
             this.Type = _type;
             this.Uri = _uri;
             this.IsEnabled = _enabled;
             this.IsRelative = _relative;
+        }
+
+        public string GetUri(DockerGame thisGame)
+        {
+            string filename = this.Uri;
+            if (this.IsRelative)
+                filename = Path.Combine(thisGame.Uri, filename);
+
+            return filename;
         }
     }
 
@@ -34,8 +43,10 @@ namespace DockerForm
         public string Artwork = "";         // Artwork File Name
         public string Version = "";         // Product Version
         public string GUID = "";            // Product GUID (harcoded)
+        public string IGDB_Url = "";       // IGDB GUID
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
+        public DateTime LastCheck;          // Last time the game settings were saved
 
         [XmlIgnore]
         public Image Image;

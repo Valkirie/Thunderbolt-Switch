@@ -103,7 +103,7 @@ namespace DockerForm
                 string uri = item.SubItems[0].Text;
                 string type = item.SubItems[1].Text;
 
-                GameSettings newSetting = new GameSettings(type, uri, item.Checked, (bool)item.Tag);
+                GameSettings newSetting = new GameSettings(thisGame, type, uri, item.Checked, (bool)item.Tag);
                 thisGame.Settings.Add(newSetting);
             }
 
@@ -381,7 +381,7 @@ namespace DockerForm
             }catch(Exception) { }
 
             if (IGDBList.DropDownItems.Count == 0)
-                MessageBox.Show("No result from IGDB.");
+                MessageBox.Show("No result from IGDB. Please try another game name.");
             else
             {
                 ImageMenuStrip.Show();
@@ -410,13 +410,21 @@ namespace DockerForm
                 string gamecompany = Between(ref HTML, "developers&quot;:[[&quot;", "&quot;");
 
                 // update game details
-                DialogResult dialogResult = MessageBox.Show("Would you like to overwrite Game Company ?\n" + field_Developer.Text + "=>" + gamecompany, "IGDB", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                    field_Developer.Text = gamecompany;
+                if (field_Developer.Text != gamecompany)
+                {
+                    DialogResult dialogResult = MessageBox.Show("Would you like to overwrite Game Company ?\n" + field_Developer.Text + "=>" + gamecompany, "IGDB", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                        field_Developer.Text = gamecompany;
+                }
 
-                dialogResult = MessageBox.Show("Would you like to overwrite Game Name ?\n" + field_Name.Text + "=>" + IGDB["name"], "IGDB", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                    field_Name.Text = IGDB["name"];
+                if (field_Name.Text != IGDB["name"])
+                {
+                    DialogResult dialogResult = MessageBox.Show("Would you like to overwrite Game Name ?\n" + field_Name.Text + "=>" + IGDB["name"], "IGDB", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                        field_Name.Text = IGDB["name"];
+                }
+
+                thisGame.IGDB_Url = "https://www.igdb.com/" + hidden_url;
 
                 if (ImageUri != "")
                 {
@@ -443,7 +451,7 @@ namespace DockerForm
 
         private void searchOnPCGamingWikiToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://www.pcgamingwiki.com/wiki/" + thisGame.Name.Replace(" ", "_") + "#Configuration_file.28s.29_location");
+            Process.Start("https://www.pcgamingwiki.com/wiki/" + thisGame.Name.Replace(" ", "_") + "#Configuration_file.28s.29_location");
         }
     }
 }

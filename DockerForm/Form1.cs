@@ -21,6 +21,7 @@ namespace DockerForm
         // Global vars
         static bool IsRunning = true;
         static bool LastPlugged = false;
+        static bool IsPlugged = false;
         static bool IsFirstBoot = true;
 
         // Configurable vars
@@ -102,82 +103,131 @@ namespace DockerForm
             proc = Process.Start("regedit.exe", "/e " + path + " " + key);
         }
 
-        public static void UpdateFilesAndRegistry(bool IsPlugged)
+        public static void SanityCheck()
         {
-            if (LastPlugged != IsPlugged)
+            foreach(DockerGame game in GameDB.Values)
             {
-                try
+                foreach(GameSettings setting in game.Settings)
                 {
-                    _instance.Invoke(new Action(delegate () {
-                        _instance.menuStrip2.Items[0].Text = IsPlugged ? "Docked" : "Undocked";
-                        _instance.notifyIcon1.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                        _instance.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                    }));
-                } catch (Exception) { }
-
-                if (!IsFirstBoot)
-                {
-                    // Status has changed : dirty
-                    if (IsPlugged)
-                        NewToastNotification(VideoControllers[1] + " detected.");
-                    else
-                        NewToastNotification(VideoControllers[0] + " restored.");
-
-                    // Scroll the GameDB
-                    foreach (DockerGame gm in GameDB.Values)
+                    string filename = setting.GetUri(game);
+                    if (setting.Type == "File") // file
                     {
-                        string path_game = Path.Combine(path_storage, gm.ProductName, "iGPU");
-                        string path_dest = Path.Combine(path_storage, gm.ProductName, "eGPU");
+                        // get the current settings file
+                        FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                        string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
 
-                        if (!IsPlugged)
+                        // get the stored settings files
+                        string path_db = Path.Combine(path_storage, game.ProductName, IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        FileInfo fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
+                        string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
+
+                        if (file.LastWriteTime > game.LastCheck || fileBytes != fileDBBytes)
                         {
-                            path_game = Path.Combine(path_storage, gm.ProductName, "eGPU");
-                            path_dest = Path.Combine(path_storage, gm.ProductName, "iGPU");
-                        }
+                            // string generation
+                            string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
+                            string ModifiedDB = "Last modified: " + game.LastCheck + " - " + (file.LastWriteTime > game.LastCheck ? "OLDER" : "NEWER");
+                            string ModifiedLOCAL = "Last modified: " + file.LastWriteTime + " - " + (file.LastWriteTime < game.LastCheck ? "OLDER" : "NEWER");
 
-                        foreach (GameSettings setting in gm.Settings)
-                        {
-                            if (!setting.IsEnabled)
-                                continue;
+                            DialogBox dialogBox = new DockerForm.DialogBox();
+                            dialogBox.UpdateDialogBox("Database Sync Conflict", WarningStr, ModifiedDB, ModifiedLOCAL);
 
-                            string filename = setting.Uri;
-                            if (setting.IsRelative)
-                                filename = Path.Combine(gm.Uri, filename);
-
-                            if (setting.Type == "File") // file
+                            DialogResult dialogResult = dialogBox.ShowDialog();
+                            if(dialogResult == DialogResult.Yes) // Overwrite current settings
                             {
-                                // 1. Save current settings
-                                FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
-                                CopyFile(file, path_game);
-
-                                // 2. Restore proper settings
-                                string path_file = Path.Combine(path_dest, file.Name);
-                                FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
-                                CopyFile(storedfile, file.DirectoryName);
+                                UpdateFilesAndRegistries(game, !IsPlugged, false, true);
                             }
-                            else // registry
+                            else if(dialogResult == DialogResult.No) // Overwrite current database
                             {
-                                string[] temp = filename.Split('\\');
-                                string file = "";
-                                foreach (string f in temp)
-                                    file += f[0];
-                                file += ".reg";
-
-                                // 1. Save current settings
-                                ExportKey(filename, path_game, file);
-
-                                // 2. Restore proper settings
-                                string path_file = Path.Combine(path_dest, file);
-                                RestoreKey(path_file);
+                                UpdateFilesAndRegistries(game, !IsPlugged, true, false);
                             }
+
+                            continue;
                         }
                     }
                 }
+            }
+        }
+
+        public static void UpdateGameDatabase()
+        {
+            if (LastPlugged != IsPlugged)
+            {
+                _instance.Invoke(new Action(delegate () {
+                    _instance.menuStrip2.Items[0].Text = IsPlugged ? "Docked" : "Undocked";
+                    _instance.notifyIcon1.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+                    _instance.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+                }));
+
+                if(!IsFirstBoot)
+                    UpdateFilesAndRegistries(GameDB, IsPlugged);
+                else
+                    SanityCheck();
+
                 LastPlugged = IsPlugged;
             }
 
             if (IsFirstBoot)
                 IsFirstBoot = false;
+        }
+
+        public static void UpdateFilesAndRegistries(DockerGame game, bool eGPU, bool overwriteDB = true, bool restoreSETTING = true)
+        {
+            string path_game = Path.Combine(path_storage, game.ProductName, "iGPU");
+            string path_dest = Path.Combine(path_storage, game.ProductName, "eGPU");
+
+            if (!eGPU)
+            {
+                path_game = Path.Combine(path_storage, game.ProductName, "eGPU");
+                path_dest = Path.Combine(path_storage, game.ProductName, "iGPU");
+            }
+
+            foreach (GameSettings setting in game.Settings)
+            {
+                if (!setting.IsEnabled)
+                    continue;
+
+                string filename = setting.GetUri(game);
+                if (setting.Type == "File") // file
+                {
+                    // 1. Save current settings
+                    FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                    if(overwriteDB)
+                        CopyFile(file, path_game);
+
+                    // 2. Restore proper settings
+                    string path_file = Path.Combine(path_dest, file.Name);
+                    FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
+                    if(restoreSETTING)
+                        CopyFile(storedfile, file.DirectoryName);
+                }
+                else // registry
+                {
+                    string[] temp = filename.Split('\\');
+                    string file = "";
+                    foreach (string f in temp)
+                        file += f[0];
+                    file += ".reg";
+
+                    // 1. Save current settings
+                    if (overwriteDB)
+                        ExportKey(filename, path_game, file);
+
+                    // 2. Restore proper settings
+                    string path_file = Path.Combine(path_dest, file);
+                    if(restoreSETTING)
+                        RestoreKey(path_file);
+                }
+            }
+
+            game.LastCheck = DateTime.Now;
+            _instance.SerializeGame(game);
+        }
+
+        public static void UpdateFilesAndRegistries(Dictionary<string, DockerGame> localDB, bool Plugged)
+        {
+            // Scroll the provided database
+            foreach (DockerGame game in localDB.Values)
+                UpdateFilesAndRegistries(game, Plugged);
         }
 
         public static void MainMonitor(object data)
@@ -196,7 +246,9 @@ namespace DockerForm
                         VideoControllers.Add((string)description);
                 }
 
-                UpdateFilesAndRegistry(VideoControllers.Count != 1);
+                IsPlugged = VideoControllers.Count != 1;
+
+                UpdateGameDatabase();
 
                 Thread.Sleep(1000);
             }
@@ -225,6 +277,10 @@ namespace DockerForm
                     }
                 }
             }
+
+            // We save iGPU/eGPU profiles on game creation
+            UpdateFilesAndRegistries(game, true, true, false);
+            UpdateFilesAndRegistries(game, false, true, false);
 
             GameList.Sort();
         }
@@ -298,7 +354,10 @@ namespace DockerForm
         {
             InitializeComponent();
             _instance = this;
+        }
 
+        private void Form1_Shown(object sender, System.EventArgs e)
+        {
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -326,7 +385,10 @@ namespace DockerForm
             UpdateGameList();
 
             if (MinimizeOnStartup)
+            {
                 this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+            }
 
             if (BootOnStartup) // dirty, we should check if entry already exists
                 AddApplicationToStartup();
@@ -386,7 +448,15 @@ namespace DockerForm
             switch (e.Button)
             {
                 case MouseButtons.Right:
-                    GameList.SelectedIndex = index; break;
+                    GameList.SelectedIndex = index;
+                    if(GameList.SelectedItem != null)
+                    {
+                        exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+                        DockerGame game = GameDB[item.Guid];
+
+                        navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
+                    }                    
+                    break;
             }
         }
 
@@ -395,6 +465,56 @@ namespace DockerForm
             Show();
             this.WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
+        }
+
+        private void undockedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // DEBUG
+            IsPlugged = !IsPlugged;
+            UpdateGameDatabase();
+        }
+
+        private void OpenGameFolder(object sender, EventArgs e)
+        {
+            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+            DockerGame game = GameDB[item.Guid];
+
+            string folderPath = game.Uri;
+            if (Directory.Exists(folderPath))
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    Arguments = folderPath,
+                    FileName = "explorer.exe"
+                };
+
+                Process.Start(startInfo);
+            };
+        }
+
+        private void OpenDataFolder(object sender, EventArgs e)
+        {
+            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+            DockerGame game = GameDB[item.Guid];
+
+            string folderPath = Path.Combine(path_storage, game.ProductName);
+            if (Directory.Exists(folderPath))
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    Arguments = folderPath,
+                    FileName = "explorer.exe"
+                };
+
+                Process.Start(startInfo);
+            };
+        }
+
+        private void navigateToIGDBEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+            DockerGame game = GameDB[item.Guid];
+            Process.Start(game.IGDB_Url);
         }
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)

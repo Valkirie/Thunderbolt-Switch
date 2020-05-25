@@ -42,8 +42,13 @@ namespace DockerForm
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeTheGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.navigateToIGDBEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GameList = new DockerForm.exListBox();
@@ -112,6 +117,7 @@ namespace DockerForm
             // menuStrip2
             // 
             this.menuStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.menuStrip2.Enabled = false;
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undockedToolStripMenuItem});
             this.menuStrip2.Location = new System.Drawing.Point(0, 537);
@@ -122,33 +128,69 @@ namespace DockerForm
             // 
             // undockedToolStripMenuItem
             // 
-            this.undockedToolStripMenuItem.Enabled = false;
             this.undockedToolStripMenuItem.Image = global::DockerForm.Properties.Resources.image_plugged;
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
             this.undockedToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
             this.undockedToolStripMenuItem.Text = "Undocked";
+            this.undockedToolStripMenuItem.Click += new System.EventHandler(this.undockedToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.openToolStripMenuItem1,
+            this.toolStripSeparator1,
             this.removeTheGameToolStripMenuItem,
-            this.propertiesToolStripMenuItem});
+            this.propertiesToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(143, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 126);
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.openToolStripMenuItem.Text = "Open Game location";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenGameFolder);
+            // 
+            // openToolStripMenuItem1
+            // 
+            this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
+            this.openToolStripMenuItem1.Size = new System.Drawing.Size(194, 22);
+            this.openToolStripMenuItem1.Text = "Open Data location";
+            this.openToolStripMenuItem1.Click += new System.EventHandler(this.OpenDataFolder);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(191, 6);
             // 
             // removeTheGameToolStripMenuItem
             // 
             this.removeTheGameToolStripMenuItem.Name = "removeTheGameToolStripMenuItem";
-            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.removeTheGameToolStripMenuItem.Text = "Remove Title";
             this.removeTheGameToolStripMenuItem.Click += new System.EventHandler(this.removeTheGameToolStripMenuItem_Click);
             // 
             // propertiesToolStripMenuItem
             // 
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.propertiesToolStripMenuItem.Text = "Properties";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(191, 6);
+            // 
+            // navigateToIGDBEntryToolStripMenuItem
+            // 
+            this.navigateToIGDBEntryToolStripMenuItem.Name = "navigateToIGDBEntryToolStripMenuItem";
+            this.navigateToIGDBEntryToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.navigateToIGDBEntryToolStripMenuItem.Text = "Navigate to IGDB entry";
+            this.navigateToIGDBEntryToolStripMenuItem.Click += new System.EventHandler(this.navigateToIGDBEntryToolStripMenuItem_Click);
             // 
             // notifyIcon1
             // 
@@ -180,9 +222,6 @@ namespace DockerForm
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1008, 561);
             this.Controls.Add(this.GameList);
             this.Controls.Add(this.menuStrip1);
@@ -195,6 +234,7 @@ namespace DockerForm
             this.Name = "Form1";
             this.Text = "Thunderbolt Switch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Shown += new System.EventHandler(this.Form1_Shown);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -222,6 +262,11 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem automaticDetectionToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
     }
 }
 
