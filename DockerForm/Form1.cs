@@ -322,7 +322,7 @@ namespace DockerForm
         public void UpdateGameList()
         {
             // Read all the game files (xml)
-            string[] fileEntries = Directory.GetFiles(@"db", "*.xml");
+            string[] fileEntries = Directory.GetFiles(path_database, "*.xml");
             foreach (string filename in fileEntries)
             {
                 XmlSerializer xs = new XmlSerializer(typeof(DockerGame));
