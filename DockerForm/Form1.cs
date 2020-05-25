@@ -30,6 +30,7 @@ namespace DockerForm
         static bool MinimizeOnClosing = false;
         static bool BootOnStartup = false;
         static bool ForceClose = false;
+        static bool MonitorProcesses = false;
 
         // Devices vars
         static List<string> VideoControllers = new List<string>();
@@ -410,6 +411,7 @@ namespace DockerForm
             MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
             MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
+            MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
 
             if (MinimizeOnStartup)
             {
@@ -431,8 +433,12 @@ namespace DockerForm
             // thread settings
             Thread ThreadGPU = new Thread(MainMonitor);
             ThreadGPU.Start();
-            Thread ThreadEXE = new Thread(ProcessMonitor);
-            ThreadEXE.Start();
+
+            if (MonitorProcesses)
+            {
+                Thread ThreadEXE = new Thread(ProcessMonitor);
+                ThreadEXE.Start();
+            }
         }
 
         public static void AddApplicationToStartup()
@@ -446,7 +452,6 @@ namespace DockerForm
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
                 key.DeleteValue(Application.ProductName, false);
         }
-
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
         {

@@ -17,5 +17,8 @@
     <Setting Name="ImageWidth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">75</Value>
     </Setting>
+    <Setting Name="MonitorProcesses" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
