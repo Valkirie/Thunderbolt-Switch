@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using System.Xml.Serialization;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
+using System.Linq;
 
 namespace DockerForm
 {
@@ -35,6 +36,7 @@ namespace DockerForm
 
         // DockerGame vars
         static Dictionary<string, DockerGame> GameDB = new Dictionary<string, DockerGame>();
+        static Dictionary<Process, DockerGame> GameProcesses = new Dictionary<Process, DockerGame>();
 
         // Folder vars
         public static string path_application, path_storage, path_artworks, path_database;
@@ -221,6 +223,7 @@ namespace DockerForm
 
             game.LastCheck = DateTime.Now;
             _instance.SerializeGame(game);
+            NewToastNotification(game.Name + " settings have been updated.");
         }
 
         public static void UpdateFilesAndRegistries(Dictionary<string, DockerGame> localDB, bool Plugged)
@@ -228,6 +231,36 @@ namespace DockerForm
             // Scroll the provided database
             foreach (DockerGame game in localDB.Values)
                 UpdateFilesAndRegistries(game, Plugged);
+        }
+
+        public static void ProcessMonitor(object data)
+        {
+            while (IsRunning)
+            {
+                Process[] localAll = Process.GetProcesses();
+
+                foreach(DockerGame game in GameDB.Values)
+                    foreach(Process proc in localAll)
+                        if ((game.ProductName == proc.MainWindowTitle) || (game.Executable.Replace(".exe", "") == proc.ProcessName))
+                            if(!GameProcesses.ContainsValue(game))
+                                GameProcesses.Add(proc, game);
+
+                for(int i = 0; i < GameProcesses.Count; i++)
+                {
+                    KeyValuePair<Process, DockerGame> pair = GameProcesses.ElementAt(i);
+
+                    Process proc = pair.Key;
+                    DockerGame game = pair.Value;
+
+                    if (proc.HasExited)
+                    {
+                        UpdateFilesAndRegistries(game, !IsPlugged, true, false); // !IsPlugged to force save on eGPU folder, dirty
+                        GameProcesses.Remove(proc);
+                    }
+                }
+
+                Thread.Sleep(1000);
+            }
         }
 
         public static void MainMonitor(object data)
@@ -354,10 +387,7 @@ namespace DockerForm
         {
             InitializeComponent();
             _instance = this;
-        }
 
-        private void Form1_Shown(object sender, System.EventArgs e)
-        {
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -381,9 +411,6 @@ namespace DockerForm
             MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
 
-            // draw GameDB
-            UpdateGameList();
-
             if (MinimizeOnStartup)
             {
                 this.WindowState = FormWindowState.Minimized;
@@ -394,10 +421,18 @@ namespace DockerForm
                 AddApplicationToStartup();
             else
                 RemoveApplicationFromStartup();
+        }
+
+        private void Form1_Shown(object sender, System.EventArgs e)
+        {
+            // draw GameDB
+            UpdateGameList();
 
             // thread settings
             Thread ThreadGPU = new Thread(MainMonitor);
             ThreadGPU.Start();
+            Thread ThreadEXE = new Thread(ProcessMonitor);
+            ThreadEXE.Start();
         }
 
         public static void AddApplicationToStartup()
@@ -418,7 +453,7 @@ namespace DockerForm
             if (MinimizeOnClosing && e.CloseReason == CloseReason.UserClosing && !ForceClose)
             {
                 e.Cancel = true;
-                this.WindowState = FormWindowState.Minimized;
+                WindowState = FormWindowState.Minimized;
             }
             else
                 IsRunning = false;
@@ -432,12 +467,11 @@ namespace DockerForm
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
                 Hide();
                 notifyIcon1.Visible = true;
-                notifyIcon1.BalloonTipText = this.Text + " is running in the background.";
-                notifyIcon1.ShowBalloonTip(1000);
+                NewToastNotification(Text + " is running in the background.");
             }
         }
 
@@ -463,8 +497,9 @@ namespace DockerForm
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Show();
-            this.WindowState = FormWindowState.Normal;
+            WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
+            ShowInTaskbar = true;
         }
 
         private void undockedToolStripMenuItem_Click(object sender, EventArgs e)
