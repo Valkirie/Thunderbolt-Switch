@@ -51,6 +51,7 @@ namespace DockerForm
             this.navigateToIGDBEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.debugTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.GameList = new DockerForm.exListBox();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
@@ -119,7 +120,8 @@ namespace DockerForm
             this.menuStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip2.Enabled = false;
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undockedToolStripMenuItem});
+            this.undockedToolStripMenuItem,
+            this.debugTextBox});
             this.menuStrip2.Location = new System.Drawing.Point(0, 537);
             this.menuStrip2.Name = "menuStrip2";
             this.menuStrip2.Size = new System.Drawing.Size(1008, 24);
@@ -205,6 +207,13 @@ namespace DockerForm
             this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
+            // debugTextBox
+            // 
+            this.debugTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.debugTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.debugTextBox.Name = "debugTextBox";
+            this.debugTextBox.Size = new System.Drawing.Size(400, 20);
+            // 
             // GameList
             // 
             this.GameList.BackColor = System.Drawing.SystemColors.Control;
@@ -220,7 +229,6 @@ namespace DockerForm
             this.GameList.Sorted = true;
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
-            this.GameList.DoubleClick += GameList_DoubleClick;
             // 
             // Form1
             // 
@@ -269,6 +277,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripTextBox debugTextBox;
     }
 }
 

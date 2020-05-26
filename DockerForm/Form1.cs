@@ -49,6 +49,7 @@ namespace DockerForm
         private static void NewToastNotification(string input)
         {
             _instance.notifyIcon1.BalloonTipText = input;
+            _instance.debugTextBox.Text = input;
             _instance.notifyIcon1.ShowBalloonTip(1000);
         }
 
