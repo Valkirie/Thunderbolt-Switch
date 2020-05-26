@@ -481,6 +481,18 @@ namespace DockerForm
             }
         }
 
+        private void GameList_DoubleClick(object sender, System.EventArgs e)
+        {
+            if (GameList.SelectedItem != null)
+            {
+                exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+                DockerGame game = GameDB[item.Guid];
+
+                string filename = Path.Combine(game.Uri, game.Executable);
+                Process.Start(filename);
+            }
+        }
+
         private void GameList_MouseDown(object sender, MouseEventArgs e)
         {
             Point pt = new Point(e.X, e.Y);

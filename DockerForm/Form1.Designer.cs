@@ -220,6 +220,7 @@ namespace DockerForm
             this.GameList.Sorted = true;
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
+            this.GameList.DoubleClick += GameList_DoubleClick;
             // 
             // Form1
             // 
