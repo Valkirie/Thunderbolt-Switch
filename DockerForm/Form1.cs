@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace DockerForm
 {
@@ -36,8 +37,8 @@ namespace DockerForm
         static List<string> VideoControllers = new List<string>();
 
         // DockerGame vars
-        static Dictionary<string, DockerGame> GameDB = new Dictionary<string, DockerGame>();
-        static Dictionary<Process, DockerGame> GameProcesses = new Dictionary<Process, DockerGame>();
+        static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
+        static ConcurrentDictionary<Process, DockerGame> GameProcesses = new ConcurrentDictionary<Process, DockerGame>();
 
         // Folder vars
         public static string path_application, path_storage, path_artworks, path_database;
@@ -227,7 +228,7 @@ namespace DockerForm
             NewToastNotification(game.Name + " settings have been updated.");
         }
 
-        public static void UpdateFilesAndRegistries(Dictionary<string, DockerGame> localDB, bool Plugged)
+        public static void UpdateFilesAndRegistries(ConcurrentDictionary<string, DockerGame> localDB, bool Plugged)
         {
             // Scroll the provided database
             foreach (DockerGame game in localDB.Values)
@@ -243,8 +244,8 @@ namespace DockerForm
                 foreach(DockerGame game in GameDB.Values)
                     foreach(Process proc in localAll)
                         if ((game.ProductName == proc.MainWindowTitle) || (game.Executable.Replace(".exe", "") == proc.ProcessName))
-                            if(!GameProcesses.ContainsValue(game))
-                                GameProcesses.Add(proc, game);
+                            if(!GameProcesses.Values.Contains(game))
+                                GameProcesses.AddOrUpdate(proc, game, (key, value) => game);
 
                 for(int i = 0; i < GameProcesses.Count; i++)
                 {
@@ -256,7 +257,7 @@ namespace DockerForm
                     if (proc.HasExited)
                     {
                         UpdateFilesAndRegistries(game, !IsPlugged, true, false); // !IsPlugged to force save on eGPU folder, dirty
-                        GameProcesses.Remove(proc);
+                        GameProcesses.TryRemove(proc, out game);
                     }
                 }
 
@@ -295,7 +296,7 @@ namespace DockerForm
             if (game.JustCreated && !GameDB.ContainsKey(game.GUID))
             {
                 GameList.Items.Add(newgame);
-                GameDB.Add(game.GUID, game);
+                GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
                 game.JustCreated = false;
             }
             else
@@ -333,7 +334,7 @@ namespace DockerForm
                     game.JustCreated = false;
 
                     if (!GameDB.ContainsKey(game.GUID))
-                        GameDB.Add(game.GUID, game);
+                        GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
 
                     reader.Dispose();
                 }
@@ -568,7 +569,7 @@ namespace DockerForm
                 if (File.Exists(filename))
                 {
                     File.Delete(filename);
-                    GameDB.Remove(item.Guid);
+                    GameDB.TryRemove(item.Guid, out game);
                     GameList.Items.Remove(item);
                 }
             }
