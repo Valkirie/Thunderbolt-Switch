@@ -360,7 +360,7 @@ namespace DockerForm
                 string HTML = client.DownloadString("https://www.igdb.com/search?type=1&q=" + thisGame.Name);
                 string gamelist = Between(ref HTML, "mar-md-bottom text-muted", "hidden-sm hidden-xs");
 
-                while (Between(ref gamelist, "id", "release_year") != "")
+                while (Between(ref gamelist, "id", "release_year") != "" && IGDBList.DropDownItems.Count < thisForm.GetIGDBListLength())
                 {
                     string gamedetails = "id&quot" + Between(ref gamelist, "id&quot", "release_year", true);
                     string gamename = System.Web.HttpUtility.HtmlDecode(Between(ref gamedetails, "name&quot;:&quot;", "&quot;"));

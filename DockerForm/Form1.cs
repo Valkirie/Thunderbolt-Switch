@@ -32,6 +32,7 @@ namespace DockerForm
         static bool BootOnStartup = false;
         static bool ForceClose = false;
         static bool MonitorProcesses = false;
+        static int IGDBListLength;
 
         // Devices vars
         static List<string> VideoControllers = new List<string>();
@@ -386,6 +387,11 @@ namespace DockerForm
             img.Save(filepath);
         }
 
+        public int GetIGDBListLength()
+        {
+            return IGDBListLength;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -414,6 +420,7 @@ namespace DockerForm
             MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
             MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
+            IGDBListLength = Properties.Settings.Default.IGDBListLength;
 
             if (MinimizeOnStartup)
             {

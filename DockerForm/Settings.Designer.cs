@@ -74,6 +74,7 @@ namespace DockerForm
             this.columnHeader5});
             this.SettingsList.ContextMenuStrip = this.SettingMenuStrip;
             this.SettingsList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SettingsList.FullRowSelect = true;
             this.SettingsList.HideSelection = false;
             this.SettingsList.LabelEdit = true;
             this.SettingsList.Location = new System.Drawing.Point(3, 16);

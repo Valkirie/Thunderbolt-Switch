@@ -94,5 +94,17 @@ namespace DockerForm.Properties {
                 this["MonitorProcesses"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int IGDBListLength {
+            get {
+                return ((int)(this["IGDBListLength"]));
+            }
+            set {
+                this["IGDBListLength"] = value;
+            }
+        }
     }
 }
