@@ -91,6 +91,7 @@ namespace DockerForm
                 proc.StartInfo.UseShellExecute = false;
                 proc.StartInfo.CreateNoWindow = true;
                 proc = Process.Start("regedit.exe", "/s " + targetFile);
+                proc.WaitForExit();
             }
         }
 
@@ -107,48 +108,72 @@ namespace DockerForm
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.CreateNoWindow = true;
             proc = Process.Start("regedit.exe", "/e " + path + " " + key);
+            proc.WaitForExit();
         }
 
+        public static string GetRegistryFile(string keypath)
+        {
+            string[] temp = keypath.Split('\\');
+            string registry = "";
+            foreach (string f in temp)
+                registry += f[0];
+            registry += ".reg";
+
+            return registry;
+        }
+
+        /// <summary>
+        /// This function is making sure there is no difference between the database file and the current game settings file.
+        /// TODO: Check registry.
+        /// </summary>
         public static void SanityCheck()
         {
             foreach(DockerGame game in GameDB.Values)
             {
                 foreach(GameSettings setting in game.Settings)
                 {
+                    FileInfo file = null, fileDB = null;
                     string filename = setting.GetUri(game);
+
                     if (setting.Type == "File") // file
                     {
-                        // get the current settings file
-                        FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
-                        string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
+                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        // get the stored settings files
                         string path_db = Path.Combine(path_storage, game.ProductName, IsPlugged ? "eGPU" : "iGPU", file.Name);
-                        FileInfo fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
-                        string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
+                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
+                    }
+                    else // registry
+                    {
+                        string registry = GetRegistryFile(filename);
+                        ExportKey(filename, game.Uri, registry);
 
-                        if (file.LastWriteTime > game.LastCheck || fileBytes != fileDBBytes)
-                        {
-                            // string generation
-                            string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
-                            string ModifiedDB = "Last modified: " + game.LastCheck + " - " + (file.LastWriteTime > game.LastCheck ? "OLDER" : "NEWER");
-                            string ModifiedLOCAL = "Last modified: " + file.LastWriteTime + " - " + (file.LastWriteTime < game.LastCheck ? "OLDER" : "NEWER");
+                        filename = Path.Combine(game.Uri, registry);
+                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                            DialogBox dialogBox = new DockerForm.DialogBox();
-                            dialogBox.UpdateDialogBox("Database Sync Conflict", WarningStr, ModifiedDB, ModifiedLOCAL);
+                        string path_db = Path.Combine(path_storage, game.ProductName, IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
+                    }
 
-                            DialogResult dialogResult = dialogBox.ShowDialog();
-                            if(dialogResult == DialogResult.Yes) // Overwrite current settings
-                            {
-                                UpdateFilesAndRegistries(game, !IsPlugged, false, true);
-                            }
-                            else if(dialogResult == DialogResult.No) // Overwrite current database
-                            {
-                                UpdateFilesAndRegistries(game, !IsPlugged, true, false);
-                            }
+                    string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
+                    string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
+                    if (/* file.LastWriteTime > game.LastCheck || */ fileBytes != fileDBBytes)
+                    {
+                        // string generation
+                        string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
+                        string ModifiedDB = "Last modified: " + game.LastCheck + " - " + (file.LastWriteTime > game.LastCheck ? "OLDER" : "NEWER");
+                        string ModifiedLOCAL = "Last modified: " + file.LastWriteTime + " - " + (file.LastWriteTime < game.LastCheck ? "OLDER" : "NEWER");
 
-                            continue;
-                        }
+                        DialogBox dialogBox = new DockerForm.DialogBox();
+                        dialogBox.UpdateDialogBox("Database Sync Conflict", WarningStr, ModifiedDB, ModifiedLOCAL);
+
+                        DialogResult dialogResult = dialogBox.ShowDialog();
+
+                        if (dialogResult == DialogResult.Yes) // Overwrite current settings
+                            UpdateFilesAndRegistries(game, !IsPlugged, false, true);
+                        else if (dialogResult == DialogResult.No) // Overwrite current database
+                            UpdateFilesAndRegistries(game, !IsPlugged, true, false);
+
+                        continue;
                     }
                 }
             }
@@ -208,18 +233,14 @@ namespace DockerForm
                 }
                 else // registry
                 {
-                    string[] temp = filename.Split('\\');
-                    string file = "";
-                    foreach (string f in temp)
-                        file += f[0];
-                    file += ".reg";
+                    string registry = GetRegistryFile(filename); ;
 
                     // 1. Save current settings
                     if (overwriteDB)
-                        ExportKey(filename, path_game, file);
+                        ExportKey(filename, path_game, registry);
 
                     // 2. Restore proper settings
-                    string path_file = Path.Combine(path_dest, file);
+                    string path_file = Path.Combine(path_dest, registry);
                     if(restoreSETTING)
                         RestoreKey(path_file);
                 }
