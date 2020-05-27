@@ -388,6 +388,16 @@ namespace DockerForm
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            DisplayForm();
+        }
+
+        private void showToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DisplayForm();
+        }
+
+        private void DisplayForm()
+        {
             Show();
             WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
@@ -435,6 +445,12 @@ namespace DockerForm
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
             DockerGame game = DatabaseManager.GameDB[item.Guid];
             Process.Start(game.IGDB_Url);
+        }
+
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ForceClose = true;
+            Close();
         }
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)
