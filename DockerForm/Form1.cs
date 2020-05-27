@@ -45,9 +45,11 @@ namespace DockerForm
 
         private static void NewToastNotification(string input)
         {
-            _instance.notifyIcon1.BalloonTipText = input;
-            _instance.debugTextBox.Text = input;
-            _instance.notifyIcon1.ShowBalloonTip(1000);
+            _instance.Invoke(new Action(delegate () {
+                _instance.notifyIcon1.BalloonTipText = input;
+                _instance.debugTextBox.Text = input;
+                _instance.notifyIcon1.ShowBalloonTip(1000);
+            }));
         }
 
         public static void UpdateFilesAndRegistries(DockerGame game, bool eGPU, bool overwriteDB = true, bool restoreSETTING = true)
