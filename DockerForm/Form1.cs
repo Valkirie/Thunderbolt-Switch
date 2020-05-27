@@ -21,25 +21,21 @@ namespace DockerForm
     public partial class Form1 : Form
     {
         // Global vars
-        static bool IsRunning = true;
-        static bool LastPlugged = false;
-        static bool IsPlugged = false;
-        static bool IsFirstBoot = true;
+        public static bool IsRunning = true;
+        public static bool LastPlugged = false;
+        public static bool IsPlugged = false;
+        public static bool IsFirstBoot = true;
 
         // Configurable vars
-        static bool MinimizeOnStartup = false;
-        static bool MinimizeOnClosing = false;
-        static bool BootOnStartup = false;
-        static bool ForceClose = false;
-        static bool MonitorProcesses = false;
-        static int IGDBListLength;
+        public static bool MinimizeOnStartup = false;
+        public static bool MinimizeOnClosing = false;
+        public static bool BootOnStartup = false;
+        public static bool ForceClose = false;
+        public static bool MonitorProcesses = false;
+        public static int IGDBListLength;
 
         // Devices vars
-        static List<string> VideoControllers = new List<string>();
-
-        // DockerGame vars
-        static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
-        static ConcurrentDictionary<Process, DockerGame> GameProcesses = new ConcurrentDictionary<Process, DockerGame>();
+        public static List<string> VideoControllers = new List<string>();
 
         // Folder vars
         public static string path_application, path_storage, path_artworks, path_database;
@@ -52,153 +48,6 @@ namespace DockerForm
             _instance.notifyIcon1.BalloonTipText = input;
             _instance.debugTextBox.Text = input;
             _instance.notifyIcon1.ShowBalloonTip(1000);
-        }
-
-        public static void CopyFolder(string sourceDirectory, string targetDirectory)
-        {
-            DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
-
-            CopyAll(diSource, diTarget);
-        }
-
-        public static void CopyFile(FileInfo sourceFile, string targetDirectory)
-        {
-            DirectoryInfo target = new DirectoryInfo(targetDirectory);
-
-            if (!Directory.Exists(target.FullName))
-                Directory.CreateDirectory(target.FullName);
-
-            if (File.Exists(sourceFile.FullName))
-                sourceFile.CopyTo(Path.Combine(target.FullName, sourceFile.Name), true);
-        }
-
-        public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
-        {
-            if(!Directory.Exists(target.FullName))
-                Directory.CreateDirectory(target.FullName);
-
-            foreach (FileInfo fi in source.GetFiles())
-                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-        }
-
-        public static void RestoreKey(string targetFile)
-        {
-            if(File.Exists(targetFile))
-            {
-                Process proc = new Process();
-                proc.StartInfo.FileName = "regedit.exe";
-                proc.StartInfo.UseShellExecute = false;
-                proc.StartInfo.CreateNoWindow = true;
-                proc = Process.Start("regedit.exe", "/s " + targetFile);
-                proc.WaitForExit();
-            }
-        }
-
-        public static void ExportKey(string RegKey, string SavePath, string targetFile)
-        {
-            if (!Directory.Exists(SavePath))
-                Directory.CreateDirectory(SavePath);
-
-            string path = "\"" + SavePath + "\\" + targetFile + "\"";
-            string key = "\"" + RegKey + "\"";
-
-            Process proc = new Process();
-            proc.StartInfo.FileName = "regedit.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-            proc = Process.Start("regedit.exe", "/e " + path + " " + key);
-            proc.WaitForExit();
-        }
-
-        public static string GetRegistryFile(string keypath)
-        {
-            string[] temp = keypath.Split('\\');
-            string registry = "";
-            foreach (string f in temp)
-                registry += f[0];
-            registry += ".reg";
-
-            return registry;
-        }
-
-        /// <summary>
-        /// This function is making sure there is no difference between the database file and the current game settings file.
-        /// TODO: Check registry.
-        /// </summary>
-        public static void SanityCheck()
-        {
-            foreach(DockerGame game in GameDB.Values)
-            {
-                foreach(GameSettings setting in game.Settings)
-                {
-                    FileInfo file = null, fileDB = null;
-                    string filename = setting.GetUri(game);
-
-                    if (setting.Type == "File") // file
-                    {
-                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
-
-                        string path_db = Path.Combine(path_storage, game.ProductName, IsPlugged ? "eGPU" : "iGPU", file.Name);
-                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
-                    }
-                    else // registry
-                    {
-                        string registry = GetRegistryFile(filename);
-                        ExportKey(filename, game.Uri, registry);
-
-                        filename = Path.Combine(game.Uri, registry);
-                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
-
-                        string path_db = Path.Combine(path_storage, game.ProductName, IsPlugged ? "eGPU" : "iGPU", file.Name);
-                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
-                    }
-
-                    string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
-                    string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
-                    if (/* file.LastWriteTime > game.LastCheck || */ fileBytes != fileDBBytes)
-                    {
-                        // string generation
-                        string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
-                        string ModifiedDB = "Last modified: " + game.LastCheck + " - " + (file.LastWriteTime > game.LastCheck ? "OLDER" : "NEWER");
-                        string ModifiedLOCAL = "Last modified: " + file.LastWriteTime + " - " + (file.LastWriteTime < game.LastCheck ? "OLDER" : "NEWER");
-
-                        DialogBox dialogBox = new DockerForm.DialogBox();
-                        dialogBox.UpdateDialogBox("Database Sync Conflict", WarningStr, ModifiedDB, ModifiedLOCAL);
-
-                        DialogResult dialogResult = dialogBox.ShowDialog();
-
-                        if (dialogResult == DialogResult.Yes) // Overwrite current settings
-                            UpdateFilesAndRegistries(game, !IsPlugged, false, true);
-                        else if (dialogResult == DialogResult.No) // Overwrite current database
-                            UpdateFilesAndRegistries(game, !IsPlugged, true, false);
-
-                        continue;
-                    }
-                }
-            }
-        }
-
-        public static void UpdateGameDatabase()
-        {
-            if (LastPlugged != IsPlugged)
-            {
-                _instance.Invoke(new Action(delegate () {
-                    _instance.menuStrip2.Items[0].Text = IsPlugged ? "Docked" : "Undocked";
-                    _instance.notifyIcon1.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                    _instance.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                }));
-
-                if(!IsFirstBoot)
-                    UpdateFilesAndRegistries(GameDB, IsPlugged);
-                else
-                    SanityCheck();
-
-                LastPlugged = IsPlugged;
-            }
-
-            if (IsFirstBoot)
-                IsFirstBoot = false;
         }
 
         public static void UpdateFilesAndRegistries(DockerGame game, bool eGPU, bool overwriteDB = true, bool restoreSETTING = true)
@@ -223,26 +72,26 @@ namespace DockerForm
                     // 1. Save current settings
                     FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
                     if(overwriteDB)
-                        CopyFile(file, path_game);
+                        FileManager.CopyFile(file, path_game);
 
                     // 2. Restore proper settings
                     string path_file = Path.Combine(path_dest, file.Name);
                     FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
                     if(restoreSETTING)
-                        CopyFile(storedfile, file.DirectoryName);
+                        FileManager.CopyFile(storedfile, file.DirectoryName);
                 }
                 else // registry
                 {
-                    string registry = GetRegistryFile(filename); ;
+                    string registry = RegistryManager.GetRegistryFile(filename); ;
 
                     // 1. Save current settings
                     if (overwriteDB)
-                        ExportKey(filename, path_game, registry);
+                        RegistryManager.ExportKey(filename, path_game, registry);
 
                     // 2. Restore proper settings
                     string path_file = Path.Combine(path_dest, registry);
                     if(restoreSETTING)
-                        RestoreKey(path_file);
+                        RegistryManager.RestoreKey(path_file);
                 }
             }
 
@@ -264,15 +113,15 @@ namespace DockerForm
             {
                 Process[] localAll = Process.GetProcesses();
 
-                foreach(DockerGame game in GameDB.Values)
+                foreach(DockerGame game in DatabaseManager.GameDB.Values)
                     foreach(Process proc in localAll)
                         if ((game.ProductName == proc.MainWindowTitle) || (game.Executable.Replace(".exe", "") == proc.ProcessName))
-                            if(!GameProcesses.Values.Contains(game))
-                                GameProcesses.AddOrUpdate(proc, game, (key, value) => game);
+                            if(!DatabaseManager.GameProcesses.Values.Contains(game))
+                                DatabaseManager.GameProcesses.AddOrUpdate(proc, game, (key, value) => game);
 
-                for(int i = 0; i < GameProcesses.Count; i++)
+                for(int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
                 {
-                    KeyValuePair<Process, DockerGame> pair = GameProcesses.ElementAt(i);
+                    KeyValuePair<Process, DockerGame> pair = DatabaseManager.GameProcesses.ElementAt(i);
 
                     Process proc = pair.Key;
                     DockerGame game = pair.Value;
@@ -280,7 +129,7 @@ namespace DockerForm
                     if (proc.HasExited)
                     {
                         UpdateFilesAndRegistries(game, !IsPlugged, true, false); // !IsPlugged to force save on eGPU folder, dirty
-                        GameProcesses.TryRemove(proc, out game);
+                        DatabaseManager.GameProcesses.TryRemove(proc, out game);
                     }
                 }
 
@@ -288,7 +137,7 @@ namespace DockerForm
             }
         }
 
-        public static void MainMonitor(object data)
+        public static void VideoControllerMonitor(object data)
         {
             while (IsRunning)
             {
@@ -304,22 +153,27 @@ namespace DockerForm
                         VideoControllers.Add((string)description);
                 }
 
-                IsPlugged = VideoControllers.Count != 1;
-
-                UpdateGameDatabase();
-
                 Thread.Sleep(1000);
             }
+        }
+
+        public static void UpdateFormIcons()
+        {
+            _instance.Invoke(new Action(delegate () {
+                _instance.menuStrip2.Items[0].Text = IsPlugged ? "Docked" : "Undocked";
+                _instance.notifyIcon1.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+                _instance.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+            }));
         }
 
         public void UpdateGameItem(DockerGame game)
         {
             exListBoxItem newgame = new exListBoxItem(game);
 
-            if (game.JustCreated && !GameDB.ContainsKey(game.GUID))
+            if (game.JustCreated && !DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 GameList.Items.Add(newgame);
-                GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+                DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
                 game.JustCreated = false;
             }
             else
@@ -330,7 +184,7 @@ namespace DockerForm
                     if (item.Guid == game.GUID)
                     {
                         GameList.Items[i] = newgame;
-                        GameDB[game.GUID] = game;
+                        DatabaseManager.GameDB[game.GUID] = game;
                         break;
                     }
                 }
@@ -356,15 +210,15 @@ namespace DockerForm
                     game.Image = GetGameIcon(game.Artwork);
                     game.JustCreated = false;
 
-                    if (!GameDB.ContainsKey(game.GUID))
-                        GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+                    if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
+                        DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
 
                     reader.Dispose();
                 }
             }
 
             // Update the DockerGame database
-            foreach (DockerGame game in GameDB.Values)
+            foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 exListBoxItem item = new exListBoxItem(game);
                 GameList.Items.Add(item);
@@ -450,9 +304,9 @@ namespace DockerForm
             }
 
             if (BootOnStartup) // dirty, we should check if entry already exists
-                AddApplicationToStartup();
+                RegistryManager.AddApplicationToStartup();
             else
-                RemoveApplicationFromStartup();
+                RegistryManager.RemoveApplicationFromStartup();
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)
@@ -461,26 +315,17 @@ namespace DockerForm
             UpdateGameList();
 
             // thread settings
-            Thread ThreadGPU = new Thread(MainMonitor);
+            Thread ThreadGPU = new Thread(VideoControllerMonitor);
             ThreadGPU.Start();
+
+            Thread ThreadDB = new Thread(DatabaseManager.UpdateGameDatabase);
+            ThreadDB.Start();
 
             if (MonitorProcesses)
             {
                 Thread ThreadEXE = new Thread(ProcessMonitor);
                 ThreadEXE.Start();
             }
-        }
-
-        public static void AddApplicationToStartup()
-        {
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-                key.SetValue(Application.ProductName, "\"" + Application.ExecutablePath + "\"");
-        }
-
-        public static void RemoveApplicationFromStartup()
-        {
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-                key.DeleteValue(Application.ProductName, false);
         }
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
@@ -515,7 +360,7 @@ namespace DockerForm
             if (GameList.SelectedItem != null)
             {
                 exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                DockerGame game = GameDB[item.Guid];
+                DockerGame game = DatabaseManager.GameDB[item.Guid];
 
                 string filename = Path.Combine(game.Uri, game.Executable);
                 Process.Start(filename);
@@ -533,7 +378,7 @@ namespace DockerForm
                     if(GameList.SelectedItem != null)
                     {
                         exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                        DockerGame game = GameDB[item.Guid];
+                        DockerGame game = DatabaseManager.GameDB[item.Guid];
 
                         navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
                     }                    
@@ -549,17 +394,10 @@ namespace DockerForm
             ShowInTaskbar = true;
         }
 
-        private void undockedToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // DEBUG
-            IsPlugged = !IsPlugged;
-            UpdateGameDatabase();
-        }
-
         private void OpenGameFolder(object sender, EventArgs e)
         {
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = GameDB[item.Guid];
+            DockerGame game = DatabaseManager.GameDB[item.Guid];
 
             string folderPath = game.Uri;
             if (Directory.Exists(folderPath))
@@ -577,7 +415,7 @@ namespace DockerForm
         private void OpenDataFolder(object sender, EventArgs e)
         {
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = GameDB[item.Guid];
+            DockerGame game = DatabaseManager.GameDB[item.Guid];
 
             string folderPath = Path.Combine(path_storage, game.ProductName);
             if (Directory.Exists(folderPath))
@@ -595,7 +433,7 @@ namespace DockerForm
         private void navigateToIGDBEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = GameDB[item.Guid];
+            DockerGame game = DatabaseManager.GameDB[item.Guid];
             Process.Start(game.IGDB_Url);
         }
 
@@ -604,13 +442,13 @@ namespace DockerForm
             if (GameList.SelectedItem != null)
             {
                 exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                DockerGame game = GameDB[item.Guid];
+                DockerGame game = DatabaseManager.GameDB[item.Guid];
 
                 string filename = Path.Combine(path_database, game.ProductName + ".xml");
                 if (File.Exists(filename))
                 {
                     File.Delete(filename);
-                    GameDB.TryRemove(item.Guid, out game);
+                    DatabaseManager.GameDB.TryRemove(item.Guid, out game);
                     GameList.Items.Remove(item);
                 }
             }
@@ -628,7 +466,7 @@ namespace DockerForm
             if (GameList.SelectedItem != null)
             {
                 exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                Settings p = new Settings(this, GameDB[item.Guid]);
+                Settings p = new Settings(this, DatabaseManager.GameDB[item.Guid]);
                 p.Show();
             }
         }

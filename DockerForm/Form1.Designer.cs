@@ -134,7 +134,6 @@ namespace DockerForm
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
             this.undockedToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
             this.undockedToolStripMenuItem.Text = "Undocked";
-            this.undockedToolStripMenuItem.Click += new System.EventHandler(this.undockedToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
