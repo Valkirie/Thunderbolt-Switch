@@ -462,12 +462,16 @@ namespace DockerForm
                 exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
                 DockerGame game = DatabaseManager.GameDB[item.Guid];
 
-                string filename = Path.Combine(path_database, game.ProductName + ".xml");
-                if (File.Exists(filename))
+                DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
                 {
-                    File.Delete(filename);
-                    DatabaseManager.GameDB.TryRemove(item.Guid, out game);
-                    GameList.Items.Remove(item);
+                    string filename = Path.Combine(path_database, game.ProductName + ".xml");
+                    if (File.Exists(filename))
+                    {
+                        File.Delete(filename);
+                        DatabaseManager.GameDB.TryRemove(item.Guid, out game);
+                        GameList.Items.Remove(item);
+                    }
                 }
             }
         }
