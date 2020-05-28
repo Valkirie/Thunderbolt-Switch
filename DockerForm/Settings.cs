@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using Microsoft.VisualBasic;
 
 namespace DockerForm
 {
@@ -305,7 +306,9 @@ namespace DockerForm
 
         private void registryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ListViewItem listViewItem1 = new ListViewItem(new string[] { "Your registry key path", "Registry" }, -1);
+            string UserAnswer = Interaction.InputBox("", thisGame.Name + " - Registry Key", @"HKEY_CURRENT_USER\SOFTWARE\");
+
+            ListViewItem listViewItem1 = new ListViewItem(new string[] { UserAnswer, "Registry" }, -1);
             listViewItem1.Checked = false;
             listViewItem1.Selected = true;
             listViewItem1.Tag = false;
