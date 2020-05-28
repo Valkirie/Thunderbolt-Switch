@@ -39,7 +39,7 @@ namespace DockerForm
                     {
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.ProductName, Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
                     else // registry
@@ -50,9 +50,12 @@ namespace DockerForm
                         filename = Path.Combine(game.Uri, registry);
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.ProductName, Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
+
+                    if (!File.Exists(file.FullName) || !File.Exists(fileDB.FullName))
+                        return;
 
                     string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
                     string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues

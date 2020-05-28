@@ -54,14 +54,8 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(DockerGame game, bool eGPU, bool overwriteDB = true, bool restoreSETTING = true)
         {
-            string path_game = Path.Combine(path_storage, game.ProductName, "iGPU");
-            string path_dest = Path.Combine(path_storage, game.ProductName, "eGPU");
-
-            if (!eGPU)
-            {
-                path_game = Path.Combine(path_storage, game.ProductName, "eGPU");
-                path_dest = Path.Combine(path_storage, game.ProductName, "iGPU");
-            }
+            string path_game = Path.Combine(path_storage, game.MakeValidFileName(), eGPU ? "iGPU" : "eGPU");
+            string path_dest = Path.Combine(path_storage, game.MakeValidFileName(), eGPU ? "eGPU" : "iGPU");
 
             foreach (GameSettings setting in game.Settings)
             {
@@ -232,7 +226,7 @@ namespace DockerForm
         public void SerializeGame(DockerGame game)
         {
             XmlSerializer xs = new XmlSerializer(typeof(DockerGame));
-            TextWriter txtWriter = new StreamWriter(path_database + "\\" + game.ProductName + ".xml");
+            TextWriter txtWriter = new StreamWriter(path_database + "\\" + game.MakeValidFileName() + ".xml");
             xs.Serialize(txtWriter, game);
             txtWriter.Close();
         }
@@ -429,7 +423,7 @@ namespace DockerForm
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
             DockerGame game = DatabaseManager.GameDB[item.Guid];
 
-            string folderPath = Path.Combine(path_storage, game.ProductName);
+            string folderPath = Path.Combine(path_storage, game.MakeValidFileName());
             if (Directory.Exists(folderPath))
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo
@@ -465,7 +459,7 @@ namespace DockerForm
                 DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    string filename = Path.Combine(path_database, game.ProductName + ".xml");
+                    string filename = Path.Combine(path_database, game.MakeValidFileName() + ".xml");
                     if (File.Exists(filename))
                     {
                         File.Delete(filename);

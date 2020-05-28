@@ -59,6 +59,14 @@ namespace DockerForm
         {
         }
 
+        public string MakeValidFileName()
+        {
+            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
+            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+            return System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
+        }
+
         public bool CanSerialize()
         {
             if (GUID != "" && ProductName != "" && Executable != "")

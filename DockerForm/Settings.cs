@@ -173,7 +173,7 @@ namespace DockerForm
                     {
                         Bitmap BackgroundImage = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48);
                         
-                        string filename = thisGame.ProductName + ".png";
+                        string filename = thisGame.MakeValidFileName() + ".png";
                         thisGame.Artwork = filename;
                         GameIcon.BackgroundImage = BackgroundImage;
                         thisForm.SaveGameIcon(BackgroundImage, filename);
@@ -433,7 +433,7 @@ namespace DockerForm
                 {
                     Bitmap BackgroundImage = GetImage("https://images.igdb.com/igdb/Image/upload/t_cover_big/" + ImageUri + ".jpg", ImageFormat.Jpeg);
 
-                    string filename = thisGame.ProductName + ".png";
+                    string filename = thisGame.MakeValidFileName() + ".png";
                     thisGame.Artwork = filename;
                     GameIcon.BackgroundImage = BackgroundImage;
                     thisForm.SaveGameIcon(BackgroundImage, filename);
