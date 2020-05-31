@@ -1,18 +1,12 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Management;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using System.Xml.Serialization;
-using Windows.Data.Xml.Dom;
-using Windows.UI.Notifications;
 using System.Linq;
 using System.Collections.Concurrent;
 
@@ -138,13 +132,29 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                Process[] localAll = Process.GetProcesses();
-
-                foreach(DockerGame game in DatabaseManager.GameDB.Values)
-                    foreach(Process proc in localAll)
-                        if ((game.ProductName == proc.MainWindowTitle) || (game.Executable.Replace(".exe", "") == proc.ProcessName))
-                            if(!DatabaseManager.GameProcesses.Values.Contains(game))
-                                DatabaseManager.GameProcesses.AddOrUpdate(proc, game, (key, value) => game);
+                var wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process";
+                using (var searcher = new ManagementObjectSearcher(wmiQueryString))
+                using (var results = searcher.Get())
+                {
+                    var query = from p in Process.GetProcesses()
+                                join mo in results.Cast<ManagementObject>()
+                                on p.Id equals (int)(uint)mo["ProcessId"]
+                                select new
+                                {
+                                    Process = p,
+                                    Path = (string)mo["ExecutablePath"],
+                                };
+                    foreach (var item in query)
+                    {
+                        foreach (DockerGame game in DatabaseManager.GameDB.Values)
+                        {
+                            string gamepath = Path.Combine(game.Uri, game.Executable).ToLower();
+                            string procpath = item.Path != null ? item.Path.ToLower() : "";
+                            if (gamepath == procpath)
+                                DatabaseManager.GameProcesses.AddOrUpdate(item.Process, game, (key, value) => game);
+                        }
+                    }
+                }
 
                 for(int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
                 {
