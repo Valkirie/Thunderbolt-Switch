@@ -475,10 +475,18 @@ namespace DockerForm
             Process.Start(game.IGDB_Url);
         }
 
-        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void exittoolStripStartItem_Click(object sender, EventArgs e)
         {
             ForceClose = true;
             Close();
+        }
+
+        private void toolStripStartItem_Click(object sender, EventArgs e)
+        {
+            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+            DockerGame game = DatabaseManager.GameDB[item.Guid];
+            string filename = Path.Combine(game.Uri, game.Executable);
+            Process.Start(filename);
         }
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)

@@ -44,19 +44,21 @@ namespace DockerForm
             this.debugTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.opentoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeTheGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.navigateToIGDBEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.GameList = new DockerForm.exListBox();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.GameList = new DockerForm.exListBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -150,15 +152,17 @@ namespace DockerForm
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStartItem,
+            this.toolStripSeparator4,
             this.openToolStripMenuItem,
-            this.openToolStripMenuItem1,
+            this.opentoolStripStartItem,
             this.toolStripSeparator1,
             this.removeTheGameToolStripMenuItem,
             this.propertiesToolStripMenuItem,
             this.toolStripSeparator2,
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 126);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 176);
             // 
             // openToolStripMenuItem
             // 
@@ -167,12 +171,12 @@ namespace DockerForm
             this.openToolStripMenuItem.Text = "Open Game location";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenGameFolder);
             // 
-            // openToolStripMenuItem1
+            // opentoolStripStartItem
             // 
-            this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
-            this.openToolStripMenuItem1.Size = new System.Drawing.Size(194, 22);
-            this.openToolStripMenuItem1.Text = "Open Data location";
-            this.openToolStripMenuItem1.Click += new System.EventHandler(this.OpenDataFolder);
+            this.opentoolStripStartItem.Name = "opentoolStripStartItem";
+            this.opentoolStripStartItem.Size = new System.Drawing.Size(194, 22);
+            this.opentoolStripStartItem.Text = "Open Data location";
+            this.opentoolStripStartItem.Click += new System.EventHandler(this.OpenDataFolder);
             // 
             // toolStripSeparator1
             // 
@@ -213,6 +217,34 @@ namespace DockerForm
             this.notifyIcon1.Text = "Thunderbolt Switch";
             this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.exittoolStripStartItem});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(104, 54);
+            // 
+            // showToolStripMenuItem
+            // 
+            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.showToolStripMenuItem.Text = "Show";
+            this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(100, 6);
+            // 
+            // exittoolStripStartItem
+            // 
+            this.exittoolStripStartItem.Name = "exittoolStripStartItem";
+            this.exittoolStripStartItem.Size = new System.Drawing.Size(103, 22);
+            this.exittoolStripStartItem.Text = "Exit";
+            this.exittoolStripStartItem.Click += new System.EventHandler(this.exittoolStripStartItem_Click);
+            // 
             // imageList1
             // 
             this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
@@ -235,33 +267,17 @@ namespace DockerForm
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
             // 
-            // contextMenuStrip2
+            // toolStripSeparator4
             // 
-            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showToolStripMenuItem,
-            this.toolStripSeparator3,
-            this.exitToolStripMenuItem1});
-            this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(181, 76);
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(191, 6);
             // 
-            // showToolStripMenuItem
+            // toolStripStartItem
             // 
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.showToolStripMenuItem.Text = "Show";
-            this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
-            // 
-            // exitToolStripMenuItem1
-            // 
-            this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
-            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.exitToolStripMenuItem1.Text = "Exit";
-            this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
+            this.toolStripStartItem.Name = "toolStripStartItem";
+            this.toolStripStartItem.Size = new System.Drawing.Size(194, 22);
+            this.toolStripStartItem.Text = "Start";
+            this.toolStripStartItem.Click += new System.EventHandler(this.toolStripStartItem_Click);
             // 
             // Form1
             // 
@@ -310,12 +326,14 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem opentoolStripStartItem;
         private System.Windows.Forms.ToolStripTextBox debugTextBox;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem exittoolStripStartItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripStartItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }
 
