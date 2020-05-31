@@ -199,11 +199,10 @@ namespace DockerForm
         {
             exListBoxItem newgame = new exListBoxItem(game);
 
-            if (game.JustCreated && !DatabaseManager.GameDB.ContainsKey(game.GUID))
+            if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 GameList.Items.Add(newgame);
                 DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
-                game.JustCreated = false;
             }
             else
             {
@@ -237,7 +236,6 @@ namespace DockerForm
                 {
                     DockerGame game = (DockerGame)xs.Deserialize(reader);
                     game.Image = GetGameIcon(game.Artwork);
-                    game.JustCreated = false;
 
                     if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
                         DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);

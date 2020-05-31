@@ -50,8 +50,6 @@ namespace DockerForm
 
         [XmlIgnore]
         public Image Image;
-        [XmlIgnore]
-        public bool JustCreated = true;
 
         public List<GameSettings> Settings = new List<GameSettings>();
 
