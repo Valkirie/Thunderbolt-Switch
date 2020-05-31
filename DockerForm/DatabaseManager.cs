@@ -39,7 +39,7 @@ namespace DockerForm
                     {
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.DockStatus ? "eGPU" : "iGPU", file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
                     else // registry
@@ -50,7 +50,7 @@ namespace DockerForm
                         filename = Path.Combine(game.Uri, registry);
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.IsPlugged ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.DockStatus ? "eGPU" : "iGPU", file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
 
@@ -72,32 +72,14 @@ namespace DockerForm
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
                         if (dialogResult == DialogResult.Yes) // Overwrite current settings
-                            Form1.UpdateFilesAndRegistries(game, !Form1.IsPlugged, false, true);
+                            Form1.UpdateFilesAndRegistries(game, !Form1.DockStatus, false, true);
                         else if (dialogResult == DialogResult.No) // Overwrite current database
-                            Form1.UpdateFilesAndRegistries(game, !Form1.IsPlugged, true, false);
+                            Form1.UpdateFilesAndRegistries(game, !Form1.DockStatus, true, false);
 
                         continue;
                     }
                 }
             }
-        }
-
-        public static void UpdateGameDatabase()
-        {
-            if (Form1.LastPlugged != Form1.IsPlugged)
-            {
-                Form1.UpdateFormIcons();
-
-                if (!Form1.IsFirstBoot)
-                    Form1.UpdateFilesAndRegistries(GameDB, Form1.IsPlugged);
-                else
-                    SanityCheck();
-
-                Form1.LastPlugged = Form1.IsPlugged;
-            }
-
-            if (Form1.IsFirstBoot)
-                Form1.IsFirstBoot = false;
         }
     }
 }

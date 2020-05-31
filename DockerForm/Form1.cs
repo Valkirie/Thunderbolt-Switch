@@ -22,8 +22,8 @@ namespace DockerForm
     {
         // Global vars
         public static bool IsRunning = true;
-        public static bool LastPlugged = false;
-        public static bool IsPlugged = false;
+        public static bool prevDockStatus = false;
+        public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
 
         // Configurable vars
@@ -56,10 +56,10 @@ namespace DockerForm
             }));
         }
 
-        public static void UpdateFilesAndRegistries(DockerGame game, bool eGPU, bool overwriteDB = true, bool restoreSETTING = true)
+        public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool overwriteDB = true, bool restoreSETTING = true)
         {
-            string path_game = Path.Combine(path_storage, game.MakeValidFileName(), eGPU ? "iGPU" : "eGPU");
-            string path_dest = Path.Combine(path_storage, game.MakeValidFileName(), eGPU ? "eGPU" : "iGPU");
+            string path_game = Path.Combine(path_storage, game.MakeValidFileName(), nextDockStatus ? "undocked" : "docked");
+            string path_dest = Path.Combine(path_storage, game.MakeValidFileName(), nextDockStatus ? "docked" : "undocked");
 
             foreach (GameSettings setting in game.Settings)
             {
@@ -111,8 +111,26 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                DatabaseManager.UpdateGameDatabase();
+                UpdateGameDatabase();
                 Thread.Sleep(1000);
+            }
+        }
+
+        public static void UpdateGameDatabase()
+        {
+            if (prevDockStatus != DockStatus)
+            {
+                UpdateFormIcons();
+
+                if (!IsFirstBoot)
+                    UpdateFilesAndRegistries(DatabaseManager.GameDB, DockStatus);
+                else
+                    DatabaseManager.SanityCheck();
+
+                prevDockStatus = DockStatus;
+
+                if (IsFirstBoot)
+                    IsFirstBoot = false;
             }
         }
 
@@ -137,7 +155,7 @@ namespace DockerForm
 
                     if (proc.HasExited)
                     {
-                        UpdateFilesAndRegistries(game, !IsPlugged, true, false); // !IsPlugged to force save on eGPU folder, dirty
+                        UpdateFilesAndRegistries(game, !DockStatus, true, false); // !DockStatus to force save on nextDockStatus folder, dirty
                         DatabaseManager.GameProcesses.TryRemove(proc, out game);
                     }
                 }
@@ -162,7 +180,7 @@ namespace DockerForm
                         VideoControllers.Add((string)description);
                 }
 
-                IsPlugged = Form1.VideoControllers.Count != 1;
+                DockStatus = VideoControllers.Count != 1;
 
                 Thread.Sleep(1000);
             }
@@ -171,9 +189,9 @@ namespace DockerForm
         public static void UpdateFormIcons()
         {
             _instance.Invoke(new Action(delegate () {
-                _instance.menuStrip2.Items[0].Text = IsPlugged ? "Docked" : "Undocked";
-                _instance.notifyIcon1.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                _instance.Icon = IsPlugged ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+                _instance.menuStrip2.Items[0].Text = DockStatus ? "Docked" : "Undocked";
+                _instance.notifyIcon1.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
+                _instance.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
             }));
         }
 
