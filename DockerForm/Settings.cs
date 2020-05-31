@@ -454,7 +454,7 @@ namespace DockerForm
 
         private void searchOnPCGamingWikiToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("https://www.pcgamingwiki.com/wiki/" + thisGame.Name.Replace(" ", "_") + "#Configuration_file.28s.29_location");
+            Process.Start("https://www.pcgamingwiki.com/wiki/" + thisGame.Name.Replace(" ", "_") + "#Game_data");
         }
     }
 }
