@@ -32,6 +32,7 @@ namespace DockerForm
         public static bool BootOnStartup = false;
         public static bool ForceClose = false;
         public static bool MonitorProcesses = false;
+        public static bool ToastNotifications = false;
         public static int IGDBListLength;
 
         // Devices vars
@@ -45,6 +46,9 @@ namespace DockerForm
 
         private static void NewToastNotification(string input)
         {
+            if (!ToastNotifications)
+                return;
+
             _instance.Invoke(new Action(delegate () {
                 _instance.notifyIcon1.BalloonTipText = input;
                 _instance.debugTextBox.Text = input;
@@ -103,6 +107,15 @@ namespace DockerForm
                 UpdateFilesAndRegistries(game, Plugged);
         }
 
+        public static void StatusMonitor(object data)
+        {
+            while (IsRunning)
+            {
+                DatabaseManager.UpdateGameDatabase();
+                Thread.Sleep(1000);
+            }
+        }
+
         public static void ProcessMonitor(object data)
         {
             while (IsRunning)
@@ -148,6 +161,8 @@ namespace DockerForm
                     if ((string)description != null && status == 0)
                         VideoControllers.Add((string)description);
                 }
+
+                IsPlugged = Form1.VideoControllers.Count != 1;
 
                 Thread.Sleep(1000);
             }
@@ -292,6 +307,7 @@ namespace DockerForm
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
             MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
             IGDBListLength = Properties.Settings.Default.IGDBListLength;
+            ToastNotifications = Properties.Settings.Default.ToastNotifications;
 
             if (MinimizeOnStartup)
             {
@@ -312,9 +328,9 @@ namespace DockerForm
 
             // thread settings
             Thread ThreadGPU = new Thread(VideoControllerMonitor);
-            ThreadGPU.Start();
+            Thread ThreadDB = new Thread(StatusMonitor);
 
-            Thread ThreadDB = new Thread(DatabaseManager.UpdateGameDatabase);
+            ThreadGPU.Start();
             ThreadDB.Start();
 
             if (MonitorProcesses)

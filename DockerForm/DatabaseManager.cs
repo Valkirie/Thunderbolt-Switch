@@ -82,10 +82,8 @@ namespace DockerForm
             }
         }
 
-        public static void UpdateGameDatabase(object data)
+        public static void UpdateGameDatabase()
         {
-            Form1.IsPlugged = Form1.VideoControllers.Count != 1;
-
             if (Form1.LastPlugged != Form1.IsPlugged)
             {
                 Form1.UpdateFormIcons();
