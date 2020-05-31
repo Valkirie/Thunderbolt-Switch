@@ -176,8 +176,8 @@ namespace DockerForm
                     string description = (string)mo.Properties["Description"].Value;
                     uint status = (uint)mo.Properties["ConfigManagerErrorCode"].Value;
 
-                    if ((string)description != null && status == 0)
-                        VideoControllers.Add((string)description);
+                    if (description != null && status == 0)
+                        VideoControllers.Add(description);
                 }
 
                 DockStatus = VideoControllers.Count != 1;
@@ -203,6 +203,10 @@ namespace DockerForm
             {
                 GameList.Items.Add(newgame);
                 DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+
+                // We save iGPU/nextDockStatus profiles on game creation
+                UpdateFilesAndRegistries(game, true, true, false);
+                UpdateFilesAndRegistries(game, false, true, false);
             }
             else
             {
@@ -217,10 +221,6 @@ namespace DockerForm
                     }
                 }
             }
-
-            // We save iGPU/eGPU profiles on game creation
-            UpdateFilesAndRegistries(game, true, true, false);
-            UpdateFilesAndRegistries(game, false, true, false);
 
             GameList.Sort();
         }
