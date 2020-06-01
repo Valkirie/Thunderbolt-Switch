@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace DockerForm
 {
@@ -15,17 +16,64 @@ namespace DockerForm
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
         public static ConcurrentDictionary<Process, DockerGame> GameProcesses = new ConcurrentDictionary<Process, DockerGame>();
-        static Form1 _instance;
 
-        public DatabaseManager(Form1 form)
+        public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool overwriteDB = true, bool restoreSETTING = true)
         {
-            _instance = form;
+            string path_game = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.iGPU : Form1.eGPU);
+            string path_dest = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.eGPU : Form1.iGPU);
+
+            if (!Directory.Exists(path_game))
+                Directory.CreateDirectory(path_game);
+
+            if (!Directory.Exists(path_dest))
+                Directory.CreateDirectory(path_dest);
+
+            foreach (GameSettings setting in game.Settings)
+            {
+                if (!setting.IsEnabled)
+                    continue;
+
+                string filename = setting.GetUri(game);
+                if (setting.Type == "File") // file
+                {
+                    // 1. Save current settings
+                    FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                    if (overwriteDB)
+                        FileManager.CopyFile(file, path_game);
+
+                    // 2. Restore proper settings
+                    string path_file = Path.Combine(path_dest, file.Name);
+                    FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
+                    if (restoreSETTING)
+                        FileManager.CopyFile(storedfile, file.DirectoryName);
+                }
+                else // registry
+                {
+                    string registry = RegistryManager.GetRegistryFile(filename); ;
+
+                    // 1. Save current settings
+                    if (overwriteDB)
+                        RegistryManager.ExportKey(filename, path_game, registry);
+
+                    // 2. Restore proper settings
+                    string path_file = Path.Combine(path_dest, registry);
+                    if (restoreSETTING)
+                        RegistryManager.RestoreKey(path_file);
+                }
+            }
+
+            game.LastCheck = DateTime.Now;
+            SerializeGame(game);
+            Form1.NewToastNotification(game.Name + " settings have been updated.");
         }
 
-        /// <summary>
-        /// This function is making sure there is no difference between the database file and the current game settings file.
-        /// TODO: Check registry.
-        /// </summary>
+        public static void UpdateFilesAndRegistries(bool Plugged)
+        {
+            // Scroll the provided database
+            foreach (DockerGame game in GameDB.Values)
+                UpdateFilesAndRegistries(game, Plugged);
+        }
+
         public static void SanityCheck()
         {
             foreach (DockerGame game in GameDB.Values)
@@ -39,7 +87,7 @@ namespace DockerForm
                     {
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.DockStatus ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
                     else // registry
@@ -50,7 +98,7 @@ namespace DockerForm
                         filename = Path.Combine(game.Uri, registry);
                         file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
 
-                        string path_db = Path.Combine(Form1.path_storage, game.MakeValidFileName(), Form1.DockStatus ? "eGPU" : "iGPU", file.Name);
+                        string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
 
@@ -72,14 +120,22 @@ namespace DockerForm
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
                         if (dialogResult == DialogResult.Yes) // Overwrite current settings
-                            Form1.UpdateFilesAndRegistries(game, !Form1.DockStatus, false, true);
+                            UpdateFilesAndRegistries(game, !Form1.DockStatus, false, true);
                         else if (dialogResult == DialogResult.No) // Overwrite current database
-                            Form1.UpdateFilesAndRegistries(game, !Form1.DockStatus, true, false);
+                            UpdateFilesAndRegistries(game, !Form1.DockStatus, true, false);
 
                         continue;
                     }
                 }
             }
+        }
+
+        public static void SerializeGame(DockerGame game)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(DockerGame));
+            TextWriter txtWriter = new StreamWriter(Form1.path_database + "\\" + game.FolderName + ".xml");
+            xs.Serialize(txtWriter, game);
+            txtWriter.Close();
         }
     }
 }
