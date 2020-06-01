@@ -155,7 +155,7 @@ namespace DockerForm
                 {
                     KeyValuePair<string, VideoController> pair = VideoControllers.ElementAt(i);
 
-                    String DeviceID = pair.Key;
+                    string DeviceID = pair.Key;
                     VideoController vc = pair.Value;
 
                     if (vc.lastCheck < currentCheck)
@@ -189,7 +189,7 @@ namespace DockerForm
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 GameList.Items.Add(listgame);
-                DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+                DatabaseManager.GameDB[game.GUID] = game;
 
                 // We save iGPU/nextDockStatus profiles on game creation
                 DatabaseManager.UpdateFilesAndRegistries(game, true, true, false);

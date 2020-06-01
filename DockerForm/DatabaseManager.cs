@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
 namespace DockerForm
@@ -64,8 +63,7 @@ namespace DockerForm
                 }
             }
 
-            game.LastCheck = DateTime.Now;
-            SerializeGame(game);
+            game.Serialize();
             Form1.NewToastNotification(game.Name + " settings have been updated.");
         }
 
@@ -157,15 +155,6 @@ namespace DockerForm
                     }
                 }
             }
-        }
-
-        public static void SerializeGame(DockerGame game)
-        {
-            string filename = Path.Combine(Form1.path_database, game.FolderName) + ".dat";
-            FileStream fs = new FileStream(filename, FileMode.Create);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(fs, game);
-            fs.Close();
         }
     }
 }

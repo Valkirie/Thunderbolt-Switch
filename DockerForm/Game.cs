@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockerForm
 {
@@ -13,11 +14,7 @@ namespace DockerForm
         public string Uri;
         public bool IsRelative;
 
-        public GameSettings()
-        {
-        }
-
-        public GameSettings(DockerGame _thisGame, string _type, string _uri, bool _enabled, bool _relative)
+        public GameSettings(string _type, string _uri, bool _enabled, bool _relative)
         {
             this.Type = _type;
             this.Uri = _uri;
@@ -57,6 +54,18 @@ namespace DockerForm
             if (GUID != "" && ProductName != "" && Executable != "")
                 return true;
             return false;
+        }
+
+        public void Serialize()
+        {
+            // Store the last time this game was updated
+            LastCheck = DateTime.Now;
+
+            string filename = Path.Combine(Form1.path_database, FolderName) + ".dat";
+            FileStream fs = new FileStream(filename, FileMode.Create);
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(fs, this);
+            fs.Close();
         }
 
         public void SetFolderName()
