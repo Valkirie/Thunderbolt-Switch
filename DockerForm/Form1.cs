@@ -19,6 +19,8 @@ namespace DockerForm
         public static bool prevDockStatus = false;
         public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
+        public static string iGPU = "iGPU";
+        public static string eGPU = "eGPU";
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -30,7 +32,7 @@ namespace DockerForm
         public static int IGDBListLength;
 
         // Devices vars
-        public static List<string> VideoControllers = new List<string>();
+        public static Dictionary<string, VideoController> VideoControllers = new Dictionary<string, VideoController>();
 
         // Folder vars
         public static string path_application, path_storage, path_artworks, path_database;
@@ -178,19 +180,46 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                VideoControllers.Clear();
+                DateTime currentCheck = DateTime.Now;
 
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
                 foreach (ManagementObject mo in searcher.Get())
                 {
-                    string description = (string)mo.Properties["Description"].Value;
-                    uint status = (uint)mo.Properties["ConfigManagerErrorCode"].Value;
+                    VideoController vc = new VideoController
+                    {
+                        DeviceID = (string)mo.Properties["DeviceID"].Value,
+                        Name = (string)mo.Properties["Name"].Value,
+                        Description = (string)mo.Properties["Description"].Value,
+                        ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
+                        lastCheck = currentCheck
+                    };
 
-                    if (description != null && status == 0)
-                        VideoControllers.Add(description);
+                    if (vc.IsDisable())
+                        continue;
+
+                    if (!VideoControllers.ContainsKey(vc.DeviceID))
+                        VideoControllers.Add(vc.DeviceID, vc);
+                    else
+                        VideoControllers[vc.DeviceID].lastCheck = currentCheck;
                 }
 
-                DockStatus = VideoControllers.Count != 1;
+                for (int i = 0; i < VideoControllers.Count; i++)
+                {
+                    KeyValuePair<string, VideoController> pair = VideoControllers.ElementAt(i);
+
+                    String DeviceID = pair.Key;
+                    VideoController vc = pair.Value;
+
+                    if (vc.lastCheck < currentCheck)
+                        VideoControllers.Remove(DeviceID);
+
+                    if (vc.IsIntegrated())
+                        iGPU = vc.Name;
+                    else
+                        eGPU = vc.Name;
+                }
+
+                DockStatus = (VideoControllers.Count != 1);
 
                 Thread.Sleep(1000);
             }

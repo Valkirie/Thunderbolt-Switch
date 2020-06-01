@@ -131,6 +131,7 @@
     <Compile Include="Shell\IMAGELISTDRAWPARAMS.cs" />
     <Compile Include="Shell\IMAGEINFO.cs" />
     <Compile Include="Shell\IImageList.cs" />
+    <Compile Include="VideoController.cs" />
     <EmbeddedResource Include="DialogBox.resx">
       <DependentUpon>DialogBox.cs</DependentUpon>
     </EmbeddedResource>
