@@ -18,6 +18,9 @@ namespace DockerForm
             string path_game = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.iGPU : Form1.eGPU);
             string path_dest = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.eGPU : Form1.iGPU);
 
+            if (!overwriteDB || !restoreSETTING) // dirty
+                path_dest = path_game;
+
             if (!Directory.Exists(path_game))
                 Directory.CreateDirectory(path_game);
 
