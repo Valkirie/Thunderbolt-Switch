@@ -269,7 +269,7 @@ namespace DockerForm
             this.GameList.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.GameList.ContextMenuStrip = this.contextMenuStrip1;
             this.GameList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GameList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.GameList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.GameList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
             this.GameList.FormattingEnabled = true;
             this.GameList.Location = new System.Drawing.Point(0, 24);
