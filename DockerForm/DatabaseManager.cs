@@ -131,9 +131,6 @@ namespace DockerForm
                     if (!File.Exists(file.FullName) || !File.Exists(fileDB.FullName))
                         return;
 
-                    string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
-                    string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
-                    if (/* file.LastWriteTime > game.LastCheck || */ fileBytes != fileDBBytes)
                     byte[] fileBytes = File.ReadAllBytes(file.FullName);
                     byte[] fileDBBytes = File.ReadAllBytes(fileDB.FullName);
                     if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
