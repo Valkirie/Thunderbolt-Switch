@@ -42,14 +42,13 @@ namespace DockerForm
         public string Name = "";            // Description
         public string ProductName = "";     // Product Name
         public string FolderName = "";      // Folder Name
-        public string Artwork = "";         // Artwork File Name
         public string Version = "";         // Product Version
         public string GUID = "";            // Product GUID (harcoded)
         public string IGDB_Url = "";        // IGDB GUID
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
         public DateTime LastCheck;          // Last time the game settings were saved
-        public Image Image = Properties.Resources.DefaultBackgroundImage;
+        public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
 
         public List<GameSettings> Settings = new List<GameSettings>();
 
