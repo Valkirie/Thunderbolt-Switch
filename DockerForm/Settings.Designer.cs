@@ -81,7 +81,7 @@ namespace DockerForm
             this.SettingsList.Margin = new System.Windows.Forms.Padding(2);
             this.SettingsList.Name = "SettingsList";
             this.SettingsList.Size = new System.Drawing.Size(388, 242);
-            this.SettingsList.TabIndex = 5;
+            this.SettingsList.TabIndex = 7;
             this.SettingsList.UseCompatibleStateImageBehavior = false;
             this.SettingsList.View = System.Windows.Forms.View.Details;
             this.SettingsList.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
@@ -176,7 +176,7 @@ namespace DockerForm
             this.field_Filename.Name = "field_Filename";
             this.field_Filename.ReadOnly = true;
             this.field_Filename.Size = new System.Drawing.Size(159, 20);
-            this.field_Filename.TabIndex = 12;
+            this.field_Filename.TabIndex = 5;
             this.field_Filename.TextChanged += new System.EventHandler(this.field_Filename_TextChanged);
             // 
             // labelFilename
@@ -193,7 +193,7 @@ namespace DockerForm
             this.buttonBrowseFile.Location = new System.Drawing.Point(245, 123);
             this.buttonBrowseFile.Name = "buttonBrowseFile";
             this.buttonBrowseFile.Size = new System.Drawing.Size(32, 20);
-            this.buttonBrowseFile.TabIndex = 9;
+            this.buttonBrowseFile.TabIndex = 6;
             this.buttonBrowseFile.Text = "...";
             this.buttonBrowseFile.UseVisualStyleBackColor = true;
             this.buttonBrowseFile.Click += new System.EventHandler(this.buttonBrowseFile_Click);
@@ -204,7 +204,7 @@ namespace DockerForm
             this.field_Version.Name = "field_Version";
             this.field_Version.ReadOnly = true;
             this.field_Version.Size = new System.Drawing.Size(197, 20);
-            this.field_Version.TabIndex = 8;
+            this.field_Version.TabIndex = 3;
             this.field_Version.TextChanged += new System.EventHandler(this.field_Version_TextChanged);
             // 
             // labelVersion
@@ -221,7 +221,7 @@ namespace DockerForm
             this.field_Developer.Location = new System.Drawing.Point(80, 45);
             this.field_Developer.Name = "field_Developer";
             this.field_Developer.Size = new System.Drawing.Size(197, 20);
-            this.field_Developer.TabIndex = 6;
+            this.field_Developer.TabIndex = 2;
             this.field_Developer.TextChanged += new System.EventHandler(this.field_Developer_TextChanged);
             // 
             // labelDeveloper
@@ -256,7 +256,7 @@ namespace DockerForm
             this.field_Name.Location = new System.Drawing.Point(80, 19);
             this.field_Name.Name = "field_Name";
             this.field_Name.Size = new System.Drawing.Size(197, 20);
-            this.field_Name.TabIndex = 2;
+            this.field_Name.TabIndex = 1;
             this.field_Name.TextChanged += new System.EventHandler(this.field_Name_TextChanged);
             // 
             // labelName
