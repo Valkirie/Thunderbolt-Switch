@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using System.Xml.Serialization;
 
 namespace DockerForm
 {
@@ -132,10 +128,11 @@ namespace DockerForm
 
         public static void SerializeGame(DockerGame game)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(DockerGame));
-            TextWriter txtWriter = new StreamWriter(Form1.path_database + "\\" + game.FolderName + ".xml");
-            xs.Serialize(txtWriter, game);
-            txtWriter.Close();
+            string filename = Path.Combine(Form1.path_database, game.FolderName) + ".dat";
+            FileStream fs = new FileStream(filename, FileMode.Create);
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(fs, game);
+            fs.Close();
         }
     }
 }

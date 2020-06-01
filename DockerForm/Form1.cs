@@ -6,9 +6,8 @@ using System.IO;
 using System.Management;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml.Serialization;
 using System.Linq;
-using System.Collections.Concurrent;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockerForm
 {
@@ -35,7 +34,7 @@ namespace DockerForm
         public static Dictionary<string, VideoController> VideoControllers = new Dictionary<string, VideoController>();
 
         // Folder vars
-        public static string path_application, path_storage, path_artworks, path_database;
+        public static string path_application, path_storage, path_database;
 
         // Form vars
         private static Form1 _instance;
@@ -216,14 +215,13 @@ namespace DockerForm
         public void UpdateGameList()
         {
             // Read all the game files (xml)
-            string[] fileEntries = Directory.GetFiles(path_database, "*.xml");
+            string[] fileEntries = Directory.GetFiles(path_database, "*.dat");
             foreach (string filename in fileEntries)
             {
-                XmlSerializer xs = new XmlSerializer(typeof(DockerGame));
                 using (Stream reader = new FileStream(filename, FileMode.Open))
                 {
-                    DockerGame game = (DockerGame)xs.Deserialize(reader);
-                    game.Image = GetGameIcon(game.Artwork);
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    DockerGame game = (DockerGame)formatter.Deserialize(reader);
 
                     if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
                         DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
@@ -242,33 +240,6 @@ namespace DockerForm
             GameList.Sort();
         }
 
-        public Image GetGameIcon(string Artwork)
-        {
-            string filename = Path.Combine(path_artworks, Artwork);
-            Image GameIcon = Properties.Resources.DefaultBackgroundImage;
-
-            if (File.Exists(filename))
-            {
-                using (FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-                {
-                    GameIcon = Image.FromStream(stream);
-                    stream.Dispose();
-                }
-            }
-
-            return GameIcon;
-        }
-
-        public void SaveGameIcon(Bitmap img, string filename)
-        {
-            string filepath = Path.Combine(path_artworks, filename);
-
-            if (File.Exists(filepath))
-                File.Delete(filepath);
-
-            img.Save(filepath);
-        }
-
         public int GetIGDBListLength()
         {
             return IGDBListLength;
@@ -284,14 +255,10 @@ namespace DockerForm
 
             // path settings
             path_storage = Path.Combine(path_application, "storage");
-            path_artworks = Path.Combine(path_application, "artworks");
             path_database = Path.Combine(path_application, "db");
 
             if (!Directory.Exists(path_storage))
                 Directory.CreateDirectory(path_storage);
-
-            if (!Directory.Exists(path_artworks))
-                Directory.CreateDirectory(path_artworks);
 
             if (!Directory.Exists(path_database))
                 Directory.CreateDirectory(path_database);
@@ -482,7 +449,7 @@ namespace DockerForm
                 DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    string filename = Path.Combine(path_database, game.FolderName + ".xml");
+                    string filename = Path.Combine(path_database, game.FolderName + ".dat");
                     if (File.Exists(filename))
                     {
                         File.Delete(filename);

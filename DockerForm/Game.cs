@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Xml.Serialization;
 
 namespace DockerForm
 {
+    [Serializable]
     public class GameSettings
     {
         public string Type;
@@ -35,6 +35,7 @@ namespace DockerForm
         }
     }
 
+    [Serializable]
     public class DockerGame
     {
         public string Executable = "";      // Executable Name
@@ -48,15 +49,9 @@ namespace DockerForm
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
         public DateTime LastCheck;          // Last time the game settings were saved
-
-        [XmlIgnore]
-        public Image Image;
+        public Image Image = Properties.Resources.DefaultBackgroundImage;
 
         public List<GameSettings> Settings = new List<GameSettings>();
-
-        public DockerGame()
-        {
-        }
 
         public bool CanSerialize()
         {
