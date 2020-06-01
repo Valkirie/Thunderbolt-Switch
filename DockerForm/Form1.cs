@@ -177,7 +177,7 @@ namespace DockerForm
         public static void UpdateFormIcons()
         {
             _instance.Invoke(new Action(delegate () {
-                _instance.menuStrip2.Items[0].Text = DockStatus ? "Docked" : "Undocked";
+                _instance.menuStrip2.Items[0].Text = DockStatus ? eGPU : iGPU;
                 _instance.notifyIcon1.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
                 _instance.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
             }));

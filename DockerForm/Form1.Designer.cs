@@ -43,6 +43,8 @@ namespace DockerForm
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.opentoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -57,8 +59,6 @@ namespace DockerForm
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GameList = new DockerForm.exListBox();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -139,8 +139,8 @@ namespace DockerForm
             // 
             this.undockedToolStripMenuItem.Image = global::DockerForm.Properties.Resources.image_plugged;
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
-            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
-            this.undockedToolStripMenuItem.Text = "Undocked";
+            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(87, 20);
+            this.undockedToolStripMenuItem.Text = "Reading...";
             // 
             // debugTextBox
             // 
@@ -162,7 +162,19 @@ namespace DockerForm
             this.toolStripSeparator2,
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 176);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 154);
+            // 
+            // toolStripStartItem
+            // 
+            this.toolStripStartItem.Name = "toolStripStartItem";
+            this.toolStripStartItem.Size = new System.Drawing.Size(194, 22);
+            this.toolStripStartItem.Text = "Start";
+            this.toolStripStartItem.Click += new System.EventHandler(this.toolStripStartItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(191, 6);
             // 
             // openToolStripMenuItem
             // 
@@ -266,18 +278,6 @@ namespace DockerForm
             this.GameList.Sorted = true;
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(191, 6);
-            // 
-            // toolStripStartItem
-            // 
-            this.toolStripStartItem.Name = "toolStripStartItem";
-            this.toolStripStartItem.Size = new System.Drawing.Size(194, 22);
-            this.toolStripStartItem.Text = "Start";
-            this.toolStripStartItem.Click += new System.EventHandler(this.toolStripStartItem_Click);
             // 
             // Form1
             // 
