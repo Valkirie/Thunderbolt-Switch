@@ -73,6 +73,33 @@ namespace DockerForm
                 UpdateFilesAndRegistries(game, Plugged);
         }
 
+        public static bool Equality(byte[] a1, byte[] b1)
+        {
+            // If not same length, done
+            if (a1.Length != b1.Length)
+            {
+                return false;
+            }
+
+            // If they are the same object, done
+            if (object.ReferenceEquals(a1, b1))
+            {
+                return true;
+            }
+
+            // Loop all values and compare
+            for (int i = 0; i < a1.Length; i++)
+            {
+                if (a1[i] != b1[i])
+                {
+                    return false;
+                }
+            }
+
+            // If we got here, equal
+            return true;
+        }
+
         public static void SanityCheck()
         {
             foreach (DockerGame game in GameDB.Values)
@@ -107,6 +134,9 @@ namespace DockerForm
                     string fileBytes = File.ReadAllText(file.FullName); // dirty but ReadBytes was causing issues
                     string fileDBBytes = File.ReadAllText(fileDB.FullName); // dirty but ReadBytes was causing issues
                     if (/* file.LastWriteTime > game.LastCheck || */ fileBytes != fileDBBytes)
+                    byte[] fileBytes = File.ReadAllBytes(file.FullName);
+                    byte[] fileDBBytes = File.ReadAllBytes(fileDB.FullName);
+                    if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
                         // string generation
                         string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
