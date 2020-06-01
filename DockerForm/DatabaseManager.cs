@@ -32,11 +32,11 @@ namespace DockerForm
                 if (!setting.IsEnabled)
                     continue;
 
-                string filename = setting.GetUri(game);
+                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
                 if (setting.Type == "File") // file
                 {
                     // 1. Save current settings
-                    FileInfo file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                    FileInfo file = new FileInfo(filename);
                     if (overwriteDB)
                         FileManager.CopyFile(file, path_game);
 
@@ -51,7 +51,7 @@ namespace DockerForm
                 }
                 else // registry
                 {
-                    string registry = RegistryManager.GetRegistryFile(filename); ;
+                    string registry = RegistryManager.GetRegistryFile(filename);
 
                     // 1. Save current settings
                     if (overwriteDB)
@@ -110,22 +110,22 @@ namespace DockerForm
                 foreach (GameSettings setting in game.Settings)
                 {
                     FileInfo file = null, fileDB = null;
-                    string filename = setting.GetUri(game);
+                    string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                    string filereg = RegistryManager.GetRegistryFile(filename);
 
                     if (setting.Type == "File") // file
                     {
-                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                        file = new FileInfo(filename);
 
                         string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
                     }
                     else // registry
                     {
-                        string registry = RegistryManager.GetRegistryFile(filename);
-                        RegistryManager.ExportKey(filename, game.Uri, registry);
+                        RegistryManager.ExportKey(filename, game.Uri, filereg);
 
-                        filename = Path.Combine(game.Uri, registry);
-                        file = new FileInfo(Environment.ExpandEnvironmentVariables(filename));
+                        filename = Environment.ExpandEnvironmentVariables(Path.Combine(game.Uri, filereg));
+                        file = new FileInfo(filename);
 
                         string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
                         fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
