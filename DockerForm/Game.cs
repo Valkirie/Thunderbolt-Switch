@@ -40,10 +40,11 @@ namespace DockerForm
         public string Executable = "";      // Executable Name
         public string Name = "";            // Description
         public string ProductName = "";     // Product Name
+        public string FolderName = "";      // Folder Name
         public string Artwork = "";         // Artwork File Name
         public string Version = "";         // Product Version
         public string GUID = "";            // Product GUID (harcoded)
-        public string IGDB_Url = "";       // IGDB GUID
+        public string IGDB_Url = "";        // IGDB GUID
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
         public DateTime LastCheck;          // Last time the game settings were saved
@@ -57,19 +58,20 @@ namespace DockerForm
         {
         }
 
-        public string MakeValidFileName()
-        {
-            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-
-            return System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
-        }
-
         public bool CanSerialize()
         {
             if (GUID != "" && ProductName != "" && Executable != "")
                 return true;
             return false;
+        }
+
+        public void SetFolderName()
+        {
+            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
+            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+            FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
+            FolderName = FolderName.Replace(" ", "");
         }
     }
 }

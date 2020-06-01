@@ -109,7 +109,8 @@ namespace DockerForm
             }
 
             thisGame.Image = thisForm.GetGameIcon(thisGame.Artwork);
-            thisForm.SerializeGame(thisGame);
+            thisGame.SetFolderName();
+            DatabaseManager.SerializeGame(thisGame);
             thisForm.UpdateGameItem(thisGame);
         }
 
@@ -158,6 +159,7 @@ namespace DockerForm
 
                     // HIDDEN
                     thisGame.ProductName = ProductName;
+                    thisGame.SetFolderName();
                     thisGame.Uri = (AppProperties.ContainsKey("ItemFolderPathDisplay") ? AppProperties["ItemFolderPathDisplay"] : file.DirectoryName).ToLower();
 
                     field_Name.Text = ProductName;
@@ -173,7 +175,7 @@ namespace DockerForm
                     {
                         Bitmap BackgroundImage = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48);
                         
-                        string filename = thisGame.MakeValidFileName() + ".png";
+                        string filename = thisGame.FolderName + ".png";
                         thisGame.Artwork = filename;
                         GameIcon.BackgroundImage = BackgroundImage;
                         thisForm.SaveGameIcon(BackgroundImage, filename);
@@ -433,7 +435,7 @@ namespace DockerForm
                 {
                     Bitmap BackgroundImage = GetImage("https://images.igdb.com/igdb/Image/upload/t_cover_big/" + ImageUri + ".jpg", ImageFormat.Jpeg);
 
-                    string filename = thisGame.MakeValidFileName() + ".png";
+                    string filename = thisGame.FolderName + ".png";
                     thisGame.Artwork = filename;
                     GameIcon.BackgroundImage = BackgroundImage;
                     thisForm.SaveGameIcon(BackgroundImage, filename);
