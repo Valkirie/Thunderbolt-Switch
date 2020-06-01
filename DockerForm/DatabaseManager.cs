@@ -44,7 +44,10 @@ namespace DockerForm
                     string path_file = Path.Combine(path_dest, file.Name);
                     FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
                     if (restoreSETTING)
+                    {
                         FileManager.CopyFile(storedfile, file.DirectoryName);
+                        File.SetLastWriteTime(filename, game.LastCheck);
+                    }
                 }
                 else // registry
                 {
