@@ -34,10 +34,11 @@ namespace DockerForm
         public static Dictionary<string, VideoController> VideoControllers = new Dictionary<string, VideoController>();
 
         // Folder vars
-        public static string path_application, path_storage, path_database;
+        public static string path_application, path_database;
 
         // Form vars
         private static Form1 _instance;
+        private static Thread ThreadGPU, ThreadDB;
 
         public static void NewToastNotification(string input)
         {
@@ -190,10 +191,6 @@ namespace DockerForm
             {
                 GameList.Items.Add(listgame);
                 DatabaseManager.GameDB[game.GUID] = game;
-
-                // We save iGPU/nextDockStatus profiles on game creation
-                DatabaseManager.UpdateFilesAndRegistries(game, true, true, false);
-                DatabaseManager.UpdateFilesAndRegistries(game, false, true, false);
             }
             else
             {
@@ -208,6 +205,9 @@ namespace DockerForm
                     }
                 }
             }
+
+            // Update current title
+            DatabaseManager.UpdateFilesAndRegistries(game, !DockStatus, true, false);
 
             GameList.Sort();
         }
@@ -254,11 +254,7 @@ namespace DockerForm
             path_application = AppDomain.CurrentDomain.BaseDirectory;
 
             // path settings
-            path_storage = Path.Combine(path_application, "storage");
             path_database = Path.Combine(path_application, "db");
-
-            if (!Directory.Exists(path_storage))
-                Directory.CreateDirectory(path_storage);
 
             if (!Directory.Exists(path_database))
                 Directory.CreateDirectory(path_database);
@@ -290,8 +286,8 @@ namespace DockerForm
             UpdateGameList();
 
             // thread settings
-            Thread ThreadGPU = new Thread(VideoControllerMonitor);
-            Thread ThreadDB = new Thread(StatusMonitor);
+            ThreadGPU = new Thread(VideoControllerMonitor);
+            ThreadDB = new Thread(StatusMonitor);
 
             ThreadGPU.Start();
             ThreadDB.Start();
@@ -407,25 +403,6 @@ namespace DockerForm
 
                 Process.Start(startInfo);
             };
-        }
-
-        private void OpenDataFolder(object sender, EventArgs e)
-        {
-            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = DatabaseManager.GameDB[item.Guid];
-
-            string folderPath = Path.Combine(path_storage, game.FolderName);
-
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                Arguments = folderPath,
-                FileName = "explorer.exe"
-            };
-
-            Process.Start(startInfo);
         }
 
         private void navigateToIGDBEntryToolStripMenuItem_Click(object sender, EventArgs e)

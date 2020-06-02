@@ -14,23 +14,16 @@ namespace DockerForm
     {
         public static void RestoreKey(string targetFile)
         {
-            if (File.Exists(targetFile))
-            {
-                Process proc = new Process();
-                proc.StartInfo.FileName = "regedit.exe";
-                proc.StartInfo.UseShellExecute = false;
-                proc.StartInfo.CreateNoWindow = true;
-                proc = Process.Start("regedit.exe", "/s " + targetFile);
-                proc.WaitForExit();
-            }
+            Process proc = new Process();
+            proc.StartInfo.FileName = "regedit.exe";
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+            proc = Process.Start("regedit.exe", "/s " + targetFile);
+            proc.WaitForExit();
         }
 
-        public static void ExportKey(string RegKey, string SavePath, string targetFile)
+        public static void ExportKey(string RegKey, string path)
         {
-            if (!Directory.Exists(SavePath))
-                Directory.CreateDirectory(SavePath);
-
-            string path = "\"" + SavePath + "\\" + targetFile + "\"";
             string key = "\"" + RegKey + "\"";
 
             Process proc = new Process();
@@ -39,17 +32,6 @@ namespace DockerForm
             proc.StartInfo.CreateNoWindow = true;
             proc = Process.Start("regedit.exe", "/e " + path + " " + key);
             proc.WaitForExit();
-        }
-
-        public static string GetRegistryFile(string keypath)
-        {
-            string[] temp = keypath.Split('\\');
-            string registry = "";
-            foreach (string f in temp)
-                registry += f[0];
-            registry += ".reg";
-
-            return registry;
         }
 
         public static void AddApplicationToStartup()

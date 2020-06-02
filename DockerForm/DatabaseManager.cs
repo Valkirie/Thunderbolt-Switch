@@ -14,19 +14,13 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool overwriteDB = true, bool restoreSETTING = true)
         {
-            string path_game = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.iGPU : Form1.eGPU);
-            string path_dest = Path.Combine(Form1.path_storage, game.FolderName, nextDockStatus ? Form1.eGPU : Form1.iGPU);
+            string path_game = nextDockStatus ? Form1.iGPU : Form1.eGPU;
+            string path_dest = nextDockStatus ? Form1.eGPU : Form1.iGPU;
 
             if (!overwriteDB || !restoreSETTING) // dirty
                 path_dest = path_game;
 
-            if (!Directory.Exists(path_game))
-                Directory.CreateDirectory(path_game);
-
-            if (!Directory.Exists(path_dest))
-                Directory.CreateDirectory(path_dest);
-
-            foreach (GameSettings setting in game.Settings)
+            foreach (GameSettings setting in game.Settings.Values)
             {
                 if (!setting.IsEnabled)
                     continue;
@@ -35,31 +29,37 @@ namespace DockerForm
                 if (setting.Type == "File") // file
                 {
                     // 1. Save current settings
-                    FileInfo file = new FileInfo(filename);
                     if (overwriteDB)
-                        FileManager.CopyFile(file, path_game);
+                        setting.data[path_game] = File.ReadAllBytes(filename);
 
                     // 2. Restore proper settings
-                    string path_file = Path.Combine(path_dest, file.Name);
-                    FileInfo storedfile = new FileInfo(Environment.ExpandEnvironmentVariables(path_file));
-                    if (restoreSETTING)
+                    if (restoreSETTING && setting.data.ContainsKey(path_dest))
                     {
-                        FileManager.CopyFile(storedfile, file.DirectoryName);
+                        File.WriteAllBytes(filename, setting.data[path_dest]);
                         File.SetLastWriteTime(filename, game.LastCheck);
                     }
                 }
                 else // registry
                 {
-                    string registry = RegistryManager.GetRegistryFile(filename);
+                    // We generate a temporary reg file
+                    string tempfile = Path.Combine(Form1.path_application, "temp.reg");
 
                     // 1. Save current settings
                     if (overwriteDB)
-                        RegistryManager.ExportKey(filename, path_game, registry);
+                    {
+                        RegistryManager.ExportKey(filename, tempfile);
+                        setting.data[path_game] = File.ReadAllBytes(tempfile);
+                    }
 
                     // 2. Restore proper settings
-                    string path_file = Path.Combine(path_dest, registry);
-                    if (restoreSETTING)
-                        RegistryManager.RestoreKey(path_file);
+                    if (restoreSETTING && setting.data.ContainsKey(path_dest))
+                    {
+                        File.WriteAllBytes(tempfile, setting.data[path_dest]);
+                        RegistryManager.RestoreKey(tempfile);
+                    }
+
+                    // Delete the temporary reg file
+                    File.Delete(tempfile);
                 }
             }
 
@@ -105,35 +105,35 @@ namespace DockerForm
         {
             foreach (DockerGame game in GameDB.Values)
             {
-                foreach (GameSettings setting in game.Settings)
+                foreach (GameSettings setting in game.Settings.Values)
                 {
-                    FileInfo file = null, fileDB = null;
+                    FileInfo file = null;
+                    byte[] fileBytes = null, fileDBBytes = null;
+
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                    string filereg = RegistryManager.GetRegistryFile(filename);
+                    string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
 
                     if (setting.Type == "File") // file
                     {
                         file = new FileInfo(filename);
 
-                        string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
-                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
+                        fileBytes = File.ReadAllBytes(file.FullName);
+                        fileDBBytes = setting.data[path_db];
                     }
                     else // registry
                     {
-                        RegistryManager.ExportKey(filename, game.Uri, filereg);
+                        // We generate a temporary reg file
+                        string tempfile = Path.Combine(Form1.path_application, "temp.reg");
 
-                        filename = Environment.ExpandEnvironmentVariables(Path.Combine(game.Uri, filereg));
-                        file = new FileInfo(filename);
+                        RegistryManager.ExportKey(filename, tempfile);
+                        file = new FileInfo(tempfile);
 
-                        string path_db = Path.Combine(Form1.path_storage, game.FolderName, Form1.DockStatus ? Form1.eGPU : Form1.iGPU, file.Name);
-                        fileDB = new FileInfo(Environment.ExpandEnvironmentVariables(path_db));
+                        fileBytes = File.ReadAllBytes(tempfile);
+                        fileDBBytes = setting.data[path_db];
+
+                        File.Delete(tempfile);
                     }
 
-                    if (!File.Exists(file.FullName) || !File.Exists(fileDB.FullName))
-                        return;
-
-                    byte[] fileBytes = File.ReadAllBytes(file.FullName);
-                    byte[] fileDBBytes = File.ReadAllBytes(fileDB.FullName);
                     if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
                         // string generation

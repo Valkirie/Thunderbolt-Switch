@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using Microsoft.VisualBasic;
+using System.Windows.Input;
 
 namespace DockerForm
 {
@@ -69,9 +70,9 @@ namespace DockerForm
 
             GameIcon.BackgroundImage = game.Image;
 
-            foreach (GameSettings setting in game.Settings)
+            foreach (GameSettings setting in game.Settings.Values)
             {
-                ListViewItem newSetting = new ListViewItem(new string[] {setting.Uri, setting.Type}, -1);
+                ListViewItem newSetting = new ListViewItem(new string[] {setting.Uri, setting.Type}, setting.GUID);
                 newSetting.Checked = setting.IsEnabled;
                 newSetting.Tag = setting.IsRelative;
                 SettingsList.Items.Add(newSetting);
@@ -80,7 +81,7 @@ namespace DockerForm
             IsReady = true;
         }
 
-        private void SettingsList_MouseDown(object sender, MouseEventArgs e)
+        private void SettingsList_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             switch (e.Button)
             {
@@ -94,14 +95,25 @@ namespace DockerForm
                 return;
 
             // Clear and update current settings
-            thisGame.Settings.Clear();
+            List<int> GUIDs = new List<int>();
             foreach(ListViewItem item in SettingsList.Items)
             {
                 string uri = item.SubItems[0].Text;
                 string type = item.SubItems[1].Text;
+                int guid = Math.Abs((uri).GetHashCode());
 
-                GameSettings newSetting = new GameSettings(type, uri, item.Checked, (bool)item.Tag);
-                thisGame.Settings.Add(newSetting);
+                GameSettings newSetting = new GameSettings(guid, type, uri, item.Checked, (bool)item.Tag);
+                if(!thisGame.Settings.ContainsKey(guid))
+                    thisGame.Settings.Add(guid, newSetting);
+
+                GUIDs.Add(guid);
+            }
+
+            int[] keys = thisGame.Settings.Keys.ToArray();
+            foreach(int key in keys)
+            {
+                if (!GUIDs.Contains(key))
+                    thisGame.Settings.Remove(key);
             }
 
             thisGame.SetFolderName();
@@ -301,6 +313,9 @@ namespace DockerForm
         private void registryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string UserAnswer = Interaction.InputBox("", thisGame.Name + " - Registry Key", @"HKEY_CURRENT_USER\SOFTWARE\");
+
+            if (UserAnswer == "")
+                return;
 
             ListViewItem listViewItem1 = new ListViewItem(new string[] { UserAnswer, "Registry" }, -1);
             listViewItem1.Checked = false;

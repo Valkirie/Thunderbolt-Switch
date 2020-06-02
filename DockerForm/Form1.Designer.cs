@@ -188,7 +188,6 @@ namespace DockerForm
             this.opentoolStripStartItem.Name = "opentoolStripStartItem";
             this.opentoolStripStartItem.Size = new System.Drawing.Size(194, 22);
             this.opentoolStripStartItem.Text = "Open Data location";
-            this.opentoolStripStartItem.Click += new System.EventHandler(this.OpenDataFolder);
             // 
             // toolStripSeparator1
             // 

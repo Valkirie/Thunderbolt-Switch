@@ -9,13 +9,16 @@ namespace DockerForm
     [Serializable]
     public class GameSettings
     {
+        public int GUID;
         public string Type;
         public bool IsEnabled;
         public string Uri;
         public bool IsRelative;
+        public Dictionary<string, byte[]> data = new Dictionary<string, byte[]>();
 
-        public GameSettings(string _type, string _uri, bool _enabled, bool _relative)
+        public GameSettings(int _guid, string _type, string _uri, bool _enabled, bool _relative)
         {
+            this.GUID = _guid;
             this.Type = _type;
             this.Uri = _uri;
             this.IsEnabled = _enabled;
@@ -47,7 +50,7 @@ namespace DockerForm
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
 
-        public List<GameSettings> Settings = new List<GameSettings>();
+        public Dictionary<int, GameSettings> Settings = new Dictionary<int, GameSettings>();
 
         public bool CanSerialize()
         {
