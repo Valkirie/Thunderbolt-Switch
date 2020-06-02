@@ -347,20 +347,29 @@ namespace DockerForm
 
         private void GameList_MouseDown(object sender, MouseEventArgs e)
         {
-            Point pt = new Point(e.X, e.Y);
-            int index = GameList.IndexFromPoint(pt);
-            switch (e.Button)
+            if (GameList.Items.Count == 0)
             {
-                case MouseButtons.Right:
-                    GameList.SelectedIndex = index;
-                    if(GameList.SelectedItem != null)
-                    {
-                        exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                        DockerGame game = DatabaseManager.GameDB[item.Guid];
+                contextMenuStrip1.Enabled = false;
+            }
+            else
+            {
+                contextMenuStrip1.Enabled = true;
 
-                        navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
-                    }                    
-                    break;
+                Point pt = new Point(e.X, e.Y);
+                int index = GameList.IndexFromPoint(pt);
+                switch (e.Button)
+                {
+                    case MouseButtons.Right:
+                        GameList.SelectedIndex = index;
+                        if (GameList.SelectedItem != null)
+                        {
+                            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
+                            DockerGame game = DatabaseManager.GameDB[item.Guid];
+
+                            navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
+                        }
+                        break;
+                }
             }
         }
 
