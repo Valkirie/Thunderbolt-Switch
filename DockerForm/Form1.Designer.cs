@@ -46,7 +46,6 @@ namespace DockerForm
             this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.opentoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeTheGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -155,7 +154,6 @@ namespace DockerForm
             this.toolStripStartItem,
             this.toolStripSeparator4,
             this.openToolStripMenuItem,
-            this.opentoolStripStartItem,
             this.toolStripSeparator1,
             this.removeTheGameToolStripMenuItem,
             this.propertiesToolStripMenuItem,
@@ -182,12 +180,6 @@ namespace DockerForm
             this.openToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.openToolStripMenuItem.Text = "Open Game location";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenGameFolder);
-            // 
-            // opentoolStripStartItem
-            // 
-            this.opentoolStripStartItem.Name = "opentoolStripStartItem";
-            this.opentoolStripStartItem.Size = new System.Drawing.Size(194, 22);
-            this.opentoolStripStartItem.Text = "Open Data location";
             // 
             // toolStripSeparator1
             // 
@@ -325,7 +317,6 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem opentoolStripStartItem;
         private System.Windows.Forms.ToolStripTextBox debugTextBox;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
