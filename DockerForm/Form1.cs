@@ -311,7 +311,10 @@ namespace DockerForm
                 WindowState = FormWindowState.Minimized;
             }
             else
+            {
+                notifyIcon1.Dispose();
                 IsRunning = false;
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
