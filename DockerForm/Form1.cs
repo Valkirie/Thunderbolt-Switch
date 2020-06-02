@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Globalization;
 
 namespace DockerForm
 {
@@ -248,6 +249,12 @@ namespace DockerForm
         public Form1()
         {
             InitializeComponent();
+
+            // Change current culture
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
             _instance = this;
 
             // folder settings
@@ -326,18 +333,6 @@ namespace DockerForm
                 Hide();
                 notifyIcon1.Visible = true;
                 NewToastNotification(Text + " is running in the background.");
-            }
-        }
-
-        private void GameList_DoubleClick(object sender, System.EventArgs e)
-        {
-            if (GameList.SelectedItem != null)
-            {
-                exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                DockerGame game = DatabaseManager.GameDB[item.Guid];
-
-                string filename = Path.Combine(game.Uri, game.Executable);
-                Process.Start(filename);
             }
         }
 
@@ -424,8 +419,7 @@ namespace DockerForm
             DockerGame game = DatabaseManager.GameDB[item.Guid];
             string filename = Path.Combine(game.Uri, game.Executable);
 
-            if (File.Exists(filename)) // still fails to open %appdata% based app...
-                Process.Start(filename);
+            Process.Start(filename);
         }
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)

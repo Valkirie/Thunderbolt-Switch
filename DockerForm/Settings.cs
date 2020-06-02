@@ -156,18 +156,18 @@ namespace DockerForm
                     string filePath = openFileDialog.FileName;
                     Dictionary<string, string> AppProperties = GetAppProperties(filePath);
 
-                    FileInfo file = new FileInfo(filePath);
-                    FileVersionInfo myFileVersionInfo = FileVersionInfo.GetVersionInfo(filePath);
-
                     string FileName = AppProperties["FileName"];
                     string ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
                     string FileVersion = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
                     string FileCompany = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
 
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    string FileFolder = fileInfo.DirectoryName;
+
                     // HIDDEN
                     thisGame.ProductName = ProductName;
                     thisGame.SetFolderName();
-                    thisGame.Uri = (AppProperties.ContainsKey("ItemFolderPathDisplay") ? AppProperties["ItemFolderPathDisplay"] : file.DirectoryName).ToLower();
+                    thisGame.Uri = FileFolder.ToLower();
 
                     field_Name.Text = ProductName;
                     field_Version.Text = FileVersion;
@@ -302,7 +302,7 @@ namespace DockerForm
                         bool IsRelative = false;
                         string filename = ContractEnvironmentVariables(file, ref IsRelative);
                         ListViewItem listViewItem1 = new ListViewItem(new string[] { filename, "File" }, -1);
-                        listViewItem1.Checked = false;
+                        listViewItem1.Checked = true;
                         listViewItem1.Tag = IsRelative;
                         SettingsList.Items.Add(listViewItem1);
                     }
@@ -318,8 +318,7 @@ namespace DockerForm
                 return;
 
             ListViewItem listViewItem1 = new ListViewItem(new string[] { UserAnswer, "Registry" }, -1);
-            listViewItem1.Checked = false;
-            listViewItem1.Selected = true;
+            listViewItem1.Checked = true;
             listViewItem1.Tag = false;
             SettingsList.Items.Add(listViewItem1);
         }
