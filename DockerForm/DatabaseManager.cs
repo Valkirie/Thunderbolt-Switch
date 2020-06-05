@@ -12,12 +12,12 @@ namespace DockerForm
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
         public static ConcurrentDictionary<Process, DockerGame> GameProcesses = new ConcurrentDictionary<Process, DockerGame>();
 
-        public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool overwriteDB = true, bool restoreSETTING = true)
+        public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool updateDB = true, bool updateFILE = true, bool ignoreToast = false)
         {
             string path_game = nextDockStatus ? Form1.iGPU : Form1.eGPU;
             string path_dest = nextDockStatus ? Form1.eGPU : Form1.iGPU;
 
-            if (!overwriteDB || !restoreSETTING) // dirty
+            if (!updateDB || !updateFILE) // dirty
                 path_dest = path_game;
 
             foreach (GameSettings setting in game.Settings.Values)
@@ -29,11 +29,11 @@ namespace DockerForm
                 if (setting.Type == "File") // file
                 {
                     // 1. Save current settings
-                    if (overwriteDB)
+                    if (updateDB)
                         setting.data[path_game] = File.ReadAllBytes(filename);
 
                     // 2. Restore proper settings
-                    if (restoreSETTING && setting.data.ContainsKey(path_dest))
+                    if (updateFILE && setting.data.ContainsKey(path_dest))
                     {
                         File.WriteAllBytes(filename, setting.data[path_dest]);
                         File.SetLastWriteTime(filename, game.LastCheck);
@@ -45,14 +45,14 @@ namespace DockerForm
                     string tempfile = Path.Combine(Form1.path_application, "temp.reg");
 
                     // 1. Save current settings
-                    if (overwriteDB)
+                    if (updateDB)
                     {
                         RegistryManager.ExportKey(filename, tempfile);
                         setting.data[path_game] = File.ReadAllBytes(tempfile);
                     }
 
                     // 2. Restore proper settings
-                    if (restoreSETTING && setting.data.ContainsKey(path_dest))
+                    if (updateFILE && setting.data.ContainsKey(path_dest))
                     {
                         File.WriteAllBytes(tempfile, setting.data[path_dest]);
                         RegistryManager.RestoreKey(tempfile);
@@ -64,14 +64,16 @@ namespace DockerForm
             }
 
             game.Serialize();
-            Form1.NewToastNotification(game.Name + " settings have been updated.");
+
+            if(!ignoreToast)
+                Form1.NewToastNotification(game.Name + " settings have been updated.");
         }
 
         public static void UpdateFilesAndRegistries(bool Plugged)
         {
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
-                UpdateFilesAndRegistries(game, Plugged);
+                UpdateFilesAndRegistries(game, Plugged, true, true, true);
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
