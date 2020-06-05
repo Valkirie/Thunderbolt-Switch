@@ -33,6 +33,11 @@ namespace DockerForm
 
             return filename;
         }
+
+        public bool IsFile()
+        {
+            return Type == "File";
+        }
     }
 
     [Serializable]
@@ -78,6 +83,14 @@ namespace DockerForm
 
             FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
             FolderName = FolderName.Replace(" ", "");
+        }
+
+        public bool HasFileSettings()
+        {
+            foreach (GameSettings setting in Settings.Values)
+                if (setting.IsFile())
+                    return true;
+            return false;
         }
     }
 }

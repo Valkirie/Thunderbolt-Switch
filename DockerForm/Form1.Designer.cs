@@ -58,6 +58,7 @@ namespace DockerForm
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GameList = new DockerForm.exListBox();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -154,61 +155,62 @@ namespace DockerForm
             this.toolStripStartItem,
             this.toolStripSeparator4,
             this.openToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.toolStripSeparator1,
             this.removeTheGameToolStripMenuItem,
             this.propertiesToolStripMenuItem,
             this.toolStripSeparator2,
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 154);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(198, 176);
             // 
             // toolStripStartItem
             // 
             this.toolStripStartItem.Name = "toolStripStartItem";
-            this.toolStripStartItem.Size = new System.Drawing.Size(194, 22);
+            this.toolStripStartItem.Size = new System.Drawing.Size(197, 22);
             this.toolStripStartItem.Text = "Start";
             this.toolStripStartItem.Click += new System.EventHandler(this.toolStripStartItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(191, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(194, 6);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.openToolStripMenuItem.Text = "Open Game location";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenGameFolder);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(191, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(194, 6);
             // 
             // removeTheGameToolStripMenuItem
             // 
             this.removeTheGameToolStripMenuItem.Name = "removeTheGameToolStripMenuItem";
-            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.removeTheGameToolStripMenuItem.Text = "Remove Title";
             this.removeTheGameToolStripMenuItem.Click += new System.EventHandler(this.removeTheGameToolStripMenuItem_Click);
             // 
             // propertiesToolStripMenuItem
             // 
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.propertiesToolStripMenuItem.Text = "Properties";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(191, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(194, 6);
             // 
             // navigateToIGDBEntryToolStripMenuItem
             // 
             this.navigateToIGDBEntryToolStripMenuItem.Name = "navigateToIGDBEntryToolStripMenuItem";
-            this.navigateToIGDBEntryToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.navigateToIGDBEntryToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.navigateToIGDBEntryToolStripMenuItem.Text = "Navigate to IGDB entry";
             this.navigateToIGDBEntryToolStripMenuItem.Click += new System.EventHandler(this.navigateToIGDBEntryToolStripMenuItem_Click);
             // 
@@ -270,6 +272,12 @@ namespace DockerForm
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
             // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(197, 22);
+            this.toolStripMenuItem1.Text = "Open Settings Location";
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(1008, 561);
@@ -324,6 +332,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem exittoolStripStartItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripStartItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }
 

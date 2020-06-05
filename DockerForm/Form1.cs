@@ -358,10 +358,40 @@ namespace DockerForm
                             DockerGame game = DatabaseManager.GameDB[item.Guid];
 
                             navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
+
+                            toolStripMenuItem1.Enabled = game.HasFileSettings();
+                            toolStripMenuItem1.DropDownItems.Clear();
+                            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
+                            {
+                                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                                FileInfo fileinfo = new FileInfo(filename);
+
+                                ToolStripMenuItem newItem = new ToolStripMenuItem();
+                                newItem.Text = fileinfo.Name;
+                                newItem.ToolTipText = fileinfo.DirectoryName;
+                                newItem.Click += new EventHandler(MenuItemClickHandler);
+                                toolStripMenuItem1.DropDownItems.Add(newItem);
+                            }
                         }
                         break;
                 }
             }
+        }
+
+        private void MenuItemClickHandler(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            string folderPath = item.ToolTipText;
+            if (Directory.Exists(folderPath))
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    Arguments = folderPath,
+                    FileName = "explorer.exe"
+                };
+
+                Process.Start(startInfo);
+            };
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
