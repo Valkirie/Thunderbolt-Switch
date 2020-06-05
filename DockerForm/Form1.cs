@@ -102,23 +102,27 @@ namespace DockerForm
                         {
                             string gamepath = Path.Combine(game.Uri, game.Executable).ToLower();
                             string procpath = item.Path != null ? item.Path.ToLower() : "";
-                            if (gamepath == procpath)
-                                DatabaseManager.GameProcesses.AddOrUpdate(item.Process, game, (key, value) => game);
+
+                            if (gamepath != procpath)
+                                continue;
+
+                            if (!DatabaseManager.GameProcesses.ContainsKey(game))
+                                DatabaseManager.GameProcesses.Add(game, item.Process);
                         }
                     }
                 }
 
                 for(int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
                 {
-                    KeyValuePair<Process, DockerGame> pair = DatabaseManager.GameProcesses.ElementAt(i);
+                    KeyValuePair<DockerGame, Process> pair = DatabaseManager.GameProcesses.ElementAt(i);
 
-                    Process proc = pair.Key;
-                    DockerGame game = pair.Value;
+                    Process proc = pair.Value;
+                    DockerGame game = pair.Key;
 
                     if (proc.HasExited)
                     {
                         DatabaseManager.UpdateFilesAndRegistries(game, !DockStatus, true, false);
-                        DatabaseManager.GameProcesses.TryRemove(proc, out game);
+                        DatabaseManager.GameProcesses.Remove(game);
                     }
                 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -10,7 +11,7 @@ namespace DockerForm
     {
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
-        public static ConcurrentDictionary<Process, DockerGame> GameProcesses = new ConcurrentDictionary<Process, DockerGame>();
+        public static Dictionary<DockerGame, Process> GameProcesses = new Dictionary<DockerGame, Process>();
 
         public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool updateDB = true, bool updateFILE = true, bool ignoreToast = false)
         {
