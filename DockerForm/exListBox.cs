@@ -11,6 +11,11 @@ namespace DockerForm
 
         public exListBoxItem(DockerGame game)
         {
+            this.SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true);
+
             this.Guid = game.GUID;
             this.Image = game.Image;
             this.Name = game.Name;
@@ -73,10 +78,14 @@ namespace DockerForm
 
         public exListBox()
         {
+            this.SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true);
+
             this.format = new StringFormat();
             this.format.Alignment = StringAlignment.Near;
             this.format.LineAlignment = StringAlignment.Near;
-            this.DoubleBuffered = true;
         }
 
         public void SetSize(int ImageHeight, int ImageWidth)
@@ -93,13 +102,6 @@ namespace DockerForm
                 exListBoxItem item = (exListBoxItem)Items[e.Index];
                 item.drawItem(e, Margin, format, this);
             }
-        }
-
-        protected override void OnPaint(PaintEventArgs pe)
-        {
-            pe.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            Pen pen = new Pen(Color.Red, 4f);
-            pe.Graphics.DrawEllipse(pen, ClientRectangle);
         }
 
         public void Sort()

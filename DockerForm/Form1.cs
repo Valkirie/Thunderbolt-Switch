@@ -215,6 +215,8 @@ namespace DockerForm
 
         public void UpdateGameList()
         {
+            GameList.BeginUpdate();
+
             // Read all the game files (xml)
             string[] fileEntries = Directory.GetFiles(path_database, "*.dat");
             foreach (string filename in fileEntries)
@@ -239,6 +241,7 @@ namespace DockerForm
             }
 
             GameList.Sort();
+            GameList.EndUpdate();
         }
 
         public int GetIGDBListLength()
