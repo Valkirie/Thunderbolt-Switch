@@ -72,7 +72,7 @@ namespace DockerForm
 
             foreach (GameSettings setting in game.Settings.Values)
             {
-                ListViewItem newSetting = new ListViewItem(new string[] {setting.Uri, setting.Type}, setting.GUID);
+                ListViewItem newSetting = new ListViewItem(new string[] { setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.GUID );
                 newSetting.Checked = setting.IsEnabled;
                 newSetting.Tag = setting.IsRelative;
                 SettingsList.Items.Add(newSetting);
@@ -99,7 +99,7 @@ namespace DockerForm
             foreach(ListViewItem item in SettingsList.Items)
             {
                 string uri = item.SubItems[0].Text;
-                string type = item.SubItems[1].Text;
+                SettingsType type = (SettingsType)Enum.Parse(typeof(SettingsType), item.SubItems[1].Text);
                 int guid = Math.Abs((uri).GetHashCode());
 
                 GameSettings newSetting = new GameSettings(guid, type, uri, item.Checked, (bool)item.Tag);

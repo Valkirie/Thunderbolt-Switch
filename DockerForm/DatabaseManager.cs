@@ -27,7 +27,7 @@ namespace DockerForm
                     continue;
 
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                if (setting.Type == "File") // file
+                if (setting.Type == SettingsType.File)
                 {
                     // 1. Save current settings
                     if (updateDB)
@@ -116,7 +116,7 @@ namespace DockerForm
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
                     string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
 
-                    if (setting.Type == "File") // file
+                    if (setting.Type == SettingsType.File)
                     {
                         file = new FileInfo(filename);
 

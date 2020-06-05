@@ -6,17 +6,23 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockerForm
 {
+    public enum SettingsType
+    {
+        File = 0,
+        Registry = 1
+    }
+
     [Serializable]
     public class GameSettings
     {
         public int GUID;
-        public string Type;
+        public SettingsType Type;
         public bool IsEnabled;
         public string Uri;
         public bool IsRelative;
         public Dictionary<string, byte[]> data = new Dictionary<string, byte[]>();
 
-        public GameSettings(int _guid, string _type, string _uri, bool _enabled, bool _relative)
+        public GameSettings(int _guid, SettingsType _type, string _uri, bool _enabled, bool _relative)
         {
             this.GUID = _guid;
             this.Type = _type;
@@ -36,7 +42,7 @@ namespace DockerForm
 
         public bool IsFile()
         {
-            return Type == "File";
+            return Type == SettingsType.File;
         }
     }
 
