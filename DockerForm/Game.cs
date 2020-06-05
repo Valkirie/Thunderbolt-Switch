@@ -70,10 +70,12 @@ namespace DockerForm
             LastCheck = DateTime.Now;
 
             string filename = Path.Combine(Form1.path_database, FolderName) + ".dat";
-            FileStream fs = new FileStream(filename, FileMode.Create);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(fs, this);
-            fs.Close();
+            using (FileStream fs = new FileStream(filename, FileMode.Create))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(fs, this);
+                fs.Close();
+            }
         }
 
         public void SetFolderName()
