@@ -18,6 +18,8 @@ namespace DockerForm
         public static bool IsRunning = true;
         public static bool prevDockStatus = false;
         public static bool DockStatus = false;
+        public static int prevGPUCount = 0;
+        public static int GPUCount = 0;
         public static bool IsFirstBoot = true;
         public static string iGPU = "iGPU";
         public static string eGPU = "eGPU";
@@ -64,7 +66,7 @@ namespace DockerForm
 
         public static void UpdateGameDatabase()
         {
-            if (prevDockStatus != DockStatus)
+            if (prevDockStatus != DockStatus || prevGPUCount != GPUCount)
             {
                 UpdateFormIcons();
 
@@ -74,6 +76,7 @@ namespace DockerForm
                     DatabaseManager.SanityCheck();
 
                 prevDockStatus = DockStatus;
+                prevGPUCount = GPUCount;
 
                 if (IsFirstBoot)
                     IsFirstBoot = false;
@@ -148,7 +151,7 @@ namespace DockerForm
                         lastCheck = currentCheck
                     };
 
-                    if (vc.IsDisable())
+                    if (!vc.IsEnable())
                         continue;
 
                     if (!VideoControllers.ContainsKey(vc.DeviceID))
@@ -174,6 +177,7 @@ namespace DockerForm
                 }
 
                 DockStatus = (VideoControllers.Count != 1);
+                GPUCount = VideoControllers.Count;
 
                 Thread.Sleep(1000);
             }

@@ -40,7 +40,7 @@ namespace DockerForm
                         File.SetLastWriteTime(filename, game.LastCheck);
                     }
                 }
-                else // registry
+                else if(setting.Type == SettingsType.Registry)
                 {
                     // We generate a temporary reg file
                     string tempfile = Path.Combine(Form1.path_application, "temp.reg");
@@ -67,7 +67,7 @@ namespace DockerForm
             game.Serialize();
 
             if(!ignoreToast)
-                Form1.NewToastNotification(game.Name + " settings have been updated.");
+                Form1.NewToastNotification(game.Name + " settings have been updated for (" + path_dest + ")");
         }
 
         public static void UpdateFilesAndRegistries(bool Plugged)
@@ -79,6 +79,9 @@ namespace DockerForm
 
         public static bool Equality(byte[] a1, byte[] b1)
         {
+            if (a1 == null || b1 == null)
+                return false;
+
             // If not same length, done
             if (a1.Length != b1.Length)
             {
@@ -121,9 +124,10 @@ namespace DockerForm
                         file = new FileInfo(filename);
 
                         fileBytes = File.ReadAllBytes(file.FullName);
-                        fileDBBytes = setting.data[path_db];
+                        if(setting.data.ContainsKey((string)path_db))
+                            fileDBBytes = setting.data[(string)path_db];
                     }
-                    else // registry
+                    else if (setting.Type == SettingsType.Registry)
                     {
                         // We generate a temporary reg file
                         string tempfile = Path.Combine(Form1.path_application, "temp.reg");
@@ -132,10 +136,14 @@ namespace DockerForm
                         file = new FileInfo(tempfile);
 
                         fileBytes = File.ReadAllBytes(tempfile);
-                        fileDBBytes = setting.data[path_db];
+                        if (setting.data.ContainsKey((string)path_db))
+                            fileDBBytes = setting.data[(string)path_db];
 
                         File.Delete(tempfile);
                     }
+
+                    if (fileBytes == null || fileDBBytes == null)
+                        return;
 
                     if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
