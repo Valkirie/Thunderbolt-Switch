@@ -292,10 +292,7 @@ namespace DockerForm
                 this.ShowInTaskbar = false;
             }
 
-            if (BootOnStartup) // dirty, we should check if entry already exists
-                RegistryManager.AddApplicationToStartup();
-            else
-                RegistryManager.RemoveApplicationFromStartup();
+            RegistryManager.StartupManager(BootOnStartup);
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)

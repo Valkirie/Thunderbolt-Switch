@@ -34,16 +34,15 @@ namespace DockerForm
             proc.WaitForExit();
         }
 
-        public static void AddApplicationToStartup()
+        public static void StartupManager(bool add)
         {
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-                key.SetValue(Application.ProductName, "\"" + Application.ExecutablePath + "\"");
-        }
-
-        public static void RemoveApplicationFromStartup()
-        {
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-                key.DeleteValue(Application.ProductName, false);
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                if(add)
+                    key.SetValue(Application.ProductName, "\"" + Application.ExecutablePath + "\"");
+                else
+                    key.DeleteValue(Application.ProductName, false);
+            }
         }
     }
 }
