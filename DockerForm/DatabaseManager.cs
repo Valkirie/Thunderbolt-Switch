@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DockerForm
@@ -21,12 +22,16 @@ namespace DockerForm
             if (!updateDB || !updateFILE) // dirty
                 path_dest = path_game;
 
-            foreach (GameSettings setting in game.Settings.Values)
+            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
-                if (!setting.IsEnabled)
-                    continue;
-
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+
+                if (!File.Exists(filename))
+                {
+                    setting.IsEnabled = false;
+                    continue;
+                }
+
                 if (setting.Type == SettingsType.File)
                 {
                     // 1. Save current settings
@@ -111,12 +116,19 @@ namespace DockerForm
         {
             foreach (DockerGame game in GameDB.Values)
             {
-                foreach (GameSettings setting in game.Settings.Values)
+                foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
                 {
                     FileInfo file = null;
                     byte[] fileBytes = null, fileDBBytes = null;
 
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+
+                    if (!File.Exists(filename))
+                    {
+                        setting.IsEnabled = false;
+                        continue;
+                    }
+
                     string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
 
                     if (setting.Type == SettingsType.File)
