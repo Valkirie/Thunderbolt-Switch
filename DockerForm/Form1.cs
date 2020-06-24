@@ -48,11 +48,9 @@ namespace DockerForm
             if (!ToastNotifications)
                 return;
 
-            _instance.Invoke(new Action(delegate () {
-                _instance.notifyIcon1.BalloonTipText = input;
-                _instance.debugTextBox.Text = input;
-                _instance.notifyIcon1.ShowBalloonTip(1000);
-            }));
+            _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.BalloonTipText = input));
+            _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
+            _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.ShowBalloonTip(1000)));
         }
 
         public static void StatusMonitor(object data)
