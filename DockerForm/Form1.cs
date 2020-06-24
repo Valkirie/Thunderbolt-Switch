@@ -124,7 +124,10 @@ namespace DockerForm
 
                     if (proc.HasExited)
                     {
-                        DatabaseManager.UpdateFilesAndRegistries(game, !DockStatus, true, false);
+                        // Update current title
+                        string path_game = DockStatus ? eGPU : iGPU;
+                        DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
+
                         DatabaseManager.GameProcesses.Remove(game);
                     }
                 }
@@ -216,7 +219,8 @@ namespace DockerForm
             }
 
             // Update current title
-            DatabaseManager.UpdateFilesAndRegistries(game, !DockStatus, true, false);
+            string path_game = DockStatus ? eGPU : iGPU;
+            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
 
             GameList.Sort();
         }

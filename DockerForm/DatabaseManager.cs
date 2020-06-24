@@ -14,14 +14,8 @@ namespace DockerForm
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
         public static Dictionary<DockerGame, Process> GameProcesses = new Dictionary<DockerGame, Process>();
 
-        public static void UpdateFilesAndRegistries(DockerGame game, bool nextDockStatus, bool updateDB = true, bool updateFILE = true, bool ignoreToast = false)
+        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB = true, bool updateFILE = true, bool ignoreToast = false)
         {
-            string path_game = nextDockStatus ? Form1.iGPU : Form1.eGPU;
-            string path_dest = nextDockStatus ? Form1.eGPU : Form1.iGPU;
-
-            if (!updateDB || !updateFILE) // dirty
-                path_dest = path_game;
-
             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
@@ -75,11 +69,14 @@ namespace DockerForm
                 Form1.NewToastNotification(game.Name + " settings have been updated for (" + path_dest + ")");
         }
 
-        public static void UpdateFilesAndRegistries(bool Plugged)
+        public static void UpdateFilesAndRegistries(bool DockStatus)
         {
+            string path_dest = DockStatus ? Form1.eGPU : Form1.iGPU;
+            string path_game = DockStatus ? Form1.iGPU : Form1.eGPU;
+
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
-                UpdateFilesAndRegistries(game, Plugged, true, true, true);
+                UpdateFilesAndRegistries(game, path_dest, path_game, true, true, true);
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -114,8 +111,18 @@ namespace DockerForm
 
         public static void SanityCheck()
         {
+            string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU; 
+            
             foreach (DockerGame game in GameDB.Values)
             {
+                string path_crc = Path.Combine(game.Uri, "donotdelete");
+                string crc_value = File.Exists(path_crc) ? File.ReadAllText(path_crc) : path_db;
+
+                // force refresh : dirty
+                File.Delete(path_crc);
+                File.WriteAllText(path_crc, path_db);
+                File.SetAttributes(path_crc, FileAttributes.Hidden);
+
                 foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
                 {
                     FileInfo file = null;
@@ -129,8 +136,6 @@ namespace DockerForm
                         continue;
                     }
 
-                    string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
-
                     if (setting.Type == SettingsType.File)
                     {
                         file = new FileInfo(filename);
@@ -143,7 +148,7 @@ namespace DockerForm
                     {
                         // We generate a temporary reg file
                         string tempfile = Path.Combine(Form1.path_application, "temp.reg");
-
+                        
                         RegistryManager.ExportKey(filename, tempfile);
                         file = new FileInfo(tempfile);
 
@@ -156,6 +161,17 @@ namespace DockerForm
 
                     if (fileBytes == null || fileDBBytes == null)
                         return;
+
+                    if (path_db != crc_value)
+                    {
+                        // Overwrite current database
+                        UpdateFilesAndRegistries(game, crc_value, crc_value, true, false);
+
+                        // Restore current settings
+                        UpdateFilesAndRegistries(game, path_db, path_db, false, true);
+
+                        continue;
+                    }
 
                     if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
@@ -170,9 +186,9 @@ namespace DockerForm
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
                         if (dialogResult == DialogResult.Yes) // Overwrite current settings
-                            UpdateFilesAndRegistries(game, !Form1.DockStatus, false, true);
+                            UpdateFilesAndRegistries(game, path_db, path_db, false, true);
                         else if (dialogResult == DialogResult.No) // Overwrite current database
-                            UpdateFilesAndRegistries(game, !Form1.DockStatus, true, false);
+                            UpdateFilesAndRegistries(game, path_db, path_db, true, false);
 
                         continue;
                     }
