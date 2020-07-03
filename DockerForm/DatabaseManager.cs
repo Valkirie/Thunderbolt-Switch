@@ -14,7 +14,7 @@ namespace DockerForm
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
         public static Dictionary<DockerGame, Process> GameProcesses = new Dictionary<DockerGame, Process>();
 
-        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB = true, bool updateFILE = true, bool ignoreToast = false)
+        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB = true, bool updateFILE = true, bool pushToast = true)
         {
             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
@@ -65,8 +65,7 @@ namespace DockerForm
 
             game.Serialize();
 
-            if(!ignoreToast)
-                Form1.NewToastNotification(game.Name + " settings have been updated for (" + path_dest + ")");
+            Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
 
         public static void UpdateFilesAndRegistries(bool DockStatus)
@@ -76,7 +75,9 @@ namespace DockerForm
 
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
-                UpdateFilesAndRegistries(game, path_dest, path_game, true, true, true);
+                UpdateFilesAndRegistries(game, path_dest, path_game, true, true, false);
+
+            Form1.SendNotification("All settings have been updated for (" + path_dest + ")", true);
         }
 
         public static bool Equality(byte[] a1, byte[] b1)

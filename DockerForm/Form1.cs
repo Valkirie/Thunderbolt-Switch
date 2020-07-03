@@ -43,14 +43,18 @@ namespace DockerForm
         private static Form1 _instance;
         private static Thread ThreadGPU, ThreadDB;
 
-        public static void NewToastNotification(string input)
+        public static void SendNotification(string input, bool pushToast)
         {
             if (!ToastNotifications)
                 return;
 
-            _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.BalloonTipText = input));
             _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
-            _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.ShowBalloonTip(1000)));
+
+            if (pushToast)
+            {
+                _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.BalloonTipText = input));
+                _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.ShowBalloonTip(1000)));
+            }
         }
 
         public static void StatusMonitor(object data)
@@ -138,48 +142,51 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                DateTime currentCheck = DateTime.Now;
-
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
-                foreach (ManagementObject mo in searcher.Get())
+                try
                 {
-                    VideoController vc = new VideoController
+                    DateTime currentCheck = DateTime.Now;
+
+                    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+                    foreach (ManagementObject mo in searcher.Get())
                     {
-                        DeviceID = (string)mo.Properties["DeviceID"].Value,
-                        Name = (string)mo.Properties["Name"].Value,
-                        Description = (string)mo.Properties["Description"].Value,
-                        ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
-                        lastCheck = currentCheck
-                    };
+                        VideoController vc = new VideoController
+                        {
+                            DeviceID = (string)mo.Properties["DeviceID"].Value,
+                            Name = (string)mo.Properties["Name"].Value,
+                            Description = (string)mo.Properties["Description"].Value,
+                            ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
+                            lastCheck = currentCheck
+                        };
 
-                    if (!vc.IsEnable())
-                        continue;
+                        if (!vc.IsEnable())
+                            continue;
 
-                    if (!VideoControllers.ContainsKey(vc.DeviceID))
-                        VideoControllers.Add(vc.DeviceID, vc);
-                    else
-                        VideoControllers[vc.DeviceID].lastCheck = currentCheck;
+                        if (!VideoControllers.ContainsKey(vc.DeviceID))
+                            VideoControllers.Add(vc.DeviceID, vc);
+                        else
+                            VideoControllers[vc.DeviceID].lastCheck = currentCheck;
+                    }
+
+                    for (int i = 0; i < VideoControllers.Count; i++)
+                    {
+                        KeyValuePair<string, VideoController> pair = VideoControllers.ElementAt(i);
+
+                        string DeviceID = pair.Key;
+                        VideoController vc = pair.Value;
+
+                        if (vc.lastCheck < currentCheck)
+                            VideoControllers.Remove(DeviceID);
+
+                        if (vc.IsIntegrated())
+                            iGPU = vc.Name;
+                        else
+                            eGPU = vc.Name;
+                    }
+
+                    DockStatus = (VideoControllers.Count != 1);
+                    GPUCount = VideoControllers.Count;
                 }
-
-                for (int i = 0; i < VideoControllers.Count; i++)
-                {
-                    KeyValuePair<string, VideoController> pair = VideoControllers.ElementAt(i);
-
-                    string DeviceID = pair.Key;
-                    VideoController vc = pair.Value;
-
-                    if (vc.lastCheck < currentCheck)
-                        VideoControllers.Remove(DeviceID);
-
-                    if (vc.IsIntegrated())
-                        iGPU = vc.Name;
-                    else
-                        eGPU = vc.Name;
-                }
-
-                DockStatus = (VideoControllers.Count != 1);
-                GPUCount = VideoControllers.Count;
-
+                catch (Exception) { }
                 Thread.Sleep(1000);
             }
         }
@@ -342,7 +349,7 @@ namespace DockerForm
             {
                 Hide();
                 notifyIcon1.Visible = true;
-                NewToastNotification(Text + " is running in the background.");
+                SendNotification(Text + " is running in the background.", true);
             }
         }
 
