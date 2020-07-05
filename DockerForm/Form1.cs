@@ -351,7 +351,7 @@ namespace DockerForm
             {
                 Hide();
                 notifyIcon1.Visible = true;
-                SendNotification(Text + " is running in the background.", true);
+                SendNotification(Text + " is running in the background.", !IsFirstBoot);
             }
         }
 
