@@ -103,8 +103,10 @@ namespace DockerForm
                 int guid = Math.Abs((uri).GetHashCode());
 
                 GameSettings newSetting = new GameSettings(guid, type, uri, item.Checked, (bool)item.Tag);
-                if(!thisGame.Settings.ContainsKey(guid))
+                if (!thisGame.Settings.ContainsKey(guid))
                     thisGame.Settings.Add(guid, newSetting);
+                else
+                    thisGame.Settings[guid] = newSetting;
 
                 GUIDs.Add(guid);
             }
