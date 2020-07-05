@@ -118,6 +118,7 @@ namespace DockerForm
 
             thisGame.SetFolderName();
             thisGame.Serialize();
+            thisGame.SanityCheck();
             thisForm.UpdateGameItem(thisGame);
         }
 

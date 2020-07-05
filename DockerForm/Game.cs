@@ -46,6 +46,14 @@ namespace DockerForm
         }
     }
 
+    public enum ErrorCode
+    {
+        None = 0,
+        MissingFolder = 1,
+        MissingExecutable = 2,
+        MissingSettings = 3
+    }
+
     [Serializable]
     public class DockerGame
     {
@@ -58,10 +66,26 @@ namespace DockerForm
         public string IGDB_Url = "";        // IGDB GUID
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
+        public bool Enabled = true;         // IsEnabled
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
 
         public Dictionary<int, GameSettings> Settings = new Dictionary<int, GameSettings>();
+
+        [NonSerialized()] public ErrorCode ErrorCode = 0;
+        public void SanityCheck()
+        {
+            ErrorCode = ErrorCode.None;
+
+            if (!HasReachableFolder())
+                ErrorCode = ErrorCode.MissingFolder;
+            else if (!HasReachableExe())
+                ErrorCode = ErrorCode.MissingExecutable;
+            else if (!HasFileSettings())
+                ErrorCode = ErrorCode.MissingSettings;
+            
+            Enabled = (ErrorCode == ErrorCode.None ? true : false);
+        }
 
         public bool CanSerialize()
         {
@@ -91,6 +115,17 @@ namespace DockerForm
 
             FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
             FolderName = FolderName.Replace(" ", "");
+        }
+
+        public bool HasReachableFolder()
+        {
+            return Directory.Exists(Uri);
+        }
+
+        public bool HasReachableExe()
+        {
+            string filename = Path.Combine(Uri, Executable);
+            return File.Exists(filename);
         }
 
         public bool HasFileSettings()

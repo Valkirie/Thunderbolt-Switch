@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace DockerForm
@@ -20,6 +21,56 @@ namespace DockerForm
             this.Image = game.Image;
             this.Name = game.Name;
             this.Text = game.Company;
+            this.Enabled = game.Enabled;
+        }
+
+        public static void GrayScaleImage(Image mainImage)
+        {
+            Bitmap image = (Bitmap)mainImage;
+
+            if (image == null)
+                throw new ArgumentNullException("image");
+
+            // lock the bitmap.
+            var data = image.LockBits(
+                          new Rectangle(0, 0, image.Width, image.Height),
+                          ImageLockMode.ReadWrite, image.PixelFormat);
+            try
+            {
+                unsafe
+                {
+                    // get a pointer to the data.
+                    byte* ptr = (byte*)data.Scan0;
+
+                    // loop over all the data.
+                    for (int i = 0; i < data.Height; i++)
+                    {
+                        for (int j = 0; j < data.Width; j++)
+                        {
+                            // calculate the gray value.
+                            byte y = (byte)(
+                                (0.299 * ptr[2]) +
+                                (0.587 * ptr[1]) +
+                                (0.114 * ptr[0]));
+
+                            // set the gray value.
+                            ptr[0] = ptr[1] = ptr[2] = y;
+
+                            // increment the pointer.
+                            ptr += 3;
+                        }
+
+                        // move on to the next line.
+                        ptr += data.Stride - data.Width * 3;
+                    }
+                }
+            }
+            finally
+            {
+                // unlock the bits when done or when 
+                // an exception has been thrown.
+                image.UnlockBits(data);
+            }
         }
 
         public void drawItem(DrawItemEventArgs e, Padding margin, StringFormat aligment, exListBox ListBox)
@@ -52,7 +103,12 @@ namespace DockerForm
             int ImageX = e.Bounds.X + TempX - (TempX / 2);
             int ImageY = e.Bounds.Y + TempY / 2;
 
-            e.Graphics.DrawImage(Image, ImageX, ImageY, ImageWidth, ImageHeight);
+            Image FinalImage = (Image)Image.Clone();
+
+            if(!this.Enabled)
+                GrayScaleImage(FinalImage);
+
+            e.Graphics.DrawImage(FinalImage, ImageX, ImageY, ImageWidth, ImageHeight);
 
             Rectangle titleBounds = new Rectangle(e.Bounds.X + margin.Horizontal + ListBox.ItemHeight,
                                                   e.Bounds.Y + (ListBox.ItemHeight - titleFont.Height - detailsFont.Height) / 2,

@@ -110,19 +110,42 @@ namespace DockerForm
             return true;
         }
 
+        public static string GetCrc(string path_crc, string path_db)
+        {
+            string crc_value = File.Exists(path_crc) ? File.ReadAllText(path_crc) : path_db;
+            return crc_value;
+        }
+
+        public static void SetCrc(string path_crc, string path_db)
+        {
+            if (File.Exists(path_crc))
+                File.Delete(path_crc);
+
+            File.WriteAllText(path_crc, path_db);
+            File.SetAttributes(path_crc, FileAttributes.Hidden);
+        }
+
         public static void SanityCheck()
         {
-            string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU; 
-            
+            string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
+
             foreach (DockerGame game in GameDB.Values)
             {
-                string path_crc = Path.Combine(game.Uri, "donotdelete");
-                string crc_value = File.Exists(path_crc) ? File.ReadAllText(path_crc) : path_db;
+                if(game.ErrorCode != ErrorCode.None)
+                {
+                    switch(game.ErrorCode)
+                    {
+                        case ErrorCode.MissingExecutable: Form1.SendNotification(game.Name + " has an unreachable executable.", true); break;
+                        case ErrorCode.MissingFolder: Form1.SendNotification(game.Name + " has an unreachable folder.", true); break;
+                        case ErrorCode.MissingSettings: Form1.SendNotification(game.Name + " has no settings defined.", true); break;
+                    }
 
-                // force refresh : dirty
-                File.Delete(path_crc);
-                File.WriteAllText(path_crc, path_db);
-                File.SetAttributes(path_crc, FileAttributes.Hidden);
+                    continue;
+                }
+
+                string path_crc = Path.Combine(game.Uri, "donotdelete");
+                string crc_value = GetCrc(path_crc, path_db);
+                SetCrc(path_crc, path_db);
 
                 foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
                 {

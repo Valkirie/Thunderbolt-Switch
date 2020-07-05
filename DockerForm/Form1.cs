@@ -242,6 +242,7 @@ namespace DockerForm
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
                     DockerGame game = (DockerGame)formatter.Deserialize(reader);
+                    game.SanityCheck();
 
                     if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
                         DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
@@ -255,6 +256,7 @@ namespace DockerForm
             {
                 exListBoxItem item = new exListBoxItem(game);
                 GameList.Items.Add(item);
+                item.Enabled = game.Enabled;
             }
 
             GameList.Sort();
@@ -376,7 +378,11 @@ namespace DockerForm
 
                             navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
 
+                            // Sanity checks
+                            openToolStripMenuItem.Enabled = game.HasReachableFolder();
+                            toolStripStartItem.Enabled = game.HasReachableExe();
                             toolStripMenuItem1.Enabled = game.HasFileSettings();
+
                             toolStripMenuItem1.DropDownItems.Clear();
                             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
                             {
