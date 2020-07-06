@@ -44,7 +44,6 @@ namespace DockerForm
             InitializeComponent();
 
             // instances
-            thisGame = new DockerGame();
             thisForm = form;
             thisSetting = this;
             SetStartPos();
@@ -118,76 +117,30 @@ namespace DockerForm
                     thisGame.Settings.Remove(key);
             }
 
-            thisGame.SetFolderName();
             thisGame.Serialize();
             thisGame.SanityCheck();
-            thisForm.UpdateGameItem(thisGame);
-        }
-
-        private Dictionary<string, string> GetAppProperties(string filePath1)
-        {
-            Dictionary<string, string> AppProperties = new Dictionary<string, string>();
-
-            var shellFile = Microsoft.WindowsAPICodePack.Shell.ShellObject.FromParsingName(filePath1);
-            foreach (var property in typeof(ShellProperties.PropertySystem).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                var shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
-                if (shellProperty?.ValueAsObject == null) continue;
-                var shellPropertyValues = shellProperty.ValueAsObject as object[];
-                if (shellPropertyValues != null && shellPropertyValues.Length > 0)
-                {
-                    foreach (var shellPropertyValue in shellPropertyValues)
-                        AppProperties.Add(property.Name, "" + shellPropertyValue);
-                }
-                else
-                    AppProperties.Add(property.Name, "" + shellProperty.ValueAsObject);
-            }
-
-            return AppProperties;
+            thisForm.UpdateGameItem(thisGame, true);
         }
 
         private bool PickAGame()
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = Environment.ExpandEnvironmentVariables(thisGame.Uri);
+                openFileDialog.InitialDirectory = Environment.ExpandEnvironmentVariables(thisGame != null ? thisGame.Uri : "");
                 openFileDialog.Filter = "exe files (*.exe)|*.exe";
                 openFileDialog.FilterIndex = 2;
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    Dictionary<string, string> AppProperties = GetAppProperties(filePath);
+                    thisGame = new DockerGame(filePath);
 
-                    string FileName = AppProperties["FileName"];
-                    string ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
-                    string FileVersion = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
-                    string FileCompany = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
-
-                    FileInfo fileInfo = new FileInfo(filePath);
-                    string FileFolder = fileInfo.DirectoryName;
-
-                    // HIDDEN
-                    thisGame.ProductName = ProductName;
-                    thisGame.SetFolderName();
-                    thisGame.Uri = FileFolder.ToLower();
-
-                    field_Name.Text = ProductName;
-                    field_Version.Text = FileVersion;
-                    field_Filename.Text = FileName;
-                    field_Developer.Text = FileCompany;
-
-                    // SHOULD NOT BE EDITED
-                    string hash = "0x" + Math.Abs((FileName + ProductName).GetHashCode()).ToString();
-                    field_GUID.Text = hash;
-
-                    try
-                    {
-                        Bitmap BackgroundImage = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48);
-                        thisGame.Image = BackgroundImage;
-                        GameIcon.BackgroundImage = thisGame.Image;
-                    }
-                    catch (Exception) { }
+                    field_Name.Text = thisGame.ProductName;
+                    field_Version.Text = thisGame.Version;
+                    field_Filename.Text = thisGame.Executable;
+                    field_Developer.Text = thisGame.Company;
+                    field_GUID.Text = thisGame.GUID;
+                    GameIcon.BackgroundImage = thisGame.Image;
 
                     return true;
                 }
@@ -200,29 +153,14 @@ namespace DockerForm
             PickAGame();
         }
 
-        private void field_Name_TextChanged(object sender, EventArgs e)
-        {
-            thisGame.Name = field_Name.Text;
-        }
-
-        private void field_GUID_TextChanged(object sender, EventArgs e)
-        {
-            thisGame.GUID = field_GUID.Text;
-        }
-
         private void field_Developer_TextChanged(object sender, EventArgs e)
         {
             thisGame.Company = field_Developer.Text;
         }
 
-        private void field_Filename_TextChanged(object sender, EventArgs e)
+        private void field_Name_TextChanged(object sender, EventArgs e)
         {
-            thisGame.Executable = field_Filename.Text;
-        }
-
-        private void field_Version_TextChanged(object sender, EventArgs e)
-        {
-            thisGame.Version = field_Version.Text;
+            thisGame.Name = field_Name.Text;
         }
 
         private void MenuItemRemoveSetting_Click(object sender, EventArgs e)

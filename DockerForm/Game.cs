@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockerForm
@@ -87,6 +89,50 @@ namespace DockerForm
             Enabled = (ErrorCode == ErrorCode.None ? true : false);
         }
 
+        public DockerGame(string filePath)
+        {
+            Dictionary<string, string> AppProperties = GetAppProperties(filePath);
+
+            Executable = AppProperties["FileName"];
+            ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
+            Version = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
+            Company = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
+            Name = ProductName;
+            GUID = "0x" + Math.Abs((Executable + ProductName).GetHashCode()).ToString();
+
+            FileInfo fileInfo = new FileInfo(filePath);
+            Uri = fileInfo.DirectoryName.ToLower();
+
+            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
+            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+            FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
+
+            try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception) { }
+        }
+
+        private Dictionary<string, string> GetAppProperties(string filePath1)
+        {
+            Dictionary<string, string> AppProperties = new Dictionary<string, string>();
+
+            var shellFile = Microsoft.WindowsAPICodePack.Shell.ShellObject.FromParsingName(filePath1);
+            foreach (var property in typeof(ShellProperties.PropertySystem).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
+                if (shellProperty?.ValueAsObject == null) continue;
+                var shellPropertyValues = shellProperty.ValueAsObject as object[];
+                if (shellPropertyValues != null && shellPropertyValues.Length > 0)
+                {
+                    foreach (var shellPropertyValue in shellPropertyValues)
+                        AppProperties.Add(property.Name, "" + shellPropertyValue);
+                }
+                else
+                    AppProperties.Add(property.Name, "" + shellProperty.ValueAsObject);
+            }
+
+            return AppProperties;
+        }
+
         public bool CanSerialize()
         {
             if (GUID != "" && ProductName != "" && Executable != "")
@@ -106,15 +152,6 @@ namespace DockerForm
                 formatter.Serialize(fs, this);
                 fs.Close();
             }
-        }
-
-        public void SetFolderName()
-        {
-            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-
-            FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_");
-            FolderName = FolderName.Replace(" ", "");
         }
 
         public bool HasReachableFolder()

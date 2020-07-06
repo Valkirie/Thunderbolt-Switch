@@ -177,7 +177,6 @@ namespace DockerForm
             this.field_Filename.ReadOnly = true;
             this.field_Filename.Size = new System.Drawing.Size(159, 20);
             this.field_Filename.TabIndex = 5;
-            this.field_Filename.TextChanged += new System.EventHandler(this.field_Filename_TextChanged);
             // 
             // labelFilename
             // 
@@ -205,7 +204,6 @@ namespace DockerForm
             this.field_Version.ReadOnly = true;
             this.field_Version.Size = new System.Drawing.Size(197, 20);
             this.field_Version.TabIndex = 3;
-            this.field_Version.TextChanged += new System.EventHandler(this.field_Version_TextChanged);
             // 
             // labelVersion
             // 
@@ -240,7 +238,6 @@ namespace DockerForm
             this.field_GUID.ReadOnly = true;
             this.field_GUID.Size = new System.Drawing.Size(197, 20);
             this.field_GUID.TabIndex = 4;
-            this.field_GUID.TextChanged += new System.EventHandler(this.field_GUID_TextChanged);
             // 
             // labelGUID
             // 
