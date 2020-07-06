@@ -12,11 +12,6 @@ namespace DockerForm
 
         public exListBoxItem(DockerGame game)
         {
-            this.SetStyle(
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer,
-                true);
-
             this.Guid = game.GUID;
             this.Image = game.Image;
             this.Name = game.Name;
@@ -24,57 +19,9 @@ namespace DockerForm
             this.Enabled = game.Enabled;
         }
 
-        public static void GrayScaleImage(Image mainImage)
-        {
-            Bitmap image = (Bitmap)mainImage;
-
-            if (image == null)
-                throw new ArgumentNullException("image");
-
-            // lock the bitmap.
-            var data = image.LockBits(
-                          new Rectangle(0, 0, image.Width, image.Height),
-                          ImageLockMode.ReadWrite, image.PixelFormat);
-            try
-            {
-                unsafe
-                {
-                    // get a pointer to the data.
-                    byte* ptr = (byte*)data.Scan0;
-
-                    // loop over all the data.
-                    for (int i = 0; i < data.Height; i++)
-                    {
-                        for (int j = 0; j < data.Width; j++)
-                        {
-                            // calculate the gray value.
-                            byte y = (byte)(
-                                (0.299 * ptr[2]) +
-                                (0.587 * ptr[1]) +
-                                (0.114 * ptr[0]));
-
-                            // set the gray value.
-                            ptr[0] = ptr[1] = ptr[2] = y;
-
-                            // increment the pointer.
-                            ptr += 3;
-                        }
-
-                        // move on to the next line.
-                        ptr += data.Stride - data.Width * 3;
-                    }
-                }
-            }
-            finally
-            {
-                // unlock the bits when done or when 
-                // an exception has been thrown.
-                image.UnlockBits(data);
-            }
-        }
-
         public void drawItem(DrawItemEventArgs e, Padding margin, StringFormat aligment, exListBox ListBox)
         {
+            
             SolidBrush backBrush = new SolidBrush(Color.FromArgb(255, 255, 255));
             SolidBrush frontBrush = new SolidBrush(Color.FromArgb(0, 0, 0));
 
@@ -92,37 +39,37 @@ namespace DockerForm
                 frontBrush = new SolidBrush(Color.FromArgb(0, 0, 0));
             }
 
-            e.Graphics.FillRectangle(backBrush, e.Bounds);
-
             int ImageWidth = Math.Min(ListBox.ImageWidth, Image.Width);
             int ImageHeight = Math.Min(ListBox.ImageHeight, Image.Height);
 
             int TempX = (int)Math.Floor((double)ListBox.ImageWidth - (double)ImageWidth);
             int TempY = (int)Math.Floor((double)ListBox.ImageHeight - (double)ImageHeight);
 
-            int ImageX = e.Bounds.X + TempX - (TempX / 2);
-            int ImageY = e.Bounds.Y + TempY / 2;
-
-            Image FinalImage = (Image)Image.Clone();
-
-            if(!this.Enabled)
-                GrayScaleImage(FinalImage);
-
-            e.Graphics.DrawImage(FinalImage, ImageX, ImageY, ImageWidth, ImageHeight);
+            int ImageX = 0 + TempX - (TempX / 2);
+            int ImageY = 0 + TempY / 2;
 
             Rectangle titleBounds = new Rectangle(e.Bounds.X + margin.Horizontal + ListBox.ItemHeight,
-                                                  e.Bounds.Y + (ListBox.ItemHeight - titleFont.Height - detailsFont.Height) / 2,
+                                                  0 + (ListBox.ItemHeight - titleFont.Height - detailsFont.Height) / 2,
                                                   e.Bounds.Width - margin.Right - margin.Horizontal,
                                                   ListBox.ItemHeight);
             Rectangle detailsBounds = new Rectangle(e.Bounds.X + 15 + margin.Horizontal + ListBox.ItemHeight,
-                                                  e.Bounds.Y + (ListBox.ItemHeight - titleFont.Height + detailsFont.Height) / 2 + 1,
+                                                  0 + (ListBox.ItemHeight - titleFont.Height + detailsFont.Height) / 2 + 1,
                                                   e.Bounds.Width - margin.Right - margin.Horizontal,
                                                   ListBox.ItemHeight);
 
-            e.Graphics.DrawString(Name, titleFont, frontBrush, titleBounds, aligment);
-            e.Graphics.DrawString(Text, detailsFont, frontBrush, detailsBounds, aligment);
+            var bmp = new Bitmap(e.Bounds.Width, e.Bounds.Height);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.FillRectangle(backBrush, 0, 0, e.Bounds.Width, e.Bounds.Height);
+                g.DrawImage(Image, ImageX, ImageY, ImageWidth, ImageHeight);
+                g.DrawString(Name, titleFont, frontBrush, titleBounds, aligment);
+                g.DrawString(Text, detailsFont, frontBrush, detailsBounds, aligment);
 
-            e.DrawFocusRectangle();
+                if (!Enabled)
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(150, 250, 250, 250)), 0, 0, ListBox.ImageWidth, ListBox.ImageHeight);
+            }
+
+            e.Graphics.DrawImage(bmp, e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);
         }
     }
 
@@ -135,9 +82,8 @@ namespace DockerForm
         public exListBox()
         {
             this.SetStyle(
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer,
-                true);
+            ControlStyles.AllPaintingInWmPaint |
+            ControlStyles.DoubleBuffer, true);
 
             this.format = new StringFormat();
             this.format.Alignment = StringAlignment.Near;
