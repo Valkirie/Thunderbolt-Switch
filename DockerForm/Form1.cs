@@ -117,22 +117,26 @@ namespace DockerForm
                     }
                 }
 
-                for(int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
+                try
                 {
-                    KeyValuePair<DockerGame, Process> pair = DatabaseManager.GameProcesses.ElementAt(i);
-
-                    Process proc = pair.Value;
-                    DockerGame game = pair.Key;
-
-                    if (proc.HasExited)
+                    for (int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
                     {
-                        // Update current title
-                        string path_game = DockStatus ? eGPU : iGPU;
-                        DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
+                        KeyValuePair<DockerGame, Process> pair = DatabaseManager.GameProcesses.ElementAt(i);
 
-                        DatabaseManager.GameProcesses.Remove(game);
+                        Process proc = pair.Value;
+                        DockerGame game = pair.Key;
+
+                        if (proc.HasExited)
+                        {
+                            // Update current title
+                            string path_game = DockStatus ? eGPU : iGPU;
+                            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
+
+                            DatabaseManager.GameProcesses.Remove(game);
+                        }
                     }
                 }
+                catch (Exception) { }
 
                 Thread.Sleep(1000);
             }
