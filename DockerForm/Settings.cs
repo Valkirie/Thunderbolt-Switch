@@ -117,7 +117,6 @@ namespace DockerForm
                     thisGame.Settings.Remove(key);
             }
 
-            thisGame.Serialize();
             thisGame.SanityCheck();
             thisForm.UpdateGameItem(thisGame, true);
         }

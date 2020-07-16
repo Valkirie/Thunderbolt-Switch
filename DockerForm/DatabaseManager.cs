@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -218,6 +219,74 @@ namespace DockerForm
                     }
                 }
             }
+        }
+
+        public static List<string> SearchBattleNet()
+        {
+            List<string> listofBattleNetGames = new List<string>();
+
+            // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+            string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(regkey);
+
+            foreach (string ksubKey in key.GetSubKeyNames())
+            {
+                using (RegistryKey subKey = key.OpenSubKey(ksubKey))
+                {
+                    Dictionary<string, string> subKeys = new Dictionary<string, string>();
+
+                    foreach (string subkeyname in subKey.GetValueNames())
+                        subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
+
+                    if (subKeys.ContainsKey("UninstallString"))
+                    {
+                        string UninstallString = subKeys["UninstallString"];
+
+                        if (UninstallString.Contains("Battle.net"))
+                        {
+                            string filePath = subKeys["DisplayIcon"];
+                            if(File.Exists(filePath))
+                                listofBattleNetGames.Add(filePath);
+                        }
+                    }
+                }
+            }
+            
+            return listofBattleNetGames;
+        }
+
+        public static List<string> SearchSteam()
+        {
+            List<string> listofSteamGames = new List<string>();
+
+            // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+            string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(regkey);
+
+            foreach (string ksubKey in key.GetSubKeyNames())
+            {
+                using (RegistryKey subKey = key.OpenSubKey(ksubKey))
+                {
+                    Dictionary<string, string> subKeys = new Dictionary<string, string>();
+
+                    foreach (string subkeyname in subKey.GetValueNames())
+                        subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
+
+                    if (subKeys.ContainsKey("UninstallString"))
+                    {
+                        string UninstallString = subKeys["UninstallString"];
+
+                        if (UninstallString.Contains("steam.exe"))
+                        {
+                            string filePath = subKeys["DisplayIcon"];
+                            if (File.Exists(filePath))
+                                listofSteamGames.Add(filePath);
+                        }
+                    }
+                }
+            }
+
+            return listofSteamGames;
         }
     }
 }

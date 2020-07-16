@@ -219,23 +219,23 @@ namespace DockerForm
             _instance.Icon = myIcon;
         }
 
-        public void UpdateGameItem(DockerGame game)
+        public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
         {
-            exListBoxItem listgame = new exListBoxItem(game);
+            exListBoxItem newitem = new exListBoxItem(game);
 
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
-                GameList.Items.Add(listgame);
+                GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
             }
-            else
+            else if (ForceUpdate)
             {
                 for (int i = 0; i < GameList.Items.Count; i++)
                 {
                     exListBoxItem item = (exListBoxItem)GameList.Items[i];
                     if (item.Guid == game.GUID)
                     {
-                        GameList.Items[i] = listgame;
+                        GameList.Items[i] = newitem;
                         DatabaseManager.GameDB[game.GUID] = game;
                         break;
                     }
@@ -244,15 +244,14 @@ namespace DockerForm
 
             // Update current title
             string path_game = DockStatus ? eGPU : iGPU;
-            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
+            DockerGame output = DatabaseManager.GameDB[game.GUID];
+            DatabaseManager.UpdateFilesAndRegistries(output, path_game, path_game, true, false);
 
             GameList.Sort();
         }
 
         public void UpdateGameList()
         {
-            GameList.BeginUpdate();
-
             // Read all the game files (xml)
             string[] fileEntries = Directory.GetFiles(path_database, "*.dat");
             foreach (string filename in fileEntries)
@@ -271,15 +270,16 @@ namespace DockerForm
             }
 
             // Update the DockerGame database
+            GameList.BeginUpdate();
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 exListBoxItem item = new exListBoxItem(game);
                 GameList.Items.Add(item);
                 item.Enabled = game.Enabled;
             }
+            GameList.EndUpdate();
 
             GameList.Sort();
-            GameList.EndUpdate();
         }
 
         public int GetIGDBListLength()
@@ -515,11 +515,26 @@ namespace DockerForm
             }
         }
 
+        private void automaticDetectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> DetectedGames = new List<string>();
+            DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
+
+            foreach(string uri in DetectedGames)
+            {
+                DockerGame thisGame = new DockerGame(uri);
+                thisGame.SanityCheck();
+                UpdateGameItem(thisGame);
+            }
+        }
+
         private void findAGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Settings p = new Settings(this);
-            if(p.GetIsReady())
-                p.Show();
+            Settings currentSettings = new Settings(this);
+
+            // only display the settings window when an executable has been picked.
+            if (currentSettings.GetIsReady())
+                currentSettings.Show();
         }
 
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -527,8 +542,8 @@ namespace DockerForm
             if (GameList.SelectedItem != null)
             {
                 exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                Settings p = new Settings(this, DatabaseManager.GameDB[item.Guid]);
-                p.Show();
+                Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.Guid]);
+                currentSettings.Show();
             }
         }
     }
