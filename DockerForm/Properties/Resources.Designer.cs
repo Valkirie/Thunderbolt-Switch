@@ -63,6 +63,16 @@ namespace DockerForm.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap amd {
+            get {
+                object obj = ResourceManager.GetObject("amd", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DefaultBackgroundImage {
             get {
                 object obj = ResourceManager.GetObject("DefaultBackgroundImage", resourceCulture);
@@ -71,31 +81,11 @@ namespace DockerForm.Properties {
         }
         
         /// <summary>
-        ///   Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
-        /// </summary>
-        internal static System.Drawing.Icon icon_plugged1 {
-            get {
-                object obj = ResourceManager.GetObject("icon_plugged1", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
-        /// </summary>
-        internal static System.Drawing.Icon icon_unplugged1 {
-            get {
-                object obj = ResourceManager.GetObject("icon_unplugged1", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap image_plugged {
+        internal static System.Drawing.Bitmap intel {
             get {
-                object obj = ResourceManager.GetObject("image_plugged", resourceCulture);
+                object obj = ResourceManager.GetObject("intel", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,9 +93,9 @@ namespace DockerForm.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap image_unplugged {
+        internal static System.Drawing.Bitmap nvidia {
             get {
-                object obj = ResourceManager.GetObject("image_unplugged", resourceCulture);
+                object obj = ResourceManager.GetObject("nvidia", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -113,9 +103,19 @@ namespace DockerForm.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap sync {
+        internal static System.Drawing.Bitmap thunderbolt {
             get {
-                object obj = ResourceManager.GetObject("sync", resourceCulture);
+                object obj = ResourceManager.GetObject("thunderbolt", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap thunderbolt_off {
+            get {
+                object obj = ResourceManager.GetObject("thunderbolt_off", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

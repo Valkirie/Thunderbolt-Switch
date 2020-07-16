@@ -61,7 +61,6 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackgroundImage = global::DockerForm.Properties.Resources.sync;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pictureBox1.Location = new System.Drawing.Point(12, 9);
             this.pictureBox1.Name = "pictureBox1";

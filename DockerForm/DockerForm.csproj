@@ -36,7 +36,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon_unplugged.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -120,6 +121,11 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RegistryManager.cs" />
     <Compile Include="Settings.cs">
       <SubType>Form</SubType>
@@ -147,8 +153,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
@@ -156,11 +162,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -171,22 +172,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <None Include="Resources\thunderbolt.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon_unplugged.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon_plugged.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon_plugged.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon_unplugged.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="sync.png" />
@@ -201,6 +190,18 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\amd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\intel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\nvidia.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\thunderbolt_off.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

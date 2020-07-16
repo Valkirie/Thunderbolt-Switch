@@ -41,7 +41,7 @@ namespace DockerForm
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.debugTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.debugTextBox = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -75,7 +75,7 @@ namespace DockerForm
             this.settingsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1008, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(1512, 54);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -84,7 +84,7 @@ namespace DockerForm
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 32);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 48);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // exitToolStripMenuItem
@@ -100,58 +100,58 @@ namespace DockerForm
             this.findAGameToolStripMenuItem,
             this.automaticDetectionToolStripMenuItem});
             this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
-            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(102, 48);
             this.databaseToolStripMenuItem.Text = "Database";
             // 
             // findAGameToolStripMenuItem
             // 
             this.findAGameToolStripMenuItem.Name = "findAGameToolStripMenuItem";
-            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(277, 34);
-            this.findAGameToolStripMenuItem.Text = "Find a Game";
+            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(326, 34);
+            this.findAGameToolStripMenuItem.Text = "Select Manually";
+            this.findAGameToolStripMenuItem.ToolTipText = "Select a game to add to your library.";
             this.findAGameToolStripMenuItem.Click += new System.EventHandler(this.findAGameToolStripMenuItem_Click);
             // 
             // automaticDetectionToolStripMenuItem
             // 
-            this.automaticDetectionToolStripMenuItem.Enabled = false;
             this.automaticDetectionToolStripMenuItem.Name = "automaticDetectionToolStripMenuItem";
-            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(277, 34);
-            this.automaticDetectionToolStripMenuItem.Text = "Automatic Detection";
+            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(326, 34);
+            this.automaticDetectionToolStripMenuItem.Text = "(Beta) Automatic Detection";
+            this.automaticDetectionToolStripMenuItem.ToolTipText = "We will search all supported games and allow you to select two that you wish to a" +
+    "dd.";
+            this.automaticDetectionToolStripMenuItem.Click += new System.EventHandler(this.automaticDetectionToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Enabled = false;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(92, 32);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(92, 48);
             this.settingsToolStripMenuItem.Text = "Settings";
             // 
             // menuStrip2
             // 
             this.menuStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.menuStrip2.Enabled = false;
             this.menuStrip2.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undockedToolStripMenuItem,
             this.debugTextBox});
-            this.menuStrip2.Location = new System.Drawing.Point(0, 525);
+            this.menuStrip2.Location = new System.Drawing.Point(0, 788);
             this.menuStrip2.Name = "menuStrip2";
-            this.menuStrip2.Size = new System.Drawing.Size(1008, 36);
+            this.menuStrip2.Size = new System.Drawing.Size(1512, 54);
             this.menuStrip2.TabIndex = 2;
             this.menuStrip2.Text = "menuStrip2";
             // 
             // undockedToolStripMenuItem
             // 
-            this.undockedToolStripMenuItem.Image = global::DockerForm.Properties.Resources.image_plugged;
+            this.undockedToolStripMenuItem.Image = global::DockerForm.Properties.Resources.intel;
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
-            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(128, 32);
+            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(128, 48);
             this.undockedToolStripMenuItem.Text = "Reading...";
             // 
             // debugTextBox
             // 
-            this.debugTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.debugTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.debugTextBox.Name = "debugTextBox";
-            this.debugTextBox.Size = new System.Drawing.Size(600, 32);
+            this.debugTextBox.Size = new System.Drawing.Size(16, 48);
             // 
             // contextMenuStrip1
             // 
@@ -277,9 +277,9 @@ namespace DockerForm
             this.GameList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.GameList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
             this.GameList.FormattingEnabled = true;
-            this.GameList.Location = new System.Drawing.Point(0, 36);
+            this.GameList.Location = new System.Drawing.Point(0, 81);
             this.GameList.Name = "GameList";
-            this.GameList.Size = new System.Drawing.Size(1008, 489);
+            this.GameList.Size = new System.Drawing.Size(1512, 680);
             this.GameList.Sorted = true;
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
@@ -331,7 +331,6 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripTextBox debugTextBox;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -339,6 +338,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem toolStripStartItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem debugTextBox;
     }
 }
 

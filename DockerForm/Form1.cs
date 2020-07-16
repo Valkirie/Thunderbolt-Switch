@@ -18,6 +18,8 @@ namespace DockerForm
         public static bool IsRunning = true;
         public static bool prevDockStatus = false;
         public static bool DockStatus = false;
+        public static bool IsNvidia = false;
+        public static bool IsAmd = false;
         public static int prevGPUCount = 0;
         public static int GPUCount = 0;
         public static bool IsFirstBoot = true;
@@ -70,7 +72,7 @@ namespace DockerForm
         {
             if (prevDockStatus != DockStatus || prevGPUCount != GPUCount)
             {
-                UpdateFormIcons();
+                try { _instance.Invoke(new Action(delegate () { UpdateFormIcons(); })); } catch (Exception) { }
 
                 if (!IsFirstBoot)
                     DatabaseManager.UpdateFilesAndRegistries(DockStatus);
@@ -89,36 +91,36 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                var wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process";
-                using (var searcher = new ManagementObjectSearcher(wmiQueryString))
-                using (var results = searcher.Get())
-                {
-                    var query = from p in Process.GetProcesses()
-                                join mo in results.Cast<ManagementObject>()
-                                on p.Id equals (int)(uint)mo["ProcessId"]
-                                select new
-                                {
-                                    Process = p,
-                                    Path = (string)mo["ExecutablePath"],
-                                };
-                    foreach (var item in query)
-                    {
-                        foreach (DockerGame game in DatabaseManager.GameDB.Values)
-                        {
-                            string gamepath = Path.Combine(game.Uri, game.Executable).ToLower();
-                            string procpath = item.Path != null ? item.Path.ToLower() : "";
-
-                            if (gamepath != procpath)
-                                continue;
-
-                            if (!DatabaseManager.GameProcesses.ContainsKey(game))
-                                DatabaseManager.GameProcesses.Add(game, item.Process);
-                        }
-                    }
-                }
-
                 try
                 {
+                    var wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process";
+                    using (var searcher = new ManagementObjectSearcher(wmiQueryString))
+                    using (var results = searcher.Get())
+                    {
+                        var query = from p in Process.GetProcesses()
+                                    join mo in results.Cast<ManagementObject>()
+                                    on p.Id equals (int)(uint)mo["ProcessId"]
+                                    select new
+                                    {
+                                        Process = p,
+                                        Path = (string)mo["ExecutablePath"],
+                                    };
+                        foreach (var item in query)
+                        {
+                            foreach (DockerGame game in DatabaseManager.GameDB.Values)
+                            {
+                                string gamepath = Path.Combine(game.Uri, game.Executable).ToLower();
+                                string procpath = item.Path != null ? item.Path.ToLower() : "";
+
+                                if (gamepath != procpath)
+                                    continue;
+
+                                if (!DatabaseManager.GameProcesses.ContainsKey(game))
+                                    DatabaseManager.GameProcesses.Add(game, item.Process);
+                            }
+                        }
+                    }
+
                     for (int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
                     {
                         KeyValuePair<DockerGame, Process> pair = DatabaseManager.GameProcesses.ElementAt(i);
@@ -137,7 +139,6 @@ namespace DockerForm
                     }
                 }
                 catch (Exception) { }
-
                 Thread.Sleep(1000);
             }
         }
@@ -188,6 +189,13 @@ namespace DockerForm
                     }
 
                     DockStatus = (VideoControllers.Count != 1);
+
+                    if(DockStatus)
+                    {
+                        IsNvidia = eGPU.ToLower().Contains("nvidia");
+                        IsAmd = eGPU.ToLower().Contains("amd");
+                    }
+
                     GPUCount = VideoControllers.Count;
                 }
                 catch (Exception) { }
@@ -197,11 +205,18 @@ namespace DockerForm
 
         public static void UpdateFormIcons()
         {
-            _instance.Invoke(new Action(delegate () {
-                _instance.menuStrip2.Items[0].Text = DockStatus ? eGPU : iGPU;
-                _instance.notifyIcon1.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-                _instance.Icon = DockStatus ? Properties.Resources.icon_plugged1 : Properties.Resources.icon_unplugged1;
-            }));
+            // taskbar text
+            _instance.menuStrip2.Items[0].Text = DockStatus ? eGPU : iGPU;
+
+            // taskbar icon
+            _instance.undockedToolStripMenuItem.Image = DockStatus ? (IsNvidia ? Properties.Resources.nvidia : Properties.Resources.amd) : Properties.Resources.intel;
+
+            // main application icon
+            Bitmap bmp = DockStatus ? Properties.Resources.thunderbolt : Properties.Resources.thunderbolt_off;
+            IntPtr Hicon = bmp.GetHicon();
+            Icon myIcon = Icon.FromHandle(Hicon);
+            _instance.notifyIcon1.Icon = myIcon;
+            _instance.Icon = myIcon;
         }
 
         public void UpdateGameItem(DockerGame game)
