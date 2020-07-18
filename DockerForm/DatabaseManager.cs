@@ -192,13 +192,12 @@ namespace DockerForm
                         // Overwrite current database
                         UpdateFilesAndRegistries(game, crc_value, crc_value, true, false);
 
-                        // Restore current settings
+                        // Restore last known settings
                         UpdateFilesAndRegistries(game, path_db, path_db, false, true);
 
                         continue;
                     }
-
-                    if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
+                    else if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
                         // string generation
                         string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
