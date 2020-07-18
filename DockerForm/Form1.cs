@@ -18,13 +18,9 @@ namespace DockerForm
         public static bool IsRunning = true;
         public static bool prevDockStatus = false;
         public static bool DockStatus = false;
-        public static bool IsNvidia = false;
-        public static bool IsAmd = false;
-        public static int prevGPUCount = 0;
-        public static int GPUCount = 0;
         public static bool IsFirstBoot = true;
-        public static string iGPU = "iGPU";
-        public static string eGPU = "eGPU";
+        public static bool IsHardwareReady = false;
+        public static bool IsHardwareNew = false;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -36,7 +32,7 @@ namespace DockerForm
         public static int IGDBListLength;
 
         // Devices vars
-        public static Dictionary<string, VideoController> VideoControllers = new Dictionary<string, VideoController>();
+        public static Dictionary<bool, VideoController> VideoControllers = new Dictionary<bool, VideoController>();
 
         // Folder vars
         public static string path_application, path_database;
@@ -63,27 +59,22 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                UpdateGameDatabase();
+                if(IsHardwareReady && IsHardwareNew)
+                    UpdateGameDatabase();
                 Thread.Sleep(1000);
             }
         }
 
         public static void UpdateGameDatabase()
         {
-            if (prevDockStatus != DockStatus || prevGPUCount != GPUCount)
-            {
+            if (!IsFirstBoot)
+                DatabaseManager.UpdateFilesAndRegistries(DockStatus);
+            else
+                DatabaseManager.SanityCheck();
 
-                if (!IsFirstBoot)
-                    DatabaseManager.UpdateFilesAndRegistries(DockStatus);
-                else
-                    DatabaseManager.SanityCheck();
+            if (IsFirstBoot)
+                IsFirstBoot = false;
 
-                prevDockStatus = DockStatus;
-                prevGPUCount = GPUCount;
-
-                if (IsFirstBoot)
-                    IsFirstBoot = false;
-            }
             _instance.Invoke(new Action(delegate () { UpdateFormIcons(); }));
         }
 
@@ -131,7 +122,7 @@ namespace DockerForm
                         if (proc.HasExited)
                         {
                             // Update current title
-                            string path_game = DockStatus ? eGPU : iGPU;
+                            string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
                             DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
 
                             DatabaseManager.GameProcesses.Remove(game);
@@ -163,40 +154,26 @@ namespace DockerForm
                             lastCheck = currentCheck
                         };
 
-                        if (!vc.IsEnable())
+                        // skip if not enabled
+                        if (vc.ConfigManagerErrorCode != 0)
                             continue;
 
-                        if (!VideoControllers.ContainsKey(vc.DeviceID))
-                            VideoControllers.Add(vc.DeviceID, vc);
-                        else
-                            VideoControllers[vc.DeviceID].lastCheck = currentCheck;
+                        // initialize VideoController
+                        vc.Initialize();
+
+                        VideoControllers[vc.IsExternal] = vc;
                     }
 
-                    for (int i = 0; i < VideoControllers.Count; i++)
-                    {
-                        KeyValuePair<string, VideoController> pair = VideoControllers.ElementAt(i);
+                    // check is array contains a non-integrated GPU
+                    DockStatus = (VideoControllers.ContainsKey(true) && VideoControllers[true].lastCheck == currentCheck);
 
-                        string DeviceID = pair.Key;
-                        VideoController vc = pair.Value;
+                    // tell the software we're ready
+                    if(!IsHardwareReady)
+                        IsHardwareReady = true;
 
-                        if (vc.lastCheck < currentCheck)
-                            VideoControllers.Remove(DeviceID);
-
-                        if (vc.IsIntegrated())
-                            iGPU = vc.Name;
-                        else
-                            eGPU = vc.Name;
-                    }
-
-                    DockStatus = (VideoControllers.Count != 1);
-
-                    if(DockStatus)
-                    {
-                        IsNvidia = eGPU.ToLower().Contains("nvidia");
-                        IsAmd = eGPU.ToLower().Contains("amd");
-                    }
-
-                    GPUCount = VideoControllers.Count;
+                    // has hardware changed ?
+                    IsHardwareNew = (prevDockStatus != DockStatus);
+                    prevDockStatus = DockStatus;
                 }
                 catch (Exception) { }
                 Thread.Sleep(1000);
@@ -247,7 +224,7 @@ namespace DockerForm
             }
 
             // Update current title
-            string path_game = DockStatus ? eGPU : iGPU;
+            string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
             DockerGame output = DatabaseManager.GameDB[game.GUID];
             DatabaseManager.UpdateFilesAndRegistries(output, path_game, path_game, true, false);
 

@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace DockerForm
 {
+    public enum Constructor
+    {
+        Intel = 0,
+        Nvidia = 1,
+        AMD = 2
+    }
+
     public class VideoController
     {
         public string DeviceID;
@@ -13,20 +20,19 @@ namespace DockerForm
         public string Description;
         public uint ConfigManagerErrorCode;
         public DateTime lastCheck;
+        public Constructor Constructor;
+        public bool IsExternal;
 
-        public bool IsDisable()
+        internal void Initialize()
         {
-            return (ConfigManagerErrorCode == 22);
-        }
+            if (Name.ToLower().Contains("nvidia"))
+                Constructor = Constructor.Nvidia;
+            else if (Name.ToLower().Contains("amd"))
+                Constructor = Constructor.AMD;
+            else
+                Constructor = Constructor.Intel;
 
-        public bool IsEnable()
-        {
-            return (ConfigManagerErrorCode == 0);
-        }
-
-        public bool IsIntegrated()
-        {
-            return (DeviceID == "VideoController1");
+            IsExternal = (Constructor != Constructor.Intel);
         }
     }
 }

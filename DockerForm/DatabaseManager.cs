@@ -71,8 +71,8 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(bool DockStatus)
         {
-            string path_dest = DockStatus ? Form1.eGPU : Form1.iGPU;
-            string path_game = DockStatus ? Form1.iGPU : Form1.eGPU;
+            string path_dest = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
+            string path_game = DockStatus ? Form1.VideoControllers[false].Name : Form1.VideoControllers[true].Name;
 
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
@@ -128,7 +128,7 @@ namespace DockerForm
 
         public static void SanityCheck()
         {
-            string path_db = Form1.DockStatus ? Form1.eGPU : Form1.iGPU;
+            string path_db = Form1.DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
 
             foreach (DockerGame game in GameDB.Values)
             {
