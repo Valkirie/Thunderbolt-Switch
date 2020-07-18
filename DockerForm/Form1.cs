@@ -72,7 +72,6 @@ namespace DockerForm
         {
             if (prevDockStatus != DockStatus || prevGPUCount != GPUCount)
             {
-                try { _instance.Invoke(new Action(delegate () { UpdateFormIcons(); })); } catch (Exception) { }
 
                 if (!IsFirstBoot)
                     DatabaseManager.UpdateFilesAndRegistries(DockStatus);
@@ -85,6 +84,7 @@ namespace DockerForm
                 if (IsFirstBoot)
                     IsFirstBoot = false;
             }
+            _instance.Invoke(new Action(delegate () { UpdateFormIcons(); }));
         }
 
         public static void ProcessMonitor(object data)
@@ -205,18 +205,22 @@ namespace DockerForm
 
         public static void UpdateFormIcons()
         {
-            // taskbar text
-            _instance.menuStrip2.Items[0].Text = DockStatus ? eGPU : iGPU;
+            try
+            {
+                // taskbar text
+                _instance.menuStrip2.Items[0].Text = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
 
-            // taskbar icon
-            _instance.undockedToolStripMenuItem.Image = DockStatus ? (IsNvidia ? Properties.Resources.nvidia : Properties.Resources.amd) : Properties.Resources.intel;
+                // taskbar icon
+                _instance.undockedToolStripMenuItem.Image = DockStatus ? (VideoControllers.ContainsKey(true) ? Properties.Resources.nvidia : Properties.Resources.amd) : Properties.Resources.intel;
 
-            // main application icon
-            Bitmap bmp = DockStatus ? Properties.Resources.thunderbolt : Properties.Resources.thunderbolt_off;
-            IntPtr Hicon = bmp.GetHicon();
-            Icon myIcon = Icon.FromHandle(Hicon);
-            _instance.notifyIcon1.Icon = myIcon;
-            _instance.Icon = myIcon;
+                // main application icon
+                Bitmap bmp = DockStatus ? Properties.Resources.thunderbolt : Properties.Resources.thunderbolt_off;
+                IntPtr Hicon = bmp.GetHicon();
+                Icon myIcon = Icon.FromHandle(Hicon);
+                _instance.notifyIcon1.Icon = myIcon;
+                _instance.Icon = myIcon;
+            }
+            catch (Exception) { }
         }
 
         public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
