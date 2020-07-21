@@ -285,7 +285,7 @@ namespace DockerForm
             path_application = AppDomain.CurrentDomain.BaseDirectory;
 
             // path settings
-            path_database = Path.Combine(path_application, "db");
+            path_database = Path.Combine(path_application, "database");
 
             if (!Directory.Exists(path_database))
                 Directory.CreateDirectory(path_database);
