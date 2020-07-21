@@ -66,19 +66,26 @@ namespace DockerForm
 
             game.Serialize();
 
+            string path_crc = Path.Combine(game.Uri, "donotdelete");
+            SetCrc(path_crc, path_dest);
+
             Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
 
         public static void UpdateFilesAndRegistries(bool DockStatus)
         {
-            string path_dest = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
-            string path_game = DockStatus ? Form1.VideoControllers[false].Name : Form1.VideoControllers[true].Name;
+            string path_db = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
 
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
-                UpdateFilesAndRegistries(game, path_dest, path_game, true, true, false);
+            {
+                string path_crc = Path.Combine(game.Uri, "donotdelete");
+                string crc_value = GetCrc(path_crc, path_db);
 
-            Form1.SendNotification("All settings have been updated for (" + path_dest + ")", true);
+                UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false);
+            }
+
+            Form1.SendNotification("All settings have been updated for (" + path_db + ")", true);
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -146,7 +153,6 @@ namespace DockerForm
 
                 string path_crc = Path.Combine(game.Uri, "donotdelete");
                 string crc_value = GetCrc(path_crc, path_db);
-                SetCrc(path_crc, path_db);
 
                 foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
                 {
