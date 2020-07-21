@@ -203,5 +203,11 @@
   <ItemGroup>
     <None Include="Resources\thunderbolt_off.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tb3_off.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tb3_on.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

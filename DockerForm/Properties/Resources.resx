@@ -136,4 +136,10 @@
   <data name="thunderbolt_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\thunderbolt_off.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="tb3_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tb3_off.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tb3_on" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tb3_on.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
