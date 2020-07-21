@@ -59,7 +59,7 @@ namespace DockerForm
         {
             while (IsRunning)
             {
-                if(IsHardwareReady && IsHardwareNew)
+                if(IsHardwareReady && (IsHardwareNew || IsFirstBoot))
                     UpdateGameDatabase();
                 Thread.Sleep(1000);
             }
