@@ -129,7 +129,7 @@ namespace DockerForm
                         }
                     }
                 }
-                catch (Exception) { }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
                 Thread.Sleep(1000);
             }
         }
@@ -175,7 +175,7 @@ namespace DockerForm
                     IsHardwareNew = (prevDockStatus != DockStatus);
                     prevDockStatus = DockStatus;
                 }
-                catch (Exception) { }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
                 Thread.Sleep(1000);
             }
         }
@@ -191,13 +191,11 @@ namespace DockerForm
                 _instance.undockedToolStripMenuItem.Image = DockStatus ? (VideoControllers.ContainsKey(true) ? Properties.Resources.nvidia : Properties.Resources.amd) : Properties.Resources.intel;
 
                 // main application icon
-                Bitmap bmp = DockStatus ? Properties.Resources.thunderbolt : Properties.Resources.thunderbolt_off;
-                IntPtr Hicon = bmp.GetHicon();
-                Icon myIcon = Icon.FromHandle(Hicon);
+                Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
                 _instance.notifyIcon1.Icon = myIcon;
                 _instance.Icon = myIcon;
             }
-            catch (Exception) { }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
@@ -251,7 +249,7 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
             }
 
             // Update the DockerGame database

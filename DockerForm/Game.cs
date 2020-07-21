@@ -108,7 +108,7 @@ namespace DockerForm
 
             FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
 
-            try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception) { }
+            try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
 
         private Dictionary<string, string> GetAppProperties(string filePath1)
