@@ -145,13 +145,20 @@ namespace DockerForm
             // Store the last time this game was updated
             LastCheck = DateTime.Now;
 
+            string tempname = Path.Combine(Form1.path_database, FolderName) + ".tmp";
             string filename = Path.Combine(Form1.path_database, FolderName) + ".dat";
-            using (FileStream fs = new FileStream(filename, FileMode.Create))
+            using (FileStream fs = new FileStream(tempname, FileMode.Create))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
                 formatter.Serialize(fs, this);
                 fs.Close();
             }
+
+            if (File.Exists(filename))
+                File.Delete(filename);
+            
+            // avoid database corruption on device crash
+            File.Move(tempname, filename);
         }
 
         public bool HasReachableFolder()

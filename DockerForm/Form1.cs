@@ -237,17 +237,21 @@ namespace DockerForm
             string[] fileEntries = Directory.GetFiles(path_database, "*.dat");
             foreach (string filename in fileEntries)
             {
-                using (Stream reader = new FileStream(filename, FileMode.Open))
+                try
                 {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    DockerGame game = (DockerGame)formatter.Deserialize(reader);
-                    game.SanityCheck();
+                    using (Stream reader = new FileStream(filename, FileMode.Open))
+                    {
+                        BinaryFormatter formatter = new BinaryFormatter();
+                        DockerGame game = (DockerGame)formatter.Deserialize(reader);
+                        game.SanityCheck();
 
-                    if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
-                        DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+                        if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
+                            DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
 
-                    reader.Dispose();
+                        reader.Dispose();
+                    }
                 }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
             }
 
             // Update the DockerGame database
