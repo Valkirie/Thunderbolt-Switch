@@ -129,7 +129,7 @@ namespace DockerForm
                         }
                     }
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "ProcessMonitor"); }
                 Thread.Sleep(1000);
             }
         }
@@ -175,7 +175,7 @@ namespace DockerForm
                     IsHardwareNew = (prevDockStatus != DockStatus);
                     prevDockStatus = DockStatus;
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "VideoControllerMonitor"); }
                 Thread.Sleep(1000);
             }
         }
@@ -195,7 +195,7 @@ namespace DockerForm
                 _instance.notifyIcon1.Icon = myIcon;
                 _instance.Icon = myIcon;
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "UpdateFormIcons"); }
         }
 
         public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
@@ -249,7 +249,7 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "UpdateGameList"); }
             }
 
             // Update the DockerGame database

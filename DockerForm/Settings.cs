@@ -385,7 +385,7 @@ namespace DockerForm
                     GameIcon.BackgroundImage = thisGame.Image;
                 }
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "MenuItemClickHandler"); }
 
             SuspendWindow(false);
         }
