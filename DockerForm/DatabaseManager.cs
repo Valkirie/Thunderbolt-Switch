@@ -15,8 +15,9 @@ namespace DockerForm
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
         public static Dictionary<DockerGame, Process> GameProcesses = new Dictionary<DockerGame, Process>();
 
-        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB = true, bool updateFILE = true, bool pushToast = true)
+        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
         {
+            string path_crc = Path.Combine(game.Uri, "donotdelete");
             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
@@ -66,8 +67,8 @@ namespace DockerForm
 
             game.Serialize();
 
-            string path_crc = Path.Combine(game.Uri, "donotdelete");
-            SetCrc(path_crc, path_dest);
+            // Update CRC
+            SetCrc(path_crc, crc_value);
 
             Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
@@ -82,7 +83,7 @@ namespace DockerForm
                 string path_crc = Path.Combine(game.Uri, "donotdelete");
                 string crc_value = GetCrc(path_crc, path_db);
 
-                UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false);
+                UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false, path_db);
             }
 
             Form1.SendNotification("All settings have been updated for (" + path_db + ")", true);
@@ -172,8 +173,8 @@ namespace DockerForm
                         file = new FileInfo(filename);
 
                         fileBytes = File.ReadAllBytes(file.FullName);
-                        if(setting.data.ContainsKey((string)path_db))
-                            fileDBBytes = setting.data[(string)path_db];
+                        if(setting.data.ContainsKey(path_db))
+                            fileDBBytes = setting.data[path_db];
                     }
                     else if (setting.Type == SettingsType.Registry)
                     {
@@ -184,8 +185,8 @@ namespace DockerForm
                         file = new FileInfo(tempfile);
 
                         fileBytes = File.ReadAllBytes(tempfile);
-                        if (setting.data.ContainsKey((string)path_db))
-                            fileDBBytes = setting.data[(string)path_db];
+                        if (setting.data.ContainsKey(path_db))
+                            fileDBBytes = setting.data[path_db];
 
                         File.Delete(tempfile);
                     }
@@ -195,30 +196,21 @@ namespace DockerForm
 
                     if (path_db != crc_value)
                     {
-                        // Overwrite current database
-                        UpdateFilesAndRegistries(game, crc_value, crc_value, true, false);
+                        // Overwrite current database and restore last known settings
+                        UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
 
-                        // Restore last known settings
-                        UpdateFilesAndRegistries(game, path_db, path_db, false, true);
+                        Form1.SendNotification(game.Name + " settings were restored due to a CRC missmatch (was: " + crc_value + ", now is: " + path_db + ").", true);
 
                         continue;
                     }
                     else if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
-                        // string generation
-                        string WarningStr = "Your local " + game.Name + " Main files conflict with the ones stored in our Database.";
-                        string ModifiedDB = "Last modified: " + game.LastCheck + " - " + (file.LastWriteTime > game.LastCheck ? "OLDER" : "NEWER");
-                        string ModifiedLOCAL = "Last modified: " + file.LastWriteTime + " - " + (file.LastWriteTime < game.LastCheck ? "OLDER" : "NEWER");
-
-                        DialogBox dialogBox = new DockerForm.DialogBox();
-                        dialogBox.UpdateDialogBox("Database Sync Conflict", WarningStr, ModifiedDB, ModifiedLOCAL);
-
+                        DialogBox dialogBox = new DialogBox();
+                        dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
-                        if (dialogResult == DialogResult.Yes) // Overwrite current settings
-                            UpdateFilesAndRegistries(game, path_db, path_db, false, true);
-                        else if (dialogResult == DialogResult.No) // Overwrite current database
-                            UpdateFilesAndRegistries(game, path_db, path_db, true, false);
+                        bool result = (dialogResult == DialogResult.Yes);
+                        UpdateFilesAndRegistries(game, path_db, path_db, !result, result, true, path_db);
 
                         continue;
                     }

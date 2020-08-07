@@ -77,10 +77,10 @@ namespace DockerForm
             this.SettingsList.FullRowSelect = true;
             this.SettingsList.HideSelection = false;
             this.SettingsList.LabelEdit = true;
-            this.SettingsList.Location = new System.Drawing.Point(3, 16);
+            this.SettingsList.Location = new System.Drawing.Point(3, 19);
             this.SettingsList.Margin = new System.Windows.Forms.Padding(2);
             this.SettingsList.Name = "SettingsList";
-            this.SettingsList.Size = new System.Drawing.Size(388, 242);
+            this.SettingsList.Size = new System.Drawing.Size(453, 279);
             this.SettingsList.TabIndex = 7;
             this.SettingsList.UseCompatibleStateImageBehavior = false;
             this.SettingsList.View = System.Windows.Forms.View.Details;
@@ -163,35 +163,35 @@ namespace DockerForm
             this.groupBoxInfo.Controls.Add(this.labelName);
             this.groupBoxInfo.Controls.Add(this.GameIcon);
             this.groupBoxInfo.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxInfo.Location = new System.Drawing.Point(10, 10);
+            this.groupBoxInfo.Location = new System.Drawing.Point(12, 12);
             this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Size = new System.Drawing.Size(394, 170);
+            this.groupBoxInfo.Size = new System.Drawing.Size(459, 196);
             this.groupBoxInfo.TabIndex = 0;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
             // 
             // field_Filename
             // 
-            this.field_Filename.Location = new System.Drawing.Point(80, 123);
+            this.field_Filename.Location = new System.Drawing.Point(93, 142);
             this.field_Filename.Name = "field_Filename";
             this.field_Filename.ReadOnly = true;
-            this.field_Filename.Size = new System.Drawing.Size(159, 20);
+            this.field_Filename.Size = new System.Drawing.Size(185, 23);
             this.field_Filename.TabIndex = 5;
             // 
             // labelFilename
             // 
             this.labelFilename.AutoSize = true;
-            this.labelFilename.Location = new System.Drawing.Point(6, 123);
+            this.labelFilename.Location = new System.Drawing.Point(7, 142);
             this.labelFilename.Name = "labelFilename";
-            this.labelFilename.Size = new System.Drawing.Size(49, 13);
+            this.labelFilename.Size = new System.Drawing.Size(55, 15);
             this.labelFilename.TabIndex = 11;
             this.labelFilename.Text = "Filename";
             // 
             // buttonBrowseFile
             // 
-            this.buttonBrowseFile.Location = new System.Drawing.Point(245, 123);
+            this.buttonBrowseFile.Location = new System.Drawing.Point(286, 142);
             this.buttonBrowseFile.Name = "buttonBrowseFile";
-            this.buttonBrowseFile.Size = new System.Drawing.Size(32, 20);
+            this.buttonBrowseFile.Size = new System.Drawing.Size(37, 23);
             this.buttonBrowseFile.TabIndex = 6;
             this.buttonBrowseFile.Text = "...";
             this.buttonBrowseFile.UseVisualStyleBackColor = true;
@@ -199,69 +199,69 @@ namespace DockerForm
             // 
             // field_Version
             // 
-            this.field_Version.Location = new System.Drawing.Point(80, 71);
+            this.field_Version.Location = new System.Drawing.Point(93, 82);
             this.field_Version.Name = "field_Version";
             this.field_Version.ReadOnly = true;
-            this.field_Version.Size = new System.Drawing.Size(197, 20);
+            this.field_Version.Size = new System.Drawing.Size(229, 23);
             this.field_Version.TabIndex = 3;
             // 
             // labelVersion
             // 
             this.labelVersion.AutoSize = true;
-            this.labelVersion.Location = new System.Drawing.Point(6, 71);
+            this.labelVersion.Location = new System.Drawing.Point(7, 82);
             this.labelVersion.Name = "labelVersion";
-            this.labelVersion.Size = new System.Drawing.Size(42, 13);
+            this.labelVersion.Size = new System.Drawing.Size(45, 15);
             this.labelVersion.TabIndex = 7;
             this.labelVersion.Text = "Version";
             // 
             // field_Developer
             // 
-            this.field_Developer.Location = new System.Drawing.Point(80, 45);
+            this.field_Developer.Location = new System.Drawing.Point(93, 52);
             this.field_Developer.Name = "field_Developer";
-            this.field_Developer.Size = new System.Drawing.Size(197, 20);
+            this.field_Developer.Size = new System.Drawing.Size(229, 23);
             this.field_Developer.TabIndex = 2;
             this.field_Developer.TextChanged += new System.EventHandler(this.field_Developer_TextChanged);
             // 
             // labelDeveloper
             // 
             this.labelDeveloper.AutoSize = true;
-            this.labelDeveloper.Location = new System.Drawing.Point(6, 45);
+            this.labelDeveloper.Location = new System.Drawing.Point(7, 52);
             this.labelDeveloper.Name = "labelDeveloper";
-            this.labelDeveloper.Size = new System.Drawing.Size(56, 13);
+            this.labelDeveloper.Size = new System.Drawing.Size(60, 15);
             this.labelDeveloper.TabIndex = 5;
             this.labelDeveloper.Text = "Developer";
             // 
             // field_GUID
             // 
-            this.field_GUID.Location = new System.Drawing.Point(80, 97);
+            this.field_GUID.Location = new System.Drawing.Point(93, 112);
             this.field_GUID.Name = "field_GUID";
             this.field_GUID.ReadOnly = true;
-            this.field_GUID.Size = new System.Drawing.Size(197, 20);
+            this.field_GUID.Size = new System.Drawing.Size(229, 23);
             this.field_GUID.TabIndex = 4;
             // 
             // labelGUID
             // 
             this.labelGUID.AutoSize = true;
-            this.labelGUID.Location = new System.Drawing.Point(6, 97);
+            this.labelGUID.Location = new System.Drawing.Point(7, 112);
             this.labelGUID.Name = "labelGUID";
-            this.labelGUID.Size = new System.Drawing.Size(41, 13);
+            this.labelGUID.Size = new System.Drawing.Size(43, 15);
             this.labelGUID.TabIndex = 3;
             this.labelGUID.Text = "Title ID";
             // 
             // field_Name
             // 
-            this.field_Name.Location = new System.Drawing.Point(80, 19);
+            this.field_Name.Location = new System.Drawing.Point(93, 22);
             this.field_Name.Name = "field_Name";
-            this.field_Name.Size = new System.Drawing.Size(197, 20);
+            this.field_Name.Size = new System.Drawing.Size(229, 23);
             this.field_Name.TabIndex = 1;
             this.field_Name.TextChanged += new System.EventHandler(this.field_Name_TextChanged);
             // 
             // labelName
             // 
             this.labelName.AutoSize = true;
-            this.labelName.Location = new System.Drawing.Point(6, 19);
+            this.labelName.Location = new System.Drawing.Point(7, 22);
             this.labelName.Name = "labelName";
-            this.labelName.Size = new System.Drawing.Size(35, 13);
+            this.labelName.Size = new System.Drawing.Size(39, 15);
             this.labelName.TabIndex = 1;
             this.labelName.Text = "Name";
             // 
@@ -271,9 +271,9 @@ namespace DockerForm
             this.GameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.GameIcon.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.GameIcon.ContextMenuStrip = this.ImageMenuStrip;
-            this.GameIcon.Location = new System.Drawing.Point(283, 19);
+            this.GameIcon.Location = new System.Drawing.Point(330, 22);
             this.GameIcon.Name = "GameIcon";
-            this.GameIcon.Size = new System.Drawing.Size(105, 140);
+            this.GameIcon.Size = new System.Drawing.Size(122, 161);
             this.GameIcon.TabIndex = 0;
             this.GameIcon.TabStop = false;
             this.GameIcon.BackgroundImageChanged += new System.EventHandler(this.GameIcon_Click);
@@ -304,26 +304,27 @@ namespace DockerForm
             // 
             this.groupBoxSettings.Controls.Add(this.SettingsList);
             this.groupBoxSettings.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxSettings.Location = new System.Drawing.Point(10, 186);
+            this.groupBoxSettings.Location = new System.Drawing.Point(12, 214);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(394, 261);
+            this.groupBoxSettings.Size = new System.Drawing.Size(459, 301);
             this.groupBoxSettings.TabIndex = 1;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
             // 
             // Settings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(414, 457);
+            this.ClientSize = new System.Drawing.Size(483, 527);
             this.Controls.Add(this.groupBoxSettings);
             this.Controls.Add(this.groupBoxInfo);
             this.DoubleBuffered = true;
+            this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Settings";
-            this.Padding = new System.Windows.Forms.Padding(10);
+            this.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Properties";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_Closing);

@@ -75,7 +75,7 @@ namespace DockerForm
             if (IsFirstBoot)
                 IsFirstBoot = false;
 
-            _instance.Invoke(new Action(delegate () { UpdateFormIcons(); }));
+            _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
         }
 
         public static void ProcessMonitor(object data)
@@ -123,13 +123,13 @@ namespace DockerForm
                         {
                             // Update current title
                             string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
-                            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false);
+                            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false, true, path_game);
 
                             DatabaseManager.GameProcesses.Remove(game);
                         }
                     }
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "ProcessMonitor"); }
+                catch (Exception ex) { SendNotification("ProcessMonitor: " + ex.Message, true); }
                 Thread.Sleep(1000);
             }
         }
@@ -175,7 +175,7 @@ namespace DockerForm
                     IsHardwareNew = (prevDockStatus != DockStatus);
                     prevDockStatus = DockStatus;
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "VideoControllerMonitor"); }
+                catch (Exception ex) { SendNotification("VideoControllerMonitor: " + ex.Message, true); }
                 Thread.Sleep(1000);
             }
         }
@@ -195,7 +195,7 @@ namespace DockerForm
                 _instance.notifyIcon1.Icon = myIcon;
                 _instance.Icon = myIcon;
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "UpdateFormIcons"); }
+            catch (Exception ex) { SendNotification("UpdateFormIcons: " + ex.Message, true); }
         }
 
         public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
@@ -224,7 +224,7 @@ namespace DockerForm
             // Update current title
             string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
             DockerGame output = DatabaseManager.GameDB[game.GUID];
-            DatabaseManager.UpdateFilesAndRegistries(output, path_game, path_game, true, false);
+            DatabaseManager.UpdateFilesAndRegistries(output, path_game, path_game, true, false, true, path_game);
 
             GameList.Sort();
         }
@@ -249,7 +249,7 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "UpdateGameList"); }
+                catch (Exception ex) { SendNotification("UpdateGameList: " + ex.Message, true); }
             }
 
             // Update the DockerGame database

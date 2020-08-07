@@ -99,14 +99,12 @@ namespace DockerForm
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            if (e.Bounds.Width == 0)
-                return;
-
-            if (this.Items.Count == 0)
-                return;
-
-            exListBoxItem item = (exListBoxItem)Items[e.Index];
-            item.drawItem(e, Margin, format, this);
+            try
+            {
+                exListBoxItem item = (exListBoxItem)Items[e.Index];
+                item.drawItem(e, Margin, format, this);
+            }
+            catch (Exception) { }
         }
 
         public void Sort()
