@@ -198,7 +198,7 @@ namespace DockerForm
             catch (Exception ex) { SendNotification("UpdateFormIcons: " + ex.Message, true); }
         }
 
-        public void UpdateGameItem(DockerGame game, bool ForceUpdate = false)
+        public void InsertOrUpdateGameItem(DockerGame game)
         {
             exListBoxItem newitem = new exListBoxItem(game);
 
@@ -206,19 +206,6 @@ namespace DockerForm
             {
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
-            }
-            else if (ForceUpdate)
-            {
-                for (int i = 0; i < GameList.Items.Count; i++)
-                {
-                    exListBoxItem item = (exListBoxItem)GameList.Items[i];
-                    if (item.Guid == game.GUID)
-                    {
-                        GameList.Items[i] = newitem;
-                        DatabaseManager.GameDB[game.GUID] = game;
-                        break;
-                    }
-                }
             }
 
             // Update current title
@@ -488,12 +475,12 @@ namespace DockerForm
                 if (dialogResult == DialogResult.Yes)
                 {
                     string filename = Path.Combine(path_database, game.FolderName + ".dat");
+
                     if (File.Exists(filename))
-                    {
                         File.Delete(filename);
-                        DatabaseManager.GameDB.TryRemove(item.Guid, out game);
-                        GameList.Items.Remove(item);
-                    }
+
+                    DatabaseManager.GameDB.TryRemove(item.Guid, out game);
+                    GameList.Items.Remove(item);
                 }
             }
         }
@@ -507,7 +494,7 @@ namespace DockerForm
             {
                 DockerGame thisGame = new DockerGame(uri);
                 thisGame.SanityCheck();
-                UpdateGameItem(thisGame);
+                InsertOrUpdateGameItem(thisGame);
             }
         }
 
@@ -518,6 +505,11 @@ namespace DockerForm
             // only display the settings window when an executable has been picked.
             if (currentSettings.GetIsReady())
                 currentSettings.Show();
+            {
+                DockerGame game = currentSettings.GetGame();
+                if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
+                    currentSettings.Show();
+            }
         }
 
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)

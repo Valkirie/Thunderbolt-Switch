@@ -32,6 +32,11 @@ namespace DockerForm
             return IsReady;
         }
 
+        public DockerGame GetGame()
+        {
+            return thisGame;
+        }
+
         public void SetStartPos()
         {
             this.StartPosition = FormStartPosition.Manual;
@@ -118,7 +123,7 @@ namespace DockerForm
             }
 
             thisGame.SanityCheck();
-            thisForm.UpdateGameItem(thisGame, true);
+            thisForm.InsertOrUpdateGameItem(thisGame);
         }
 
         private bool PickAGame()
