@@ -40,27 +40,72 @@ namespace DockerForm
         // Form vars
         private static Form1 _instance;
         private static Thread ThreadGPU, ThreadDB;
+        private static DateTime LogTime;
 
-        public static void SendNotification(string input, bool pushToast)
+        public static void InitiateLog()
         {
+            string filename = "DockerForm.log";
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            File.CreateText(filename).Close();
+
+            UpdateLog("Initialization complete");
+        }
+
+        public static void UpdateLog(string input, bool IsError = false)
+        {
+            string filename = "DockerForm.log";
+            LogTime = DateTime.Now;
+
+            string type = IsError ? "ERROR" : "LOG";
+
+            using (StreamWriter sw = File.AppendText(filename))
+                sw.WriteLine(LogTime + "\t" + type + "\t\t" + input);
+        }
+
+        public static void SendNotification(string input, bool pushToast, bool pushLog = false)
+        {
+            _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
+
             if (!ToastNotifications)
                 return;
 
-            _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
-
             if (pushToast)
             {
-                _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.BalloonTipText = input));
-                _instance.BeginInvoke(new Action(() => _instance.notifyIcon1.ShowBalloonTip(1000)));
+                _instance.notifyIcon1.BalloonTipText = input;
+                _instance.notifyIcon1.ShowBalloonTip(1000);
             }
+
+            if (pushLog)
+                UpdateLog(input);
         }
 
         public static void StatusMonitor(object data)
         {
             while (IsRunning)
             {
-                if(IsHardwareReady && (IsHardwareNew || IsFirstBoot))
-                    UpdateGameDatabase();
+                if (IsHardwareReady)
+                {
+                    if (IsFirstBoot)
+                    {
+                        InitiateLog();
+                        UpdateLog("iGPU: " + (VideoControllers.ContainsKey(false) ? VideoControllers[false].Name : "none"));
+
+                        if (MonitorProcesses)
+                        {
+                            Thread ThreadEXE = new Thread(ProcessMonitor);
+                            ThreadEXE.Start();
+                        }
+                    }
+
+                    if (IsHardwareNew)
+                        UpdateLog("eGPU: " + (VideoControllers.ContainsKey(true) ? VideoControllers[true].Name : "none"));
+
+                    if (IsHardwareNew || IsFirstBoot)
+                        UpdateGameDatabase();
+                }
+
                 Thread.Sleep(1000);
             }
         }
@@ -107,7 +152,10 @@ namespace DockerForm
                                     continue;
 
                                 if (!DatabaseManager.GameProcesses.ContainsKey(game))
+                                {
                                     DatabaseManager.GameProcesses.Add(game, item.Process);
+                                    UpdateLog("Process [" + item.Process.Id + "] " + item.Process.ProcessName + " has started");
+                                }
                             }
                         }
                     }
@@ -126,10 +174,11 @@ namespace DockerForm
                             DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false, true, path_game);
 
                             DatabaseManager.GameProcesses.Remove(game);
+                            UpdateLog("Process [" + proc.Id + "] " + proc.ProcessName + " has halted");
                         }
                     }
                 }
-                catch (Exception ex) { SendNotification("ProcessMonitor: " + ex.Message, true); }
+                catch (Exception ex) { UpdateLog("ProcessMonitor: " + ex.Message, true); }
                 Thread.Sleep(1000);
             }
         }
@@ -175,7 +224,7 @@ namespace DockerForm
                     IsHardwareNew = (prevDockStatus != DockStatus);
                     prevDockStatus = DockStatus;
                 }
-                catch (Exception ex) { SendNotification("VideoControllerMonitor: " + ex.Message, true); }
+                catch (Exception ex) { UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
                 Thread.Sleep(1000);
             }
         }
@@ -195,7 +244,7 @@ namespace DockerForm
                 _instance.notifyIcon1.Icon = myIcon;
                 _instance.Icon = myIcon;
             }
-            catch (Exception ex) { SendNotification("UpdateFormIcons: " + ex.Message, true); }
+            catch (Exception ex) { UpdateLog("UpdateFormIcons: " + ex.Message, true); }
         }
 
         public void InsertOrUpdateGameItem(DockerGame game)
@@ -206,6 +255,8 @@ namespace DockerForm
             {
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
+
+                UpdateLog("[" + game.Name + "] has been added to the database");
             }
 
             // Update current title
@@ -236,7 +287,7 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { SendNotification("UpdateGameList: " + ex.Message, true); }
+                catch (Exception ex) { UpdateLog("UpdateGameList: " + ex.Message, true); }
             }
 
             // Update the DockerGame database
@@ -306,12 +357,6 @@ namespace DockerForm
 
             ThreadGPU.Start();
             ThreadDB.Start();
-
-            if (MonitorProcesses)
-            {
-                Thread ThreadEXE = new Thread(ProcessMonitor);
-                ThreadEXE.Start();
-            }
         }
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
@@ -481,6 +526,7 @@ namespace DockerForm
 
                     DatabaseManager.GameDB.TryRemove(item.Guid, out game);
                     GameList.Items.Remove(item);
+                    UpdateLog("[" + game.Name + "] has been removed from the database");
                 }
             }
         }
@@ -504,11 +550,12 @@ namespace DockerForm
 
             // only display the settings window when an executable has been picked.
             if (currentSettings.GetIsReady())
-                currentSettings.Show();
             {
                 DockerGame game = currentSettings.GetGame();
                 if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
                     currentSettings.Show();
+                else
+                    SendNotification(game.Name + " already exists in your current database", true);
             }
         }
 

@@ -21,6 +21,7 @@ namespace DockerForm
             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                string file = Path.GetFileName(filename);
 
                 if (!File.Exists(filename))
                 {
@@ -30,34 +31,88 @@ namespace DockerForm
 
                 if (setting.Type == SettingsType.File)
                 {
+                    // We store the data
+                    byte[] s_file = File.ReadAllBytes(filename);
+
                     // 1. Save current settings
                     if (updateDB)
-                        setting.data[path_game] = File.ReadAllBytes(filename);
+                    {
+                        if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
+                        {
+                            setting.data[path_game] = s_file;
+                            Form1.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
+                        }
+                        else
+                        {
+                            Form1.UpdateLog("[" + game.Name + "]" + " database data update skipped for file [" + file + "] - similar");
+                        }
+                    }
 
                     // 2. Restore proper settings
-                    if (updateFILE && setting.data.ContainsKey(path_dest))
+                    if (updateFILE)
                     {
-                        File.WriteAllBytes(filename, setting.data[path_dest]);
-                        File.SetLastWriteTime(filename, game.LastCheck);
+                        if (setting.data.ContainsKey(path_dest))
+                        {
+                            if (!Equality(s_file, setting.data[path_dest]))
+                            {
+                                File.WriteAllBytes(filename, setting.data[path_dest]);
+                                File.SetLastWriteTime(filename, game.LastCheck);
+                                Form1.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
+                            }
+                            else
+                            {
+                                Form1.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - similar");
+                            }
+                        }
+                        else
+                        {
+                            Form1.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - no database data available");
+                        }
                     }
                 }
                 else if(setting.Type == SettingsType.Registry)
                 {
                     // We generate a temporary reg file
                     string tempfile = Path.Combine(Form1.path_application, "temp.reg");
+                    RegistryManager.ExportKey(filename, tempfile);
+
+                    // We store the data
+                    byte[] s_file = File.ReadAllBytes(tempfile);
 
                     // 1. Save current settings
                     if (updateDB)
                     {
-                        RegistryManager.ExportKey(filename, tempfile);
-                        setting.data[path_game] = File.ReadAllBytes(tempfile);
+                        if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
+                        {
+                            setting.data[path_game] = s_file;
+                            Form1.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
+                        }
+                        else
+                        {
+                            Form1.UpdateLog("[" + game.Name + "]" + " database registry data update skipped for file [" + file + "] - similar");
+                        }
                     }
 
                     // 2. Restore proper settings
-                    if (updateFILE && setting.data.ContainsKey(path_dest))
+                    if (updateFILE)
                     {
-                        File.WriteAllBytes(tempfile, setting.data[path_dest]);
-                        RegistryManager.RestoreKey(tempfile);
+                        if(setting.data.ContainsKey(path_dest))
+                        {
+                            if (!Equality(s_file, setting.data[path_dest]))
+                            {
+                                File.WriteAllBytes(tempfile, setting.data[path_dest]);
+                                RegistryManager.RestoreKey(tempfile);
+                                Form1.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
+                            }
+                            else
+                            {
+                                Form1.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - similar");
+                            }
+                        }
+                        else
+                        {
+                            Form1.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - no database data available");
+                        }
                     }
 
                     // Delete the temporary reg file
@@ -77,6 +132,8 @@ namespace DockerForm
         {
             string path_db = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
 
+            Form1.UpdateLog("Updating database with docking status set to: " + DockStatus);
+
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
             {
@@ -86,7 +143,7 @@ namespace DockerForm
                 UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false, path_db);
             }
 
-            Form1.SendNotification("All settings have been updated for (" + path_db + ")", true);
+            Form1.SendNotification("Database has been updated for (" + path_db + ")", true);
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -144,9 +201,9 @@ namespace DockerForm
                 {
                     switch(game.ErrorCode)
                     {
-                        case ErrorCode.MissingExecutable: Form1.SendNotification(game.Name + " has an unreachable executable.", true); break;
-                        case ErrorCode.MissingFolder: Form1.SendNotification(game.Name + " has an unreachable folder.", true); break;
-                        case ErrorCode.MissingSettings: Form1.SendNotification(game.Name + " has no settings defined.", true); break;
+                        case ErrorCode.MissingExecutable: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable executable"); break;
+                        case ErrorCode.MissingFolder: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable folder"); break;
+                        case ErrorCode.MissingSettings: Form1.UpdateLog("[" + game.Name + "]" + " has no settings defined"); break;
                     }
 
                     continue;
@@ -196,15 +253,17 @@ namespace DockerForm
 
                     if (path_db != crc_value)
                     {
+                        Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true);
+
                         // Overwrite current database and restore last known settings
                         UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
-
-                        Form1.SendNotification(game.Name + " settings were restored due to a CRC missmatch (was: " + crc_value + ", now is: " + path_db + ").", true);
 
                         continue;
                     }
                     else if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
+                        Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true);
+
                         DialogBox dialogBox = new DialogBox();
                         dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
                         DialogResult dialogResult = dialogBox.ShowDialog();
