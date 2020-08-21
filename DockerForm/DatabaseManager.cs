@@ -201,9 +201,9 @@ namespace DockerForm
                 {
                     switch(game.ErrorCode)
                     {
-                        case ErrorCode.MissingExecutable: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable executable"); break;
-                        case ErrorCode.MissingFolder: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable folder"); break;
-                        case ErrorCode.MissingSettings: Form1.UpdateLog("[" + game.Name + "]" + " has no settings defined"); break;
+                        case ErrorCode.MissingExecutable: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable executable", true); break;
+                        case ErrorCode.MissingFolder: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable folder", true); break;
+                        case ErrorCode.MissingSettings: Form1.UpdateLog("[" + game.Name + "]" + " has no settings defined", true); break;
                     }
 
                     continue;
