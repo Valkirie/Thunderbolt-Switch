@@ -255,8 +255,21 @@ namespace DockerForm
             {
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
-
-                UpdateLog("[" + game.Name + "] has been added to the database");
+                UpdateLog("[" + game.Name + "] profile has been added to the database");
+            }
+            else
+            {
+                for (int i = 0; i < GameList.Items.Count; i++)
+                {
+                    exListBoxItem item = (exListBoxItem)GameList.Items[i];
+                    if (item.Guid == game.GUID)
+                    {
+                        GameList.Items[i] = newitem;
+                        DatabaseManager.GameDB[game.GUID] = game;
+                        UpdateLog("[" + game.Name + "] profile has been updated");
+                        break;
+                    }
+                }
             }
 
             // Update current title
