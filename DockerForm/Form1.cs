@@ -42,15 +42,16 @@ namespace DockerForm
         private static Thread ThreadGPU, ThreadDB;
         private static DateTime LogTime;
 
-        public static void InitiateLog()
+        private const int WM_DEVICECHANGE = 0x0219;
+        protected override void WndProc(ref Message m)
         {
-            string filename = "DockerForm.log";
-            if (File.Exists(filename))
-                File.Delete(filename);
-
-            File.CreateText(filename).Close();
-
-            UpdateLog("Initialization complete");
+            if (m.Msg == WM_DEVICECHANGE)
+            {
+                ThreadGPU = new Thread(VideoControllerMonitor);
+                if(!ThreadGPU.IsBackground)
+                    ThreadGPU.Start();
+            }
+            base.WndProc(ref m);
         }
 
         public static void UpdateLog(string input, bool IsError = false)
@@ -83,150 +84,91 @@ namespace DockerForm
 
         public static void StatusMonitor(object data)
         {
-            while (IsRunning)
+            while (!IsHardwareReady)
+                Thread.Sleep(500);
+
+            if (IsFirstBoot)
             {
-                if (IsHardwareReady)
+                // Monitor processes
+                ManagementEventWatcher stopWatch = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
+                stopWatch.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
+                stopWatch.Start();
+            }
+        }
+
+        static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
+        {
+            string ProcessName = (string)e.NewEvent["ProcessName"];
+
+            foreach (DockerGame game in DatabaseManager.GameDB.Values)
+            {
+                if (game.Executable == ProcessName)
                 {
-                    if (IsFirstBoot)
-                    {
-                        InitiateLog();
-                        UpdateLog("iGPU: " + (VideoControllers.ContainsKey(false) ? VideoControllers[false].Name : "none"));
-
-                        if (MonitorProcesses)
-                        {
-                            Thread ThreadEXE = new Thread(ProcessMonitor);
-                            ThreadEXE.Start();
-                        }
-                    }
-
-                    if (IsHardwareNew)
-                        UpdateLog("eGPU: " + (VideoControllers.ContainsKey(true) ? VideoControllers[true].Name : "none"));
-
-                    if (IsHardwareNew || IsFirstBoot)
-                        UpdateGameDatabase();
+                    // Update current title
+                    string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
+                    DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false, true, path_game);
                 }
-
-                Thread.Sleep(1000);
             }
         }
 
         public static void UpdateGameDatabase()
         {
-            if (!IsFirstBoot)
-                DatabaseManager.UpdateFilesAndRegistries(DockStatus);
-            else
-                DatabaseManager.SanityCheck();
-
             if (IsFirstBoot)
+            {
+                DatabaseManager.SanityCheck();
                 IsFirstBoot = false;
+            }
+            else
+                DatabaseManager.UpdateFilesAndRegistries(DockStatus);
 
             _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
         }
 
-        public static void ProcessMonitor(object data)
-        {
-            while (IsRunning)
-            {
-                try
-                {
-                    var wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process";
-                    using (var searcher = new ManagementObjectSearcher(wmiQueryString))
-                    using (var results = searcher.Get())
-                    {
-                        var query = from p in Process.GetProcesses()
-                                    join mo in results.Cast<ManagementObject>()
-                                    on p.Id equals (int)(uint)mo["ProcessId"]
-                                    select new
-                                    {
-                                        Process = p,
-                                        Path = (string)mo["ExecutablePath"],
-                                    };
-                        foreach (var item in query)
-                        {
-                            foreach (DockerGame game in DatabaseManager.GameDB.Values)
-                            {
-                                string gamepath = Path.Combine(game.Uri, game.Executable).ToLower();
-                                string procpath = item.Path != null ? item.Path.ToLower() : "";
-
-                                if (gamepath != procpath)
-                                    continue;
-
-                                if (!DatabaseManager.GameProcesses.ContainsKey(game))
-                                {
-                                    DatabaseManager.GameProcesses.Add(game, item.Process);
-                                    UpdateLog("Process [" + item.Process.Id + "] " + item.Process.ProcessName + " has started");
-                                }
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < DatabaseManager.GameProcesses.Count; i++)
-                    {
-                        KeyValuePair<DockerGame, Process> pair = DatabaseManager.GameProcesses.ElementAt(i);
-
-                        Process proc = pair.Value;
-                        DockerGame game = pair.Key;
-
-                        if (proc.HasExited)
-                        {
-                            // Update current title
-                            string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
-                            DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false, true, path_game);
-
-                            DatabaseManager.GameProcesses.Remove(game);
-                            UpdateLog("Process [" + proc.Id + "] " + proc.ProcessName + " has halted");
-                        }
-                    }
-                }
-                catch (Exception ex) { UpdateLog("ProcessMonitor: " + ex.Message, true); }
-                Thread.Sleep(1000);
-            }
-        }
-
         public static void VideoControllerMonitor(object data)
         {
-            while (IsRunning)
+            try
             {
-                try
+                DateTime currentCheck = DateTime.Now;
+
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+                foreach (ManagementObject mo in searcher.Get())
                 {
-                    DateTime currentCheck = DateTime.Now;
-
-                    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
-                    foreach (ManagementObject mo in searcher.Get())
+                    VideoController vc = new VideoController
                     {
-                        VideoController vc = new VideoController
-                        {
-                            DeviceID = (string)mo.Properties["DeviceID"].Value,
-                            Name = (string)mo.Properties["Name"].Value,
-                            Description = (string)mo.Properties["Description"].Value,
-                            ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
-                            lastCheck = currentCheck
-                        };
+                        DeviceID = (string)mo.Properties["DeviceID"].Value,
+                        Name = (string)mo.Properties["Name"].Value,
+                        Description = (string)mo.Properties["Description"].Value,
+                        ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
+                        lastCheck = currentCheck
+                    };
 
-                        // skip if not enabled
-                        if (vc.ConfigManagerErrorCode != 0)
-                            continue;
+                    // skip if not enabled
+                    if (vc.ConfigManagerErrorCode != 0)
+                        continue;
 
-                        // initialize VideoController
-                        vc.Initialize();
+                    // initialize VideoController
+                    vc.Initialize();
 
-                        VideoControllers[vc.IsExternal] = vc;
-                    }
-
-                    // check is array contains a non-integrated GPU
-                    DockStatus = (VideoControllers.ContainsKey(true) && VideoControllers[true].lastCheck == currentCheck);
-
-                    // tell the software we're ready
-                    if(!IsHardwareReady)
-                        IsHardwareReady = true;
-
-                    // has hardware changed ?
-                    IsHardwareNew = (prevDockStatus != DockStatus);
-                    prevDockStatus = DockStatus;
+                    VideoControllers[vc.IsExternal] = vc;
                 }
-                catch (Exception ex) { UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
-                Thread.Sleep(1000);
+
+                // check is array contains a non-integrated GPU
+                DockStatus = VideoControllers.ContainsKey(true);
+
+                // has hardware changed ?
+                IsHardwareNew = (prevDockStatus != DockStatus);
+                prevDockStatus = DockStatus;
+
+                // tell the software we're ready
+                IsHardwareReady = true;
+
+                if (IsHardwareNew)
+                {
+                    UpdateLog("eGPU: " + (VideoControllers.ContainsKey(true) ? VideoControllers[true].Name : "none"));
+                    UpdateGameDatabase();
+                }
             }
+            catch (Exception ex) { UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
         }
 
         public static void UpdateFormIcons()
