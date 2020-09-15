@@ -286,17 +286,6 @@ namespace DockerForm
             return ret;
         }
 
-        public Bitmap GetImage(string filename, ImageFormat format)
-        {
-            WebClient client = new WebClient();
-            Stream stream = client.OpenRead(filename);
-            Bitmap bitmap; bitmap = new Bitmap(stream);
-            stream.Flush();
-            stream.Close();
-            client.Dispose();
-            return bitmap;
-        }
-
         private void SuspendWindow(bool status)
         {
             thisSetting.Enabled = !status;
@@ -384,7 +373,8 @@ namespace DockerForm
 
                 if (ImageUri != "")
                 {
-                    Bitmap BackgroundImage = GetImage("https://images.igdb.com/igdb/Image/upload/t_cover_big/" + ImageUri + ".jpg", ImageFormat.Jpeg);
+                    string filename = "https://images.igdb.com/igdb/Image/upload/t_cover_big/" + ImageUri + ".jpg";
+                    Bitmap BackgroundImage = FileManager.DownloadImage(filename);
 
                     thisGame.Image = BackgroundImage;
                     GameIcon.BackgroundImage = thisGame.Image;

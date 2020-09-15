@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,6 +38,26 @@ namespace DockerForm
 
             foreach (FileInfo fi in source.GetFiles())
                 fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+        }
+
+        public static Bitmap DownloadImage(string filename)
+        {
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(filename);
+            Bitmap bitmap; bitmap = new Bitmap(stream);
+            stream.Flush();
+            stream.Close();
+            client.Dispose();
+            return bitmap;
+        }
+
+        public static Bitmap GetImage(string filename)
+        {
+            Stream stream = File.OpenRead(filename);
+            Bitmap bitmap; bitmap = new Bitmap(stream);
+            stream.Flush();
+            stream.Close();
+            return bitmap;
         }
     }
 }
