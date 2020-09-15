@@ -247,7 +247,7 @@ namespace DockerForm
             catch (Exception ex) { UpdateLog("UpdateFormIcons: " + ex.Message, true); }
         }
 
-        public void InsertOrUpdateGameItem(DockerGame game)
+        public void InsertOrUpdateGameItem(DockerGame game, bool Update = true)
         {
             exListBoxItem newitem = new exListBoxItem(game);
 
@@ -257,7 +257,7 @@ namespace DockerForm
                 DatabaseManager.GameDB[game.GUID] = game;
                 UpdateLog("[" + game.Name + "] profile has been added to the database");
             }
-            else
+            else if (Update)
             {
                 for (int i = 0; i < GameList.Items.Count; i++)
                 {
