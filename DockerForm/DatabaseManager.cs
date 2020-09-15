@@ -17,7 +17,7 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
         {
-            string path_crc = Path.Combine(game.Uri, "donotdelete");
+            string path_crc = game.GUID + ".crc";
             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
             {
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
@@ -137,7 +137,7 @@ namespace DockerForm
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
             {
-                string path_crc = Path.Combine(game.Uri, "donotdelete");
+                string path_crc = game.GUID + ".crc";
                 string crc_value = GetCrc(path_crc, path_db);
 
                 UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false, path_db);
@@ -209,7 +209,7 @@ namespace DockerForm
                     continue;
                 }
 
-                string path_crc = Path.Combine(game.Uri, "donotdelete");
+                string path_crc = game.GUID + ".crc";
                 string crc_value = GetCrc(path_crc, path_db);
 
                 foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
