@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace DockerForm
 {
@@ -277,9 +278,50 @@ namespace DockerForm
             }
         }
 
-        public static List<string> SearchBattleNet()
+        public static List<DockerGame> SearchMicrosoftStore()
         {
-            List<string> listofBattleNetGames = new List<string>();
+            List<DockerGame> listofGames = new List<DockerGame>();
+            string foldername = "C:\\Program Files\\WindowsApps";
+
+            foreach(string folder in Directory.GetDirectories(foldername))
+            {
+                foreach (string file in Directory.GetFiles(folder))
+                {
+                    FileInfo myFile = new FileInfo(file);
+                    if (myFile.Name.Equals("MicrosoftGame.config"))
+                    {
+                        XmlDocument doc = new XmlDocument();
+                        doc.Load(file);
+
+                        string TitleId = doc.DocumentElement["TitleId"].InnerText;
+                        string Executable = doc.DocumentElement["ExecutableList"]["Executable"].Attributes[0].InnerText;
+                        string DisplayName = doc.DocumentElement["ShellVisuals"].Attributes[0].InnerText;
+                        string PublisherDisplayName = doc.DocumentElement["ShellVisuals"].Attributes[1].InnerText;
+                        string StoreLogo = doc.DocumentElement["ShellVisuals"].Attributes[2].InnerText;
+
+                        string filePath = Path.Combine(folder, Executable);
+                        if (File.Exists(filePath))
+                        {
+                            DockerGame thisGame = new DockerGame(filePath);
+                            thisGame.Platform = PlatformCode.Microsoft;
+                            thisGame.Name = DisplayName;
+                            thisGame.Company = PublisherDisplayName;
+                            thisGame.SanityCheck();
+
+                            string filename = Path.Combine(folder, StoreLogo);
+                            thisGame.Image = FileManager.GetImage(filename);
+                            listofGames.Add(thisGame);
+                        }
+                    }
+                }
+            }
+
+            return listofGames;
+        }
+
+        public static List<DockerGame> SearchBattleNet()
+        {
+            List<DockerGame> listofGames = new List<DockerGame>();
 
             // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
             string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
@@ -302,18 +344,23 @@ namespace DockerForm
                         {
                             string filePath = subKeys["DisplayIcon"];
                             if(File.Exists(filePath))
-                                listofBattleNetGames.Add(filePath);
+                            {
+                                DockerGame thisGame = new DockerGame(filePath);
+                                thisGame.Platform = PlatformCode.BattleNet;
+                                thisGame.SanityCheck();
+                                listofGames.Add(thisGame);
+                            }
                         }
                     }
                 }
             }
             
-            return listofBattleNetGames;
+            return listofGames;
         }
 
-        public static List<string> SearchSteam()
+        public static List<DockerGame> SearchSteam()
         {
-            List<string> listofSteamGames = new List<string>();
+            List<DockerGame> listofGames = new List<DockerGame>();
 
             // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
             string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
@@ -336,13 +383,18 @@ namespace DockerForm
                         {
                             string filePath = subKeys["DisplayIcon"];
                             if (File.Exists(filePath))
-                                listofSteamGames.Add(filePath);
+                            {
+                                DockerGame thisGame = new DockerGame(filePath);
+                                thisGame.Platform = PlatformCode.Steam;
+                                thisGame.SanityCheck();
+                                listofGames.Add(thisGame);
+                            }
                         }
                     }
                 }
             }
 
-            return listofSteamGames;
+            return listofGames;
         }
     }
 }

@@ -546,15 +546,12 @@ namespace DockerForm
 
         private void automaticDetectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<string> DetectedGames = new List<string>();
+            List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
+            DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
 
-            foreach(string uri in DetectedGames)
-            {
-                DockerGame thisGame = new DockerGame(uri);
-                thisGame.SanityCheck();
-                InsertOrUpdateGameItem(thisGame);
-            }
+            foreach (DockerGame game in DetectedGames)
+                InsertOrUpdateGameItem(game, false);
         }
 
         private void findAGameToolStripMenuItem_Click(object sender, EventArgs e)
