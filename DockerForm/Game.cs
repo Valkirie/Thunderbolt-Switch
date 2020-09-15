@@ -56,6 +56,14 @@ namespace DockerForm
         MissingSettings = 3
     }
 
+    public enum PlatformCode
+    {
+        Default = 0,
+        Microsoft = 1,
+        Steam = 2,
+        BattleNet = 3
+    }
+
     [Serializable]
     public class DockerGame
     {
@@ -71,10 +79,11 @@ namespace DockerForm
         public bool Enabled = true;         // IsEnabled
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
+        public PlatformCode Platform = PlatformCode.Default;
 
         public Dictionary<int, GameSettings> Settings = new Dictionary<int, GameSettings>();
 
-        [NonSerialized()] public ErrorCode ErrorCode = 0;
+        [NonSerialized()] public ErrorCode ErrorCode = ErrorCode.None;
         public void SanityCheck()
         {
             ErrorCode = ErrorCode.None;
@@ -169,7 +178,7 @@ namespace DockerForm
         public bool HasReachableExe()
         {
             string filename = Path.Combine(Uri, Executable);
-            return File.Exists(filename);
+            return File.Exists(filename) && (Platform != PlatformCode.Microsoft);
         }
 
         public bool HasFileSettings()
