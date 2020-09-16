@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -14,7 +16,28 @@ namespace DockerForm
     {
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
-        public static Dictionary<DockerGame, Process> GameProcesses = new Dictionary<DockerGame, Process>();
+
+        public static Dictionary<string, string> GetAppProperties(string filePath1)
+        {
+            Dictionary<string, string> AppProperties = new Dictionary<string, string>();
+
+            var shellFile = Microsoft.WindowsAPICodePack.Shell.ShellObject.FromParsingName(filePath1);
+            foreach (var property in typeof(ShellProperties.PropertySystem).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
+                if (shellProperty?.ValueAsObject == null) continue;
+                var shellPropertyValues = shellProperty.ValueAsObject as object[];
+                if (shellPropertyValues != null && shellPropertyValues.Length > 0)
+                {
+                    foreach (var shellPropertyValue in shellPropertyValues)
+                        AppProperties.Add(property.Name, "" + shellPropertyValue);
+                }
+                else
+                    AppProperties.Add(property.Name, "" + shellProperty.ValueAsObject);
+            }
+
+            return AppProperties;
+        }
 
         public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
         {

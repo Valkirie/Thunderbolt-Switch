@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace DockerForm
 {
@@ -39,8 +41,44 @@ namespace DockerForm
 
         // Form vars
         private static Form1 _instance;
-        private static Thread ThreadGPU, ThreadDB;
         private static DateTime LogTime;
+
+        // Threading vars
+        private static Thread ThreadGPU, ThreadDB;
+        private static ManagementEventWatcher processStartWatcher, processStopWatcher;
+        private static Dictionary<int, Dictionary<string, string>> GameProcesses = new Dictionary<int, Dictionary<string, string>>();
+
+        [DllImport("Kernel32.dll")]
+        static extern uint QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder text, out uint size);
+
+        private static string GetPathToApp(Process proc)
+        {
+            string pathToExe = string.Empty;
+
+            try
+            {
+                if (null != proc)
+                {
+                    uint nChars = 256;
+                    StringBuilder Buff = new StringBuilder((int)nChars);
+
+                    uint success = QueryFullProcessImageName(proc.Handle, 0, Buff, out nChars);
+
+                    if (0 != success)
+                    {
+                        pathToExe = Buff.ToString();
+                    }
+                    else
+                    {
+                        int error = Marshal.GetLastWin32Error();
+                        pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
+                    }
+                }
+            }
+            catch (Exception) { }
+
+            return pathToExe;
+        }
 
         private const int WM_DEVICECHANGE = 0x0219;
         protected override void WndProc(ref Message m)
@@ -90,19 +128,56 @@ namespace DockerForm
             if (IsFirstBoot)
             {
                 // Monitor processes
-                ManagementEventWatcher stopWatch = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
-                stopWatch.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
-                stopWatch.Start();
+                if (MonitorProcesses)
+                {
+                    processStartWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
+                    processStartWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
+                    processStartWatcher.Start();
+
+                    processStopWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
+                    processStopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
+                    processStopWatcher.Start();
+                }
+                IsFirstBoot = false;
             }
+        }
+
+        static private bool ProcessExists(int id)
+        {
+            return Process.GetProcesses().Any(x => x.Id == id);
+        }
+
+        static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
+        {
+            int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
+
+            if (!ProcessExists(ProcessID))
+                return;
+
+            Dictionary<string, string> MyProc = new Dictionary<string, string>();
+            Process Proc = Process.GetProcessById(ProcessID);
+            MyProc.Add("FileName", GetPathToApp(Proc));
+
+            if (!GameProcesses.ContainsKey(ProcessID))
+                GameProcesses.Add(ProcessID, MyProc);
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            string ProcessName = (string)e.NewEvent["ProcessName"];
+            int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
+
+            if (!GameProcesses.ContainsKey(ProcessID))
+                return;
+
+            Dictionary<string, string> Proc = GameProcesses[ProcessID];
 
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
-                if (game.Executable == ProcessName)
+                string game_exe = game.Executable.ToLower();
+                FileInfo info = new FileInfo(Proc["FileName"]);
+                string game_path = info.Name.ToLower();
+
+                if (game_exe == game_path)
                 {
                     // Update current title
                     string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
@@ -114,10 +189,7 @@ namespace DockerForm
         public static void UpdateGameDatabase()
         {
             if (IsFirstBoot)
-            {
                 DatabaseManager.SanityCheck();
-                IsFirstBoot = false;
-            }
             else
                 DatabaseManager.UpdateFilesAndRegistries(DockStatus);
 

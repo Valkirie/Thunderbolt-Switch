@@ -100,7 +100,7 @@ namespace DockerForm
 
         public DockerGame(string filePath)
         {
-            Dictionary<string, string> AppProperties = GetAppProperties(filePath);
+            Dictionary<string, string> AppProperties = DatabaseManager.GetAppProperties(filePath);
 
             Executable = AppProperties["FileName"];
             ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
@@ -118,28 +118,6 @@ namespace DockerForm
             FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
 
             try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception ex) { Console.WriteLine(ex.Message); }
-        }
-
-        private Dictionary<string, string> GetAppProperties(string filePath1)
-        {
-            Dictionary<string, string> AppProperties = new Dictionary<string, string>();
-
-            var shellFile = Microsoft.WindowsAPICodePack.Shell.ShellObject.FromParsingName(filePath1);
-            foreach (var property in typeof(ShellProperties.PropertySystem).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                var shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
-                if (shellProperty?.ValueAsObject == null) continue;
-                var shellPropertyValues = shellProperty.ValueAsObject as object[];
-                if (shellPropertyValues != null && shellPropertyValues.Length > 0)
-                {
-                    foreach (var shellPropertyValue in shellPropertyValues)
-                        AppProperties.Add(property.Name, "" + shellPropertyValue);
-                }
-                else
-                    AppProperties.Add(property.Name, "" + shellProperty.ValueAsObject);
-            }
-
-            return AppProperties;
         }
 
         public bool CanSerialize()
