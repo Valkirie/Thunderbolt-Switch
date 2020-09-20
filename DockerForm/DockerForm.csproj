@@ -117,6 +117,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
+    <Compile Include="LogManager.cs" />
     <Compile Include="MyPanel.cs">
       <SubType>Component</SubType>
     </Compile>

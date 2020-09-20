@@ -9,8 +9,6 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Globalization;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace DockerForm
 {
@@ -41,66 +39,24 @@ namespace DockerForm
 
         // Form vars
         private static Form1 _instance;
-        private static DateTime LogTime;
 
         // Threading vars
         private static Thread ThreadGPU, ThreadDB;
         private static ManagementEventWatcher processStartWatcher, processStopWatcher;
-        private static Dictionary<int, Dictionary<string, string>> GameProcesses = new Dictionary<int, Dictionary<string, string>>();
-
-        [DllImport("Kernel32.dll")]
-        static extern uint QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder text, out uint size);
-
-        private static string GetPathToApp(Process proc)
-        {
-            string pathToExe = string.Empty;
-
-            try
-            {
-                if (null != proc)
-                {
-                    uint nChars = 256;
-                    StringBuilder Buff = new StringBuilder((int)nChars);
-
-                    uint success = QueryFullProcessImageName(proc.Handle, 0, Buff, out nChars);
-
-                    if (0 != success)
-                    {
-                        pathToExe = Buff.ToString();
-                    }
-                    else
-                    {
-                        int error = Marshal.GetLastWin32Error();
-                        pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
-                    }
-                }
-            }
-            catch (Exception) { }
-
-            return pathToExe;
-        }
+        private static Dictionary<int, string> GameProcesses = new Dictionary<int, string>();
 
         private const int WM_DEVICECHANGE = 0x0219;
         protected override void WndProc(ref Message m)
         {
             if (m.Msg == WM_DEVICECHANGE)
             {
-                ThreadGPU = new Thread(VideoControllerMonitor);
-                if(!ThreadGPU.IsBackground)
+                if (!ThreadGPU.IsAlive)
+                {
+                    ThreadGPU = new Thread(VideoControllerMonitor);
                     ThreadGPU.Start();
+                }
             }
             base.WndProc(ref m);
-        }
-
-        public static void UpdateLog(string input, bool IsError = false)
-        {
-            string filename = "DockerForm.log";
-            LogTime = DateTime.Now;
-
-            string type = IsError ? "ERROR" : "LOG";
-
-            using (StreamWriter sw = File.AppendText(filename))
-                sw.WriteLine(LogTime + "\t" + type + "\t\t" + input);
         }
 
         public static void SendNotification(string input, bool pushToast, bool pushLog = false)
@@ -117,29 +73,13 @@ namespace DockerForm
             }
 
             if (pushLog)
-                UpdateLog(input);
+                LogManager.UpdateLog(input);
         }
 
         public static void StatusMonitor(object data)
         {
             while (!IsHardwareReady)
                 Thread.Sleep(500);
-
-            if (IsFirstBoot)
-            {
-                // Monitor processes
-                if (MonitorProcesses)
-                {
-                    processStartWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
-                    processStartWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
-                    processStartWatcher.Start();
-
-                    processStopWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
-                    processStopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
-                    processStopWatcher.Start();
-                }
-                IsFirstBoot = false;
-            }
         }
 
         static private bool ProcessExists(int id)
@@ -154,12 +94,10 @@ namespace DockerForm
             if (!ProcessExists(ProcessID))
                 return;
 
-            Dictionary<string, string> MyProc = new Dictionary<string, string>();
             Process Proc = Process.GetProcessById(ProcessID);
-            MyProc.Add("FileName", GetPathToApp(Proc));
 
             if (!GameProcesses.ContainsKey(ProcessID))
-                GameProcesses.Add(ProcessID, MyProc);
+                GameProcesses.Add(ProcessID, DatabaseManager.GetPathToApp(Proc));
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -169,12 +107,14 @@ namespace DockerForm
             if (!GameProcesses.ContainsKey(ProcessID))
                 return;
 
-            Dictionary<string, string> Proc = GameProcesses[ProcessID];
+            string FileName = GameProcesses[ProcessID];
+            if (FileName.Equals(""))
+                return;
 
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 string game_exe = game.Executable.ToLower();
-                FileInfo info = new FileInfo(Proc["FileName"]);
+                FileInfo info = new FileInfo(FileName);
                 string game_path = info.Name.ToLower();
 
                 if (game_exe == game_path)
@@ -234,13 +174,18 @@ namespace DockerForm
                 // tell the software we're ready
                 IsHardwareReady = true;
 
-                if (IsHardwareNew)
+                if (IsHardwareNew || IsFirstBoot)
                 {
-                    UpdateLog("eGPU: " + (VideoControllers.ContainsKey(true) ? VideoControllers[true].Name : "none"));
+                    if(VideoControllers.ContainsKey(false))
+                        LogManager.UpdateLog("iGPU: " + VideoControllers[false].Name);
+                    if (VideoControllers.ContainsKey(true))
+                        LogManager.UpdateLog("eGPU: " + VideoControllers[true].Name);
+
                     UpdateGameDatabase();
+                    IsFirstBoot = false;
                 }
             }
-            catch (Exception ex) { UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
+            catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
         }
 
         public static void UpdateFormIcons()
@@ -258,7 +203,7 @@ namespace DockerForm
                 _instance.notifyIcon1.Icon = myIcon;
                 _instance.Icon = myIcon;
             }
-            catch (Exception ex) { UpdateLog("UpdateFormIcons: " + ex.Message, true); }
+            catch (Exception ex) { LogManager.UpdateLog("UpdateFormIcons: " + ex.Message, true); }
         }
 
         public void InsertOrUpdateGameItem(DockerGame game, bool Update = true)
@@ -269,7 +214,7 @@ namespace DockerForm
             {
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
-                UpdateLog("[" + game.Name + "] profile has been added to the database");
+                LogManager.UpdateLog("[" + game.Name + "] profile has been added to the database");
             }
             else if (Update)
             {
@@ -280,7 +225,7 @@ namespace DockerForm
                     {
                         GameList.Items[i] = newitem;
                         DatabaseManager.GameDB[game.GUID] = game;
-                        UpdateLog("[" + game.Name + "] profile has been updated");
+                        LogManager.UpdateLog("[" + game.Name + "] profile has been updated");
                         break;
                     }
                 }
@@ -314,7 +259,7 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { UpdateLog("UpdateGameList: " + ex.Message, true); }
+                catch (Exception ex) { LogManager.UpdateLog("UpdateGameList: " + ex.Message, true); }
             }
 
             // Update the DockerGame database
@@ -339,11 +284,8 @@ namespace DockerForm
         {
             InitializeComponent();
 
-            // Change current culture
-            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
+            // initialize vars
+            LogManager.InitializeLog();
             _instance = this;
 
             // folder settings
@@ -384,6 +326,20 @@ namespace DockerForm
 
             ThreadGPU.Start();
             ThreadDB.Start();
+
+            // Monitor processes
+            if (MonitorProcesses)
+            {
+                processStartWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
+                processStartWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
+                processStartWatcher.Start();
+
+                processStopWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
+                processStopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
+                processStopWatcher.Start();
+
+                LogManager.UpdateLog("Process monitor has started");
+            }
         }
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
@@ -397,6 +353,8 @@ namespace DockerForm
             {
                 notifyIcon1.Dispose();
                 IsRunning = false;
+                processStartWatcher.Stop();
+                processStopWatcher.Stop();
             }
         }
 
@@ -553,7 +511,7 @@ namespace DockerForm
 
                     DatabaseManager.GameDB.TryRemove(item.Guid, out game);
                     GameList.Items.Remove(item);
-                    UpdateLog("[" + game.Name + "] has been removed from the database");
+                    LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
                 }
             }
         }

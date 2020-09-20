@@ -1,9 +1,7 @@
-﻿using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockerForm
@@ -91,7 +89,7 @@ namespace DockerForm
             if (!HasReachableFolder())
                 ErrorCode = ErrorCode.MissingFolder;
             else if (!HasReachableExe())
-                ErrorCode = ErrorCode.MissingExecutable;
+                ErrorCode = Platform != PlatformCode.Microsoft ? ErrorCode.MissingExecutable : ErrorCode.None;
             else if (!HasFileSettings())
                 ErrorCode = ErrorCode.MissingSettings;
             
@@ -153,10 +151,33 @@ namespace DockerForm
             return Directory.Exists(Uri);
         }
 
+        public bool HasReadableExe(string filename)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filename, FileMode.Open))
+                {
+                    if (fs.CanRead)
+                        return true;
+                    else
+                        return false;
+                }
+            }catch(Exception) { }
+
+            return false;
+        }
+
         public bool HasReachableExe()
         {
             string filename = Path.Combine(Uri, Executable);
-            return File.Exists(filename) && (Platform != PlatformCode.Microsoft);
+
+            if (!File.Exists(filename))
+                return false;
+
+            if (!HasReadableExe(filename))
+                return false;
+
+            return true;
         }
 
         public bool HasFileSettings()

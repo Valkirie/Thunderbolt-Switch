@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -39,6 +41,38 @@ namespace DockerForm
             return AppProperties;
         }
 
+        [DllImport("Kernel32.dll")]
+        static extern uint QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder text, out uint size);
+
+        public static string GetPathToApp(Process proc)
+        {
+            string pathToExe = string.Empty;
+
+            try
+            {
+                if (null != proc)
+                {
+                    uint nChars = 256;
+                    StringBuilder Buff = new StringBuilder((int)nChars);
+
+                    uint success = QueryFullProcessImageName(proc.Handle, 0, Buff, out nChars);
+
+                    if (0 != success)
+                    {
+                        pathToExe = Buff.ToString();
+                    }
+                    else
+                    {
+                        int error = Marshal.GetLastWin32Error();
+                        pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
+                    }
+                }
+            }
+            catch (Exception) { }
+
+            return pathToExe;
+        }
+
         public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
         {
             string path_crc = game.GUID + ".crc";
@@ -64,11 +98,11 @@ namespace DockerForm
                         if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
                         {
                             setting.data[path_game] = s_file;
-                            Form1.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
                         }
                         else
                         {
-                            Form1.UpdateLog("[" + game.Name + "]" + " database data update skipped for file [" + file + "] - similar");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " database data update skipped for file [" + file + "] - similar");
                         }
                     }
 
@@ -81,16 +115,16 @@ namespace DockerForm
                             {
                                 File.WriteAllBytes(filename, setting.data[path_dest]);
                                 File.SetLastWriteTime(filename, game.LastCheck);
-                                Form1.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
+                                LogManager.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
                             }
                             else
                             {
-                                Form1.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - similar");
+                                LogManager.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - similar");
                             }
                         }
                         else
                         {
-                            Form1.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - no database data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - no database data available");
                         }
                     }
                 }
@@ -109,11 +143,11 @@ namespace DockerForm
                         if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
                         {
                             setting.data[path_game] = s_file;
-                            Form1.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
                         }
                         else
                         {
-                            Form1.UpdateLog("[" + game.Name + "]" + " database registry data update skipped for file [" + file + "] - similar");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " database registry data update skipped for file [" + file + "] - similar");
                         }
                     }
 
@@ -126,16 +160,16 @@ namespace DockerForm
                             {
                                 File.WriteAllBytes(tempfile, setting.data[path_dest]);
                                 RegistryManager.RestoreKey(tempfile);
-                                Form1.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
+                                LogManager.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
                             }
                             else
                             {
-                                Form1.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - similar");
+                                LogManager.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - similar");
                             }
                         }
                         else
                         {
-                            Form1.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - no database data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - no database data available");
                         }
                     }
 
@@ -156,7 +190,7 @@ namespace DockerForm
         {
             string path_db = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
 
-            Form1.UpdateLog("Updating database with docking status set to: " + DockStatus);
+            LogManager.UpdateLog("Updating database with docking status set to: " + DockStatus);
 
             // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
@@ -225,9 +259,9 @@ namespace DockerForm
                 {
                     switch(game.ErrorCode)
                     {
-                        case ErrorCode.MissingExecutable: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable executable", true); break;
-                        case ErrorCode.MissingFolder: Form1.UpdateLog("[" + game.Name + "]" + " has an unreachable folder", true); break;
-                        case ErrorCode.MissingSettings: Form1.UpdateLog("[" + game.Name + "]" + " has no settings defined", true); break;
+                        case ErrorCode.MissingExecutable: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable executable", true); break;
+                        case ErrorCode.MissingFolder: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable folder", true); break;
+                        case ErrorCode.MissingSettings: LogManager.UpdateLog("[" + game.Name + "]" + " has no settings defined", true); break;
                     }
 
                     continue;
@@ -278,7 +312,7 @@ namespace DockerForm
                     if (path_db != crc_value)
                     {
                         Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true);
-
+                        
                         // Overwrite current database and restore last known settings
                         UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
 
@@ -287,7 +321,7 @@ namespace DockerForm
                     else if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
                     {
                         Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true);
-
+                        
                         DialogBox dialogBox = new DialogBox();
                         dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
                         DialogResult dialogResult = dialogBox.ShowDialog();
