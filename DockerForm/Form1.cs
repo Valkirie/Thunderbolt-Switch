@@ -141,6 +141,7 @@ namespace DockerForm
             try
             {
                 DateTime currentCheck = DateTime.Now;
+                VideoControllers.Clear();
 
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
                 foreach (ManagementObject mo in searcher.Get())
