@@ -74,6 +74,7 @@ namespace DockerForm
         public string IGDB_Url = "";        // IGDB GUID
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
+        public string crc_value = "";       // Crc
         public bool Enabled = true;         // IsEnabled
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
@@ -94,6 +95,16 @@ namespace DockerForm
                 ErrorCode = ErrorCode.MissingSettings;
             
             Enabled = (ErrorCode == ErrorCode.None ? true : false);
+        }
+
+        public string GetCrc()
+        {
+            return crc_value;
+        }
+
+        public void SetCrc(string _crc)
+        {
+            crc_value = _crc;
         }
 
         public DockerGame(string filePath)

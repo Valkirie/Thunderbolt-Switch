@@ -178,10 +178,8 @@ namespace DockerForm
                 }
             }
 
+            game.SetCrc(crc_value);
             game.Serialize();
-
-            // Update CRC
-            SetCrc(path_crc, crc_value);
 
             Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
@@ -192,14 +190,8 @@ namespace DockerForm
 
             LogManager.UpdateLog("Updating database with docking status set to: " + DockStatus);
 
-            // Scroll the provided database
             foreach (DockerGame game in GameDB.Values)
-            {
-                string path_crc = game.GUID + ".crc";
-                string crc_value = GetCrc(path_crc, path_db);
-
-                UpdateFilesAndRegistries(game, path_db, crc_value, true, true, false, path_db);
-            }
+                UpdateFilesAndRegistries(game, path_db, game.GetCrc(), true, true, false, path_db);
 
             Form1.SendNotification("Database has been updated for (" + path_db + ")", true);
         }
@@ -234,21 +226,6 @@ namespace DockerForm
             return true;
         }
 
-        public static string GetCrc(string path_crc, string path_db)
-        {
-            string crc_value = File.Exists(path_crc) ? File.ReadAllText(path_crc) : path_db;
-            return crc_value;
-        }
-
-        public static void SetCrc(string path_crc, string path_db)
-        {
-            if (File.Exists(path_crc))
-                File.Delete(path_crc);
-
-            File.WriteAllText(path_crc, path_db);
-            File.SetAttributes(path_crc, FileAttributes.Hidden);
-        }
-
         public static void SanityCheck()
         {
             string path_db = Form1.DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
@@ -268,7 +245,7 @@ namespace DockerForm
                 }
 
                 string path_crc = game.GUID + ".crc";
-                string crc_value = GetCrc(path_crc, path_db);
+                string crc_value = game.GetCrc();
 
                 foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
                 {
@@ -318,7 +295,7 @@ namespace DockerForm
 
                         continue;
                     }
-                    else if (file.LastWriteTime > game.LastCheck || !Equality(fileBytes,fileDBBytes))
+                    else if (!Equality(fileBytes,fileDBBytes))
                     {
                         Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true);
                         
