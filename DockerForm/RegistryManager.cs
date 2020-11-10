@@ -33,16 +33,5 @@ namespace DockerForm
             proc = Process.Start("regedit.exe", "/e " + path + " " + key);
             proc.WaitForExit();
         }
-
-        public static void StartupManager(bool add)
-        {
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run", true))
-            {
-                if(add)
-                    key.SetValue(Application.ProductName, "\"" + Application.ExecutablePath + "\"");
-                else
-                    key.DeleteValue(Application.ProductName, false);
-            }
-        }
     }
 }

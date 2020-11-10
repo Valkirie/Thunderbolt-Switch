@@ -312,8 +312,6 @@ namespace DockerForm
                 this.WindowState = FormWindowState.Minimized;
                 this.ShowInTaskbar = false;
             }
-
-            RegistryManager.StartupManager(BootOnStartup);
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)
