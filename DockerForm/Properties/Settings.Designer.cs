@@ -118,5 +118,17 @@ namespace DockerForm.Properties {
                 this["ToastNotifications"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SaveOnExit {
+            get {
+                return ((bool)(this["SaveOnExit"]));
+            }
+            set {
+                this["SaveOnExit"] = value;
+            }
+        }
     }
 }

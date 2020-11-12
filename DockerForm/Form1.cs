@@ -348,6 +348,9 @@ namespace DockerForm
             }
             else
             {
+                if(SaveOnExit)
+                    DatabaseManager.UpdateFilesAndRegistries(DockStatus, false, true);
+
                 notifyIcon1.Dispose();
                 IsRunning = false;
                 processStartWatcher.Dispose();
