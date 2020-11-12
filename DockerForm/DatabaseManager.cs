@@ -290,6 +290,8 @@ namespace DockerForm
                     }
                 }
             }
+
+            Form1.IsFirstBoot = false;
         }
 
         public static List<DockerGame> SearchMicrosoftStore()

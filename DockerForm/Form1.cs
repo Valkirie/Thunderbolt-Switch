@@ -117,16 +117,6 @@ namespace DockerForm
             }
         }
 
-        public static void UpdateGameDatabase()
-        {
-            if (IsFirstBoot)
-                DatabaseManager.SanityCheck();
-            else if (!DatabaseManager.IsUpdating())
-                DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, true);
-
-            _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
-        }
-
         public static void VideoControllerMonitor(object data)
         {
             try
@@ -169,9 +159,12 @@ namespace DockerForm
                         LogManager.UpdateLog("iGPU: " + VideoControllers[false].Name);
                     if (VideoControllers.ContainsKey(true))
                         LogManager.UpdateLog("eGPU: " + VideoControllers[true].Name);
+                    UpdateFormIcons();
 
-                    UpdateGameDatabase();
-                    IsFirstBoot = false;
+                    if (IsFirstBoot)
+                        DatabaseManager.SanityCheck();
+                    else if (!DatabaseManager.IsUpdating())
+                        DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, true);
                 }
             }
             catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
