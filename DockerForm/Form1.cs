@@ -40,7 +40,7 @@ namespace DockerForm
         private static Form1 _instance;
 
         // Threading vars
-        private static Thread ThreadGPU, ThreadDB;
+        private static Thread ThreadGPU;
         private static ManagementEventWatcher processStartWatcher, processStopWatcher;
         private static Dictionary<int, string> GameProcesses = new Dictionary<int, string>();
 
@@ -308,12 +308,8 @@ namespace DockerForm
             // draw GameDB
             UpdateGameList();
 
-            // thread settings
-            ThreadGPU = new Thread(VideoControllerMonitor);
-            ThreadDB = new Thread(StatusMonitor);
-
-            ThreadGPU.Start();
-            ThreadDB.Start();
+            // search for GPUs
+            VideoControllerMonitor(sender);
 
             // Monitor processes
             if (MonitorProcesses)
