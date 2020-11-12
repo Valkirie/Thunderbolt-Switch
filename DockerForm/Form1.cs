@@ -80,39 +80,46 @@ namespace DockerForm
 
         static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
+            try
+            {
+                int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
 
-            if (!ProcessExists(ProcessID))
-                return;
+                if (!ProcessExists(ProcessID))
+                    return;
 
-            Process Proc = Process.GetProcessById(ProcessID);
-            string PathToApp = DatabaseManager.GetPathToApp(Proc);
+                Process Proc = Process.GetProcessById(ProcessID);
+                string PathToApp = DatabaseManager.GetPathToApp(Proc);
 
-            if (!GameProcesses.ContainsKey(ProcessID) && PathToApp != string.Empty)
-                GameProcesses.Add(ProcessID, PathToApp);
+                if (!GameProcesses.ContainsKey(ProcessID) && PathToApp != string.Empty)
+                    GameProcesses.Add(ProcessID, PathToApp);
+            }catch(Exception ex) { }
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
-
-            if (!GameProcesses.ContainsKey(ProcessID))
-                return;
-
-            string PathToApp = GameProcesses[ProcessID];
-            if (PathToApp == string.Empty)
-                return;
-
-            foreach (DockerGame game in DatabaseManager.GameDB.Values)
+            try
             {
-                string game_exe = game.Executable.ToLower();
-                FileInfo info = new FileInfo(PathToApp);
-                string game_path = info.Name.ToLower();
+                int ProcessID = Int32.Parse(e.NewEvent["ProcessID"].ToString());
 
-                // Update current title
-                if (game_exe == game_path)
-                    DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
+                if (!GameProcesses.ContainsKey(ProcessID))
+                    return;
+
+                string PathToApp = GameProcesses[ProcessID];
+                if (PathToApp == string.Empty)
+                    return;
+
+                foreach (DockerGame game in DatabaseManager.GameDB.Values)
+                {
+                    string game_exe = game.Executable.ToLower();
+                    FileInfo info = new FileInfo(PathToApp);
+                    string game_path = info.Name.ToLower();
+
+                    // Update current title
+                    if (game_exe == game_path)
+                        DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
+                    }
             }
+            catch (Exception ex) { }
         }
 
         public static void VideoControllerMonitor(object data)
@@ -158,7 +165,7 @@ namespace DockerForm
                     if (VideoControllers.ContainsKey(Type.Discrete))
                         LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
 
-                    UpdateFormIcons();
+                    _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
 
                     if (IsFirstBoot)
                         DatabaseManager.SanityCheck();
