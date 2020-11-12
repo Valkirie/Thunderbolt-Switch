@@ -29,6 +29,7 @@ namespace DockerForm
         public static bool ForceClose = false;
         public static bool MonitorProcesses = false;
         public static bool ToastNotifications = false;
+        public static bool SaveOnExit = false;
         public static int IGDBListLength;
 
         // Devices vars
@@ -304,6 +305,7 @@ namespace DockerForm
             MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
             IGDBListLength = Properties.Settings.Default.IGDBListLength;
             ToastNotifications = Properties.Settings.Default.ToastNotifications;
+            SaveOnExit = Properties.Settings.Default.SaveOnExit;
 
             if (MinimizeOnStartup)
             {
