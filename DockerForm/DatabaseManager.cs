@@ -95,15 +95,8 @@ namespace DockerForm
                     // 1. Save current settings
                     if (updateDB)
                     {
-                        if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
-                        {
-                            setting.data[path_game] = s_file;
-                            LogManager.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
-                        }
-                        else
-                        {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " database data update skipped for file [" + file + "] - similar");
-                        }
+                        setting.data[path_game] = s_file;
+                        LogManager.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
                     }
 
                     // 2. Restore proper settings
@@ -111,16 +104,9 @@ namespace DockerForm
                     {
                         if (setting.data.ContainsKey(path_dest))
                         {
-                            if (!Equality(s_file, setting.data[path_dest]))
-                            {
-                                File.WriteAllBytes(filename, setting.data[path_dest]);
-                                File.SetLastWriteTime(filename, game.LastCheck);
-                                LogManager.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
-                            }
-                            else
-                            {
-                                LogManager.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - similar");
-                            }
+                            File.WriteAllBytes(filename, setting.data[path_dest]);
+                            File.SetLastWriteTime(filename, game.LastCheck);
+                            LogManager.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
                         }
                         else
                         {
@@ -140,15 +126,8 @@ namespace DockerForm
                     // 1. Save current settings
                     if (updateDB)
                     {
-                        if ((setting.data.ContainsKey(path_game) && !Equality(s_file, setting.data[path_game])) || !setting.data.ContainsKey(path_game))
-                        {
-                            setting.data[path_game] = s_file;
-                            LogManager.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
-                        }
-                        else
-                        {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " database registry data update skipped for file [" + file + "] - similar");
-                        }
+                        setting.data[path_game] = s_file;
+                        LogManager.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
                     }
 
                     // 2. Restore proper settings
@@ -156,16 +135,9 @@ namespace DockerForm
                     {
                         if(setting.data.ContainsKey(path_dest))
                         {
-                            if (!Equality(s_file, setting.data[path_dest]))
-                            {
-                                File.WriteAllBytes(tempfile, setting.data[path_dest]);
-                                RegistryManager.RestoreKey(tempfile);
-                                LogManager.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
-                            }
-                            else
-                            {
-                                LogManager.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - similar");
-                            }
+                            File.WriteAllBytes(tempfile, setting.data[path_dest]);
+                            RegistryManager.RestoreKey(tempfile);
+                            LogManager.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
                         }
                         else
                         {

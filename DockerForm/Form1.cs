@@ -59,21 +59,18 @@ namespace DockerForm
             base.WndProc(ref m);
         }
 
-        public static void SendNotification(string input, bool pushToast, bool pushLog = false)
+        public static void SendNotification(string input, bool pushToast = false, bool pushLog = false)
         {
             _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
 
-            if (!ToastNotifications)
-                return;
+            if (pushLog)
+                LogManager.UpdateLog(input);
 
-            if (pushToast)
+            if (pushToast && ToastNotifications)
             {
                 _instance.notifyIcon1.BalloonTipText = input;
                 _instance.notifyIcon1.ShowBalloonTip(1000);
             }
-
-            if (pushLog)
-                LogManager.UpdateLog(input);
         }
 
         public static void StatusMonitor(object data)
@@ -283,10 +280,10 @@ namespace DockerForm
 
         public Form1()
         {
+            LogManager.InitializeLog();
             InitializeComponent();
 
             // initialize vars
-            LogManager.InitializeLog();
             _instance = this;
 
             // folder settings

@@ -31,7 +31,7 @@ namespace DockerForm
             try
             {
                 string type = IsError ? "ERR" : "LOG";
-                string str = DateTime.Now.ToString("d", culture) + "\t" + type + "\t\t" + input + "\n";
+                string str = DateTime.Now.ToString("u", culture) + "\t" + type + "\t\t" + input + "\n";
                 File.AppendAllText(filename, str);
             }
             catch(Exception)
