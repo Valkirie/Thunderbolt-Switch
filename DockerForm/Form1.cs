@@ -15,11 +15,9 @@ namespace DockerForm
     public partial class Form1 : Form
     {
         // Global vars
-        public static bool IsRunning = true;
         public static bool prevDockStatus = false;
         public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
-        public static bool IsHardwareReady = false;
         public static bool IsHardwareNew = false;
 
         // Configurable vars
@@ -72,12 +70,6 @@ namespace DockerForm
                 _instance.notifyIcon1.BalloonTipText = input;
                 _instance.notifyIcon1.ShowBalloonTip(1000);
             }
-        }
-
-        public static void StatusMonitor(object data)
-        {
-            while (!IsHardwareReady)
-                Thread.Sleep(500);
         }
 
         static private bool ProcessExists(int id)
@@ -170,9 +162,6 @@ namespace DockerForm
                 // has hardware changed ?
                 IsHardwareNew = (prevDockStatus != DockStatus);
                 prevDockStatus = DockStatus;
-
-                // tell the software we're ready
-                IsHardwareReady = true;
 
                 if (IsHardwareNew || IsFirstBoot)
                 {
@@ -354,7 +343,6 @@ namespace DockerForm
                     DatabaseManager.UpdateFilesAndRegistries(DockStatus, false, true);
 
                 notifyIcon1.Dispose();
-                IsRunning = false;
                 processStartWatcher.Dispose();
                 processStopWatcher.Dispose();
             }
