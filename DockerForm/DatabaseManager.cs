@@ -166,8 +166,7 @@ namespace DockerForm
         {
             b_Updating = true;
 
-            string path_db = DockStatus ? Form1.VideoControllers[Type.Discrete].Name : Form1.VideoControllers[Type.Internal].Name;
-
+            string path_db = Form1.CurrentController.Name;
 
             foreach (DockerGame game in GameDB.Values)
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
@@ -207,7 +206,7 @@ namespace DockerForm
 
         public static void SanityCheck()
         {
-            string path_db = Form1.DockStatus ? Form1.VideoControllers[Type.Discrete].Name : Form1.VideoControllers[Type.Internal].Name;
+            string path_db = Form1.CurrentController.Name;
 
             foreach (DockerGame game in GameDB.Values)
             {
