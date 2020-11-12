@@ -97,7 +97,7 @@ namespace DockerForm
                     if (updateDB)
                     {
                         setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " database data were updated for file [" + file + "]");
+                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for file [" + file + "]");
                     }
 
                     // 2. Restore proper settings
@@ -107,11 +107,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(filename, setting.data[path_dest]);
                             File.SetLastWriteTime(filename, game.LastCheck);
-                            LogManager.UpdateLog("[" + game.Name + "]" + " local data were restored for file [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for file [" + file + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " local data restore skipped for file [" + file + "] - no database data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " database update skipped for file [" + file + "] - no data available");
                         }
                     }
                 }
@@ -128,7 +128,7 @@ namespace DockerForm
                     if (updateDB)
                     {
                         setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " database registry data were updated for file [" + file + "]");
+                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for registry entry [" + file + "]");
                     }
 
                     // 2. Restore proper settings
@@ -138,11 +138,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "]" + " local registry data were restored for file [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for registry entry [" + file + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " local registry data restore skipped for file [" + file + "] - no database data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " database update skipped for registry entry [" + file + "] - no data available");
                         }
                     }
 
@@ -168,7 +168,6 @@ namespace DockerForm
 
             string path_db = DockStatus ? Form1.VideoControllers[Type.Discrete].Name : Form1.VideoControllers[Type.Internal].Name;
 
-            Form1.SendNotification("Updating (" + path_db + ") database with docking status", true, true);
 
             foreach (DockerGame game in GameDB.Values)
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);

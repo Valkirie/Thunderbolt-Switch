@@ -150,7 +150,6 @@ namespace DockerForm
 
                 // monitor hardware changes
                 IsHardwareNew = prevDockStatus != DockStatus;
-                prevDockStatus = DockStatus;
 
                 if (IsHardwareNew || IsFirstBoot)
                 {
@@ -163,9 +162,14 @@ namespace DockerForm
 
                     if (IsFirstBoot)
                         DatabaseManager.SanityCheck();
-                        DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, true);
                     else
+                    {
+                        DatabaseManager.UpdateFilesAndRegistries(prevDockStatus, false, true);
+                        DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, false);
+                    }
                 }
+
+                prevDockStatus = DockStatus;
             }
             catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
         }
