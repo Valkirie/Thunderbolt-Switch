@@ -92,9 +92,10 @@ namespace DockerForm
                 return;
 
             Process Proc = Process.GetProcessById(ProcessID);
+            string PathToApp = DatabaseManager.GetPathToApp(Proc);
 
-            if (!GameProcesses.ContainsKey(ProcessID))
-                GameProcesses.Add(ProcessID, DatabaseManager.GetPathToApp(Proc));
+            if (!GameProcesses.ContainsKey(ProcessID) && PathToApp != string.Empty)
+                GameProcesses.Add(ProcessID, PathToApp);
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -104,14 +105,14 @@ namespace DockerForm
             if (!GameProcesses.ContainsKey(ProcessID))
                 return;
 
-            string FileName = GameProcesses[ProcessID];
-            if (FileName.Equals(""))
+            string PathToApp = GameProcesses[ProcessID];
+            if (PathToApp == string.Empty)
                 return;
 
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 string game_exe = game.Executable.ToLower();
-                FileInfo info = new FileInfo(FileName);
+                FileInfo info = new FileInfo(PathToApp);
                 string game_path = info.Name.ToLower();
 
                 if (game_exe == game_path)
@@ -349,8 +350,8 @@ namespace DockerForm
             {
                 notifyIcon1.Dispose();
                 IsRunning = false;
-                processStartWatcher.Stop();
-                processStopWatcher.Stop();
+                processStartWatcher.Dispose();
+                processStopWatcher.Dispose();
             }
         }
 
