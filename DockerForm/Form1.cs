@@ -128,8 +128,8 @@ namespace DockerForm
         {
             if (IsFirstBoot)
                 DatabaseManager.SanityCheck();
-            else
-                DatabaseManager.UpdateFilesAndRegistries(DockStatus);
+            else if (!DatabaseManager.IsUpdating())
+                DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, true);
 
             _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
         }

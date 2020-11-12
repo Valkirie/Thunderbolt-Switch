@@ -18,6 +18,7 @@ namespace DockerForm
     {
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
+        private static bool b_Updating = false;
 
         public static Dictionary<string, string> GetAppProperties(string filePath1)
         {
@@ -156,16 +157,23 @@ namespace DockerForm
             Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
 
-        public static void UpdateFilesAndRegistries(bool DockStatus)
+        public static bool IsUpdating()
         {
+            return b_Updating;
+        }
+
+        public static void UpdateFilesAndRegistries(bool DockStatus, bool updateFILE = false, bool updateDB = false)
+        {
+            b_Updating = true;
+
             string path_db = DockStatus ? Form1.VideoControllers[true].Name : Form1.VideoControllers[false].Name;
 
-            LogManager.UpdateLog("Updating database with docking status set to: " + DockStatus);
+            Form1.SendNotification("Updating (" + path_db + ") database with docking status", true, true);
 
             foreach (DockerGame game in GameDB.Values)
-                UpdateFilesAndRegistries(game, path_db, game.GetCrc(), true, true, false, path_db);
+                UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
 
-            Form1.SendNotification("Database has been updated for (" + path_db + ")", true);
+            b_Updating = false;
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
