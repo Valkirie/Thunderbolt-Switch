@@ -50,7 +50,7 @@ namespace DockerForm
         {
             if (m.Msg == WM_DEVICECHANGE)
             {
-                if (!ThreadGPU.IsAlive)
+                if (!DatabaseManager.IsUpdating())
                 {
                     ThreadGPU = new Thread(VideoControllerMonitor);
                     ThreadGPU.Start();
@@ -163,8 +163,8 @@ namespace DockerForm
 
                     if (IsFirstBoot)
                         DatabaseManager.SanityCheck();
-                    else if (!DatabaseManager.IsUpdating())
                         DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, true);
+                    else
                 }
             }
             catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
