@@ -9,6 +9,7 @@ namespace DockerForm
     {
         public string Guid;
         public Image Image;
+        private PlatformCode platform;
 
         public exListBoxItem(DockerGame game)
         {
@@ -17,6 +18,7 @@ namespace DockerForm
             this.Name = game.Name;
             this.Text = game.Company;
             this.Enabled = game.Enabled;
+            this.platform = game.Platform;
         }
 
         public void drawItem(DrawItemEventArgs e, Padding margin, StringFormat aligment, exListBox ListBox)
@@ -67,6 +69,9 @@ namespace DockerForm
 
                 if (!Enabled)
                     g.FillRectangle(new SolidBrush(Color.FromArgb(150, 250, 250, 250)), 0, 0, ListBox.ImageWidth, ListBox.ImageHeight);
+
+                if (platform == PlatformCode.Microsoft)
+                    g.DrawImage(Properties.Resources.logo_microsoft, 4, 4, ImageWidth / 4, ImageWidth / 4);
             }
 
             e.Graphics.DrawImage(bmp, e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);

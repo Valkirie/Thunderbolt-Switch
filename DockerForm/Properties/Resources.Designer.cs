@@ -93,6 +93,16 @@ namespace DockerForm.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap logo_microsoft {
+            get {
+                object obj = ResourceManager.GetObject("logo_microsoft", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap nvidia {
             get {
                 object obj = ResourceManager.GetObject("nvidia", resourceCulture);

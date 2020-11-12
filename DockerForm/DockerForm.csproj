@@ -210,5 +210,8 @@
   <ItemGroup>
     <None Include="Resources\tb3_on.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1200px-Microsoft_Store_logo.svg.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
