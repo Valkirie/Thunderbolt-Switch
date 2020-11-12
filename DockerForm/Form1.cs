@@ -19,6 +19,7 @@ namespace DockerForm
         public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
         public static bool IsHardwareNew = false;
+        public static VideoController CurrentController;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -31,7 +32,7 @@ namespace DockerForm
         public static int IGDBListLength;
 
         // Devices vars
-        public static Dictionary<bool, VideoController> VideoControllers = new Dictionary<bool, VideoController>();
+        public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
 
         // Folder vars
         public static string path_application, path_database;
@@ -108,12 +109,9 @@ namespace DockerForm
                 FileInfo info = new FileInfo(PathToApp);
                 string game_path = info.Name.ToLower();
 
+                // Update current title
                 if (game_exe == game_path)
-                {
-                    // Update current title
-                    string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
-                    DatabaseManager.UpdateFilesAndRegistries(game, path_game, path_game, true, false, true, path_game);
-                }
+                    DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
             }
         }
 
@@ -143,22 +141,24 @@ namespace DockerForm
                     // initialize VideoController
                     vc.Initialize();
 
-                    VideoControllers[vc.IsExternal] = vc;
+                    VideoControllers[vc.Type] = vc;
                 }
 
-                // check is array contains a non-integrated GPU
-                DockStatus = VideoControllers.ContainsKey(true);
+                // look for discrete GPU
+                DockStatus = VideoControllers.ContainsKey(Type.Discrete);
+                CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
 
-                // has hardware changed ?
-                IsHardwareNew = (prevDockStatus != DockStatus);
+                // monitor hardware changes
+                IsHardwareNew = prevDockStatus != DockStatus;
                 prevDockStatus = DockStatus;
 
                 if (IsHardwareNew || IsFirstBoot)
                 {
-                    if(VideoControllers.ContainsKey(false))
-                        LogManager.UpdateLog("iGPU: " + VideoControllers[false].Name);
-                    if (VideoControllers.ContainsKey(true))
-                        LogManager.UpdateLog("eGPU: " + VideoControllers[true].Name);
+                    if(VideoControllers.ContainsKey(Type.Internal))
+                        LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
+                    if (VideoControllers.ContainsKey(Type.Discrete))
+                        LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
+
                     UpdateFormIcons();
 
                     if (IsFirstBoot)
@@ -175,10 +175,16 @@ namespace DockerForm
             try
             {
                 // taskbar text
-                _instance.menuStrip2.Items[0].Text = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
+                _instance.menuStrip2.Items[0].Text = CurrentController.Name;
 
                 // taskbar icon
-                _instance.undockedToolStripMenuItem.Image = DockStatus ? (VideoControllers.ContainsKey(true) ? Properties.Resources.nvidia : Properties.Resources.amd) : Properties.Resources.intel;
+                Image ConstructorLogo = Properties.Resources.intel;
+                switch(CurrentController.Constructor)
+                {
+                    case Constructor.AMD: ConstructorLogo = Properties.Resources.amd; break;
+                    case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
+                }
+                _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
 
                 // main application icon
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
@@ -214,9 +220,8 @@ namespace DockerForm
             }
 
             // Update current title
-            string path_game = DockStatus ? VideoControllers[true].Name : VideoControllers[false].Name;
             DockerGame output = DatabaseManager.GameDB[game.GUID];
-            DatabaseManager.UpdateFilesAndRegistries(output, path_game, path_game, true, false, true, path_game);
+            DatabaseManager.UpdateFilesAndRegistries(output, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
 
             GameList.Sort();
         }

@@ -13,6 +13,12 @@ namespace DockerForm
         AMD = 2
     }
 
+    public enum Type
+    {
+        Internal = 0,
+        Discrete = 1
+    }
+
     public class VideoController
     {
         public string DeviceID;
@@ -21,7 +27,7 @@ namespace DockerForm
         public uint ConfigManagerErrorCode;
         public DateTime lastCheck;
         public Constructor Constructor;
-        public bool IsExternal;
+        public Type Type;
 
         internal void Initialize()
         {
@@ -32,7 +38,7 @@ namespace DockerForm
             else
                 Constructor = Constructor.Intel;
 
-            IsExternal = (Constructor != Constructor.Intel);
+            Type = Constructor == Constructor.Intel ? Type.Internal : Type.Discrete;
         }
     }
 }
