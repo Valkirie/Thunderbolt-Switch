@@ -503,7 +503,7 @@ namespace DockerForm
                 DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    string filename = Path.Combine(path_database, game.FolderName + ".dat");
+                    string filename = Path.Combine(path_database, game.GUID + ".dat");
 
                     if (File.Exists(filename))
                         File.Delete(filename);

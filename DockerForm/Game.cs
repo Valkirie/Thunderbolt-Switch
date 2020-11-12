@@ -141,8 +141,8 @@ namespace DockerForm
             // Store the last time this game was updated
             LastCheck = DateTime.Now;
 
-            string tempname = Path.Combine(Form1.path_database, FolderName) + ".tmp";
-            string filename = Path.Combine(Form1.path_database, FolderName) + ".dat";
+            string tempname = Path.Combine(Form1.path_database, GUID) + ".tmp";
+            string filename = Path.Combine(Form1.path_database, GUID) + ".dat";
             using (FileStream fs = new FileStream(tempname, FileMode.Create))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
