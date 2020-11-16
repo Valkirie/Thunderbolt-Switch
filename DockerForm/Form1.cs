@@ -172,6 +172,7 @@ namespace DockerForm
 
                     if (IsFirstBoot)
                     {
+                        IsFirstBoot = false;
                         DatabaseManager.SanityCheck();
                     }
                     else
