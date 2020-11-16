@@ -41,7 +41,6 @@ namespace DockerForm
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.debugTextBox = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -131,8 +130,7 @@ namespace DockerForm
             this.menuStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undockedToolStripMenuItem,
-            this.debugTextBox});
+            this.undockedToolStripMenuItem});
             this.menuStrip2.Location = new System.Drawing.Point(0, 529);
             this.menuStrip2.Name = "menuStrip2";
             this.menuStrip2.Size = new System.Drawing.Size(1008, 32);
@@ -145,11 +143,6 @@ namespace DockerForm
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
             this.undockedToolStripMenuItem.Size = new System.Drawing.Size(95, 28);
             this.undockedToolStripMenuItem.Text = "Reading...";
-            // 
-            // debugTextBox
-            // 
-            this.debugTextBox.Name = "debugTextBox";
-            this.debugTextBox.Size = new System.Drawing.Size(12, 28);
             // 
             // contextMenuStrip1
             // 
@@ -336,7 +329,6 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem toolStripStartItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem debugTextBox;
     }
 }
 

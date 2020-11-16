@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace DockerForm
 {
@@ -19,6 +20,7 @@ namespace DockerForm
         public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
         public static bool IsHardwareNew = false;
+        public static bool IsHardwarePending = false;
         public static VideoController CurrentController;
 
         // Configurable vars
@@ -52,19 +54,22 @@ namespace DockerForm
             {
                 if (!DatabaseManager.IsUpdating())
                 {
-                    ThreadGPU = new Thread(VideoControllerMonitor);
-                    ThreadGPU.Start();
+                    if (!IsFirstBoot)
+                    {
+                        ThreadGPU = new Thread(VideoControllerMonitor);
+                        ThreadGPU.Start();
+                    }
+                    else if (!IsHardwarePending)
+                        IsHardwarePending = true;
                 }
             }
             base.WndProc(ref m);
         }
 
-        public static void SendNotification(string input, bool pushToast = false, bool pushLog = false)
+        public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
         {
-            _instance.BeginInvoke(new Action(() => _instance.debugTextBox.Text = input));
-
             if (pushLog)
-                LogManager.UpdateLog(input);
+                LogManager.UpdateLog(input, IsError);
 
             if (pushToast && ToastNotifications)
             {
@@ -156,7 +161,7 @@ namespace DockerForm
                 CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
 
                 // monitor hardware changes
-                IsHardwareNew = prevDockStatus != DockStatus;
+                IsHardwareNew = IsFirstBoot ? false : prevDockStatus != DockStatus;
 
                 if (IsHardwareNew || IsFirstBoot)
                 {
@@ -165,10 +170,10 @@ namespace DockerForm
                     if (VideoControllers.ContainsKey(Type.Discrete))
                         LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
 
-                    _instance.BeginInvoke(new Action(() => UpdateFormIcons()));
-
                     if (IsFirstBoot)
+                    {
                         DatabaseManager.SanityCheck();
+                    }
                     else
                     {
                         DatabaseManager.UpdateFilesAndRegistries(prevDockStatus, false, true);
@@ -176,7 +181,15 @@ namespace DockerForm
                     }
                 }
 
+                // update status
                 prevDockStatus = DockStatus;
+                UpdateFormIcons();
+
+                if (IsHardwarePending)
+                {
+                    IsHardwarePending = false;
+                    VideoControllerMonitor(data);
+                }
             }
             catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
         }
@@ -185,9 +198,6 @@ namespace DockerForm
         {
             try
             {
-                // taskbar text
-                _instance.menuStrip2.Items[0].Text = CurrentController.Name;
-
                 // taskbar icon
                 Image ConstructorLogo = Properties.Resources.intel;
                 switch(CurrentController.Constructor)
@@ -195,12 +205,17 @@ namespace DockerForm
                     case Constructor.AMD: ConstructorLogo = Properties.Resources.amd; break;
                     case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
                 }
-                _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
-
                 // main application icon
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
-                _instance.notifyIcon1.Icon = myIcon;
-                _instance.Icon = myIcon;
+
+                // drawing
+                _instance.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    _instance.menuStrip2.Items[0].Text = CurrentController.Name;
+                    _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
+                    _instance.notifyIcon1.Icon = myIcon;
+                    _instance.Icon = myIcon;
+                });
             }
             catch (Exception ex) { LogManager.UpdateLog("UpdateFormIcons: " + ex.Message, true); }
         }

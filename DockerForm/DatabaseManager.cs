@@ -204,7 +204,7 @@ namespace DockerForm
             return true;
         }
 
-        public static void SanityCheck()
+        public static bool SanityCheck()
         {
             string path_db = Form1.CurrentController.Name;
 
@@ -262,11 +262,11 @@ namespace DockerForm
                     }
 
                     if (fileBytes == null || fileDBBytes == null)
-                        return;
+                        return true;
 
                     if (path_db != crc_value)
                     {
-                        Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true);
+                        Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true, true);
                         
                         // Overwrite current database and restore last known settings
                         UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
@@ -275,7 +275,7 @@ namespace DockerForm
                     }
                     else if (!Equality(fileBytes,fileDBBytes))
                     {
-                        Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true);
+                        Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true, true);
                         
                         DialogBox dialogBox = new DialogBox();
                         dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
@@ -290,6 +290,7 @@ namespace DockerForm
             }
 
             Form1.IsFirstBoot = false;
+            return true;
         }
 
         public static List<DockerGame> SearchMicrosoftStore()
