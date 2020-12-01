@@ -12,17 +12,17 @@ namespace DockerForm
     class LogManager
     {
         private static CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-        private static string filename = "DockerForm.log";
+        private static string filename;
 
-        public static void InitializeLog()
+        public static void InitializeLog(string path_application)
         {
             // Change current culture
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            if (File.Exists(filename))
-                File.Delete(filename);
-            else
+            filename = Path.Combine(path_application, "DockerForm.log");
+
+            if (!File.Exists(filename))
                 File.CreateText(filename).Close();
         }
 

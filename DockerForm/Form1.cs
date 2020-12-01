@@ -296,7 +296,6 @@ namespace DockerForm
 
         public Form1()
         {
-            LogManager.InitializeLog();
             InitializeComponent();
 
             // initialize vars
@@ -304,6 +303,7 @@ namespace DockerForm
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
+            LogManager.InitializeLog(path_application);
 
             // path settings
             path_database = Path.Combine(path_application, "database");
