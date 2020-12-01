@@ -95,8 +95,13 @@ namespace DockerForm
                 Process Proc = Process.GetProcessById(ProcessID);
                 string PathToApp = DatabaseManager.GetPathToApp(Proc);
 
-                if (!GameProcesses.ContainsKey(ProcessID) && PathToApp != string.Empty)
-                    GameProcesses.Add(ProcessID, PathToApp);
+                if (PathToApp == string.Empty)
+                    return;
+
+                if (GameProcesses.ContainsKey(ProcessID))
+                    GameProcesses.Remove(ProcessID);
+                GameProcesses.Add(ProcessID, PathToApp);
+
             }catch(Exception ex) { }
         }
 
@@ -116,11 +121,14 @@ namespace DockerForm
                 foreach (DockerGame game in DatabaseManager.GameDB.Values)
                 {
                     string game_exe = game.Executable.ToLower();
+                    string game_uri = game.Uri.ToLower();
+
                     FileInfo info = new FileInfo(PathToApp);
-                    string game_path = info.Name.ToLower();
+                    string info_exe = info.Name.ToLower();
+                    string info_uri = info.FullName.ToLower();
 
                     // Update current title
-                    if (game_exe == game_path)
+                    if (game_exe == info_exe || game_uri == info_uri)
                         DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
                     }
             }
