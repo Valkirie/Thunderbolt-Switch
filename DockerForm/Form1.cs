@@ -24,6 +24,10 @@ namespace DockerForm
         public static bool IsHardwareNew = false;
         public static bool IsHardwarePending = false;
         public static VideoController CurrentController;
+        public static bool prevPowerStatus;
+        public static bool PowerStatus;
+        public static bool IsPowerNew = false;
+        public static bool IsRunning = true;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -55,16 +59,7 @@ namespace DockerForm
         {
             if (m.Msg == WM_DEVICECHANGE)
             {
-                if (!DatabaseManager.IsUpdating())
-                {
-                    if (!IsFirstBoot)
-                    {
-                        ThreadGPU = new Thread(VideoControllerMonitor);
-                        ThreadGPU.Start();
-                    }
-                    else if (!IsHardwarePending)
-                        IsHardwarePending = true;
-                }
+                IsHardwarePending = true;
             }
             base.WndProc(ref m);
         }
@@ -133,77 +128,89 @@ namespace DockerForm
                     // Update current title
                     if (game_exe == info_exe || game_uri == info_uri)
                         DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
-                    }
+                }
             }
             catch (Exception ex) { }
         }
 
         public static void VideoControllerMonitor(object data)
         {
-            try
+            while(IsRunning)
             {
-                DateTime currentCheck = DateTime.Now;
-                VideoControllers.Clear();
-
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
-                foreach (ManagementObject mo in searcher.Get())
+                if (IsHardwarePending || IsFirstBoot)
                 {
-                    VideoController vc = new VideoController
+                    DateTime currentCheck = DateTime.Now;
+                    VideoControllers.Clear();
+
+                    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+                    foreach (ManagementObject mo in searcher.Get())
                     {
-                        DeviceID = (string)mo.Properties["DeviceID"].Value,
-                        Name = (string)mo.Properties["Name"].Value,
-                        Description = (string)mo.Properties["Description"].Value,
-                        ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
-                        lastCheck = currentCheck
-                    };
+                        VideoController vc = new VideoController
+                        {
+                            DeviceID = (string)mo.Properties["DeviceID"].Value,
+                            Name = (string)mo.Properties["Name"].Value,
+                            Description = (string)mo.Properties["Description"].Value,
+                            ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
+                            lastCheck = currentCheck
+                        };
 
-                    // skip if not enabled
-                    if (vc.ConfigManagerErrorCode != 0)
-                        continue;
+                        // skip if not enabled
+                        if (vc.ConfigManagerErrorCode != 0)
+                            continue;
 
-                    // initialize VideoController
-                    vc.Initialize();
+                        // initialize VideoController
+                        vc.Initialize();
 
-                    VideoControllers[vc.Type] = vc;
-                }
-
-                // look for discrete GPU
-                DockStatus = VideoControllers.ContainsKey(Type.Discrete);
-                CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
-
-                // monitor hardware changes
-                IsHardwareNew = IsFirstBoot ? false : prevDockStatus != DockStatus;
-
-                if (IsHardwareNew || IsFirstBoot)
-                {
-                    if(VideoControllers.ContainsKey(Type.Internal))
-                        LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
-                    if (VideoControllers.ContainsKey(Type.Discrete))
-                        LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
-
-                    if (IsFirstBoot)
-                    {
-                        IsFirstBoot = false;
-                        DatabaseManager.SanityCheck();
+                        // update VideoController
+                        VideoControllers[vc.Type] = vc;
                     }
-                    else
+
+                    // update all status
+                    DockStatus = VideoControllers.ContainsKey(Type.Discrete);
+                    CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
+                    PowerStatus = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
+
+                    // monitor hardware changes
+                    IsHardwareNew = IsFirstBoot ? false : (prevDockStatus != DockStatus);
+                    IsPowerNew = IsFirstBoot ? false : (prevPowerStatus != PowerStatus);
+
+                    if (IsHardwareNew || IsPowerNew || IsFirstBoot)
                     {
-                        DatabaseManager.UpdateFilesAndRegistries(prevDockStatus, false, true);
-                        DatabaseManager.UpdateFilesAndRegistries(DockStatus, true, false);
+                        if (IsHardwareNew)
+                        {
+                            if (VideoControllers.ContainsKey(Type.Internal))
+                                LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
+                            if (VideoControllers.ContainsKey(Type.Discrete))
+                                LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
+                        }
+                        else if (IsPowerNew)
+                        {
+                            LogManager.UpdateLog("Power: " + PowerStatus);
+                        }
+
+                        if (IsFirstBoot)
+                        {
+                            IsFirstBoot = false;
+                            DatabaseManager.SanityCheck();
+                        }
+                        else
+                        {
+                            DatabaseManager.UpdateFilesAndRegistries(false, true);
+                            DatabaseManager.UpdateFilesAndRegistries(true, false);
+                        }
                     }
-                }
 
-                // update status
-                prevDockStatus = DockStatus;
-                UpdateFormIcons();
+                    // update status
+                    prevDockStatus = DockStatus;
+                    prevPowerStatus = PowerStatus;
 
-                if (IsHardwarePending)
-                {
+                    // update form
+                    UpdateFormIcons();
                     IsHardwarePending = false;
-                    VideoControllerMonitor(data);
                 }
+
+                Thread.Sleep(500);
             }
-            catch (Exception ex) { LogManager.UpdateLog("VideoControllerMonitor: " + ex.Message, true); }
         }
 
         public static void UpdateFormIcons()
@@ -223,7 +230,7 @@ namespace DockerForm
                 // drawing
                 _instance.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.menuStrip2.Items[0].Text = CurrentController.Name;
+                    _instance.menuStrip2.Items[0].Text = CurrentController.Name + " (" + (PowerStatus ? "plugged in" : "on battery") + ")";
                     _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
                     _instance.notifyIcon1.Icon = myIcon;
                     _instance.Icon = myIcon;
@@ -346,7 +353,8 @@ namespace DockerForm
             UpdateGameList();
 
             // search for GPUs
-            VideoControllerMonitor(sender);
+            ThreadGPU = new Thread(VideoControllerMonitor);
+            ThreadGPU.Start();
 
             // Monitor processes
             if (MonitorProcesses)
@@ -373,11 +381,13 @@ namespace DockerForm
             else
             {
                 if(SaveOnExit)
-                    DatabaseManager.UpdateFilesAndRegistries(DockStatus, false, true);
+                    DatabaseManager.UpdateFilesAndRegistries(false, true);
 
                 notifyIcon1.Dispose();
                 processStartWatcher.Dispose();
                 processStopWatcher.Dispose();
+
+                IsRunning = false;
             }
         }
 

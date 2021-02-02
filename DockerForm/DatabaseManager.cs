@@ -18,7 +18,6 @@ namespace DockerForm
     {
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
-        private static bool b_Updating = false;
 
         public static Dictionary<string, string> GetAppProperties(string filePath1)
         {
@@ -87,6 +86,28 @@ namespace DockerForm
                     setting.IsEnabled = false;
                     continue;
                 }
+
+                // use opposite status if current powerstatus is missing
+                if (setting.data.ContainsKey((updateDB ? path_game : path_dest) + Form1.PowerStatus))
+                {
+                    if (updateDB)
+                        path_game += Form1.PowerStatus;
+                    else
+                        path_dest += Form1.PowerStatus;
+
+                    crc_value = (updateDB ? path_game : path_dest);
+                }
+                else if (setting.data.ContainsKey((updateDB ? path_game : path_dest) + !Form1.PowerStatus))
+                {
+                    if (updateDB)
+                        path_game += Form1.PowerStatus;
+                    else
+                        path_dest += Form1.PowerStatus;
+
+                    crc_value = (updateDB ? path_game : path_dest);
+                }
+                else if (!setting.data.ContainsKey((updateDB ? path_game : path_dest)))
+                    continue;
 
                 if (setting.Type == SettingsType.File)
                 {
@@ -157,21 +178,12 @@ namespace DockerForm
             Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
         }
 
-        public static bool IsUpdating()
+        public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
         {
-            return b_Updating;
-        }
-
-        public static void UpdateFilesAndRegistries(bool DockStatus, bool updateFILE = false, bool updateDB = false)
-        {
-            b_Updating = true;
-
             string path_db = Form1.CurrentController.Name;
 
             foreach (DockerGame game in GameDB.Values)
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
-
-            b_Updating = false;
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -237,6 +249,14 @@ namespace DockerForm
                         setting.IsEnabled = false;
                         continue;
                     }
+
+                    // use opposite status if current powerstatus is missing
+                    if (setting.data.ContainsKey(path_db + Form1.PowerStatus))
+                        path_db += Form1.PowerStatus;
+                    else if (setting.data.ContainsKey(path_db + !Form1.PowerStatus))
+                        path_db += !Form1.PowerStatus;
+                    else if (!setting.data.ContainsKey(path_db))
+                        continue;
 
                     if (setting.Type == SettingsType.File)
                     {
