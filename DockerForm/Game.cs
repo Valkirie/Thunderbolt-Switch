@@ -109,22 +109,27 @@ namespace DockerForm
 
         public DockerGame(string filePath)
         {
-            Dictionary<string, string> AppProperties = DatabaseManager.GetAppProperties(filePath);
+            try
+            {
+                Dictionary<string, string> AppProperties = DatabaseManager.GetAppProperties(filePath);
 
-            Executable = AppProperties["FileName"];
-            ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
-            Version = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
-            Company = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
-            Name = ProductName;
-            GUID = "0x" + Math.Abs((Executable + ProductName).GetHashCode()).ToString();
+                Executable = AppProperties["FileName"];
+                ProductName = AppProperties.ContainsKey("FileDescription") ? AppProperties["FileDescription"] : AppProperties["ItemFolderNameDisplay"];
+                Version = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
+                Company = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
+                Name = ProductName;
+                GUID = "0x" + Math.Abs((Executable + ProductName).GetHashCode()).ToString();
 
-            FileInfo fileInfo = new FileInfo(filePath);
-            Uri = fileInfo.DirectoryName.ToLower();
+                FileInfo fileInfo = new FileInfo(filePath);
+                Uri = fileInfo.DirectoryName.ToLower();
 
-            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+                string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
+                string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
 
-            FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
+                FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
+            }
+            catch(Exception)
+            { }
 
             try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception ex) { Console.WriteLine(ex.Message); }
         }

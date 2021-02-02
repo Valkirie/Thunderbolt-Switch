@@ -10,6 +10,8 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Collections.Specialized;
+using Microsoft.Win32;
 
 namespace DockerForm
 {
@@ -32,6 +34,7 @@ namespace DockerForm
         public static bool ToastNotifications = false;
         public static bool SaveOnExit = false;
         public static int IGDBListLength;
+        public static StringCollection Blacklist;
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
@@ -328,6 +331,7 @@ namespace DockerForm
             IGDBListLength = Properties.Settings.Default.IGDBListLength;
             ToastNotifications = Properties.Settings.Default.ToastNotifications;
             SaveOnExit = Properties.Settings.Default.SaveOnExit;
+            Blacklist = Properties.Settings.Default.Blacklist;
 
             if (MinimizeOnStartup)
             {
@@ -541,8 +545,19 @@ namespace DockerForm
             DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
             DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
 
-            foreach (DockerGame game in DetectedGames)
-                InsertOrUpdateGameItem(game, false);
+            foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
+            {
+                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
+                if (dialogResult == DialogResult.Yes)
+                    InsertOrUpdateGameItem(game, false);
+                else if (dialogResult == DialogResult.No)
+                {
+                    // Properties.Settings.Default.Blacklist.Add(game.Name);
+                    // Properties.Settings.Default.Save();
+                }
+                else if (dialogResult == DialogResult.Cancel)
+                    break;
+            }
         }
 
         private void findAGameToolStripMenuItem_Click(object sender, EventArgs e)

@@ -298,33 +298,142 @@ namespace DockerForm
             List<DockerGame> listofGames = new List<DockerGame>();
             string foldername = "C:\\Program Files\\WindowsApps";
 
-            foreach(string folder in Directory.GetDirectories(foldername))
+            foreach(string folder in Directory.GetDirectories(foldername).Where(a => a.Contains("x86") || a.Contains("x64")))
             {
                 foreach (string file in Directory.GetFiles(folder))
                 {
                     FileInfo myFile = new FileInfo(file);
-                    if (myFile.Name.Equals("MicrosoftGame.config"))
+                    if (myFile.Name.Equals("AppxManifest.xml"))
                     {
                         XmlDocument doc = new XmlDocument();
                         doc.Load(file);
 
-                        string TitleId = doc.DocumentElement["TitleId"].InnerText;
-                        string Executable = doc.DocumentElement["ExecutableList"]["Executable"].Attributes[0].InnerText;
-                        string DisplayName = doc.DocumentElement["ShellVisuals"].Attributes[0].InnerText;
-                        string PublisherDisplayName = doc.DocumentElement["ShellVisuals"].Attributes[1].InnerText;
-                        string StoreLogo = doc.DocumentElement["ShellVisuals"].Attributes[2].InnerText;
+                        string IdentityName = "";
+                        string IdentityVersion = "";
+                        string DisplayName = "";
+                        string PublisherDisplayName = "";
+                        string Executable = "";
+                        string StoreLogo = "";
+                        string StoreLogoScale = "";
+
+                        XmlNodeList Identity = doc.GetElementsByTagName("Identity");
+                        foreach(XmlNode node in Identity)
+                        {
+                            if (node.Attributes != null)
+                            {
+                                foreach (XmlAttribute attribute in node.Attributes)
+                                {
+                                    switch (attribute.Name)
+                                    {
+                                        case "Name":
+                                            IdentityName = attribute.InnerText;
+                                            break;
+                                        case "Version":
+                                            IdentityVersion = attribute.InnerText;
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+
+                        Identity = doc.GetElementsByTagName("Properties");
+                        foreach (XmlNode node in Identity)
+                        {
+                            foreach (XmlNode child in node.ChildNodes)
+                            {
+                                switch (child.Name)
+                                {
+                                    case "DisplayName":
+                                        DisplayName = child.InnerText;
+                                        break;
+                                    case "PublisherDisplayName":
+                                        PublisherDisplayName = child.InnerText;
+                                        break;
+                                }
+                            }
+                        }
+
+                        Identity = doc.GetElementsByTagName("Resources");
+                        foreach (XmlNode node in Identity)
+                        {
+                            foreach (XmlNode child in node.ChildNodes)
+                            {
+                                if (child.Attributes != null)
+                                {
+                                    foreach (XmlAttribute attribute in child.Attributes)
+                                    {
+                                        if (attribute.Name.Equals("uap:Scale"))
+                                        {
+                                            StoreLogoScale = attribute.InnerText;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Identity = doc.GetElementsByTagName("Applications");
+                        foreach (XmlNode node in Identity)
+                        {
+                            foreach (XmlNode child in node.ChildNodes)
+                            {
+                                if (child.Name.Equals("Application"))
+                                {
+                                    if (child.Attributes != null)
+                                    {
+                                        foreach (XmlAttribute attribute in child.Attributes)
+                                        {
+                                            switch (attribute.Name)
+                                            {
+                                                case "Executable":
+                                                    Executable = attribute.InnerText;
+                                                    break;
+                                            }
+                                            continue;
+                                        }
+                                    }
+
+                                    foreach (XmlNode subchild in child.ChildNodes)
+                                    {
+                                        if (subchild.Attributes != null)
+                                        {
+                                            foreach (XmlAttribute attribute in subchild.Attributes)
+                                            {
+                                                if (attribute.Name.Contains("Logo"))
+                                                {
+                                                    if (attribute.Name.Contains("Square"))
+                                                    {
+                                                        StoreLogo = attribute.InnerText;
+                                                        break;
+                                                    }
+                                                    else if (attribute.Name.Contains("Wide"))
+                                                    {
+                                                        StoreLogo = attribute.InnerText;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!StoreLogoScale.Equals(""))
+                            StoreLogo = StoreLogo.Replace(".", ".scale-" + StoreLogoScale + ".");
 
                         string filePath = Path.Combine(folder, Executable);
                         if (File.Exists(filePath))
                         {
                             DockerGame thisGame = new DockerGame(filePath);
                             thisGame.Platform = PlatformCode.Microsoft;
-                            thisGame.Name = DisplayName;
+                            thisGame.Name = DisplayName.Contains("ms-resource") ? IdentityName : DisplayName;
                             thisGame.Company = PublisherDisplayName;
                             thisGame.SanityCheck();
 
                             string filename = Path.Combine(folder, StoreLogo);
-                            thisGame.Image = FileManager.GetImage(filename);
+                            if (File.Exists(filename))
+                                thisGame.Image = FileManager.GetImage(filename);
                             listofGames.Add(thisGame);
                         }
                     }

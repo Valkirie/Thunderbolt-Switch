@@ -29,5 +29,52 @@
     <Setting Name="SaveOnExit" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="Blacklist" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Microsoft.FlightDashboard&lt;/string&gt;
+  &lt;string&gt;Microsoft.GamingServices&lt;/string&gt;
+  &lt;string&gt;Microsoft.MicrosoftStickyNotes&lt;/string&gt;
+  &lt;string&gt;Microsoft.ScreenSketch&lt;/string&gt;
+  &lt;string&gt;Microsoft.StorePurchaseApp&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsCalculator&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsFeedbackHub&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsStore&lt;/string&gt;
+  &lt;string&gt;Microsoft.XboxApp&lt;/string&gt;
+  &lt;string&gt;Microsoft.XboxDevices&lt;/string&gt;
+  &lt;string&gt;Microsoft.XboxIdentityProvider&lt;/string&gt;
+  &lt;string&gt;Microsoft.XboxSpeechToTextOverlay&lt;/string&gt;
+  &lt;string&gt;Microsoft.YourPhone&lt;/string&gt;
+  &lt;string&gt;Microsoft.BingNews&lt;/string&gt;
+  &lt;string&gt;Microsoft.BingWeather&lt;/string&gt;
+  &lt;string&gt;Microsoft.DesktopAppInstaller&lt;/string&gt;
+  &lt;string&gt;Xbox&lt;/string&gt;
+  &lt;string&gt;Microsoft.GetHelp&lt;/string&gt;
+  &lt;string&gt;Microsoft.Getstarted&lt;/string&gt;
+  &lt;string&gt;Microsoft.Messaging&lt;/string&gt;
+  &lt;string&gt;Microsoft.Microsoft3DViewer&lt;/string&gt;
+  &lt;string&gt;Office&lt;/string&gt;
+  &lt;string&gt;Microsoft Solitaire Collection&lt;/string&gt;
+  &lt;string&gt;Microsoft.MixedReality.Portal&lt;/string&gt;
+  &lt;string&gt;Microsoft.MSPaint&lt;/string&gt;
+  &lt;string&gt;OneNote for Windows 10&lt;/string&gt;
+  &lt;string&gt;Microsoft.OneConnect&lt;/string&gt;
+  &lt;string&gt;Microsoft.People&lt;/string&gt;
+  &lt;string&gt;Microsoft.Photos.MediaEngineDLC&lt;/string&gt;
+  &lt;string&gt;Print 3D&lt;/string&gt;
+  &lt;string&gt;Skype&lt;/string&gt;
+  &lt;string&gt;Microsoft.Windows.Photos&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsAlarms&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsCamera&lt;/string&gt;
+  &lt;string&gt;microsoft.windowscommunicationsapps&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsMaps&lt;/string&gt;
+  &lt;string&gt;Microsoft.WindowsSoundRecorder&lt;/string&gt;
+  &lt;string&gt;Xbox TCUI&lt;/string&gt;
+  &lt;string&gt;Xbox Game Bar Plugin&lt;/string&gt;
+  &lt;string&gt;Xbox Game Bar&lt;/string&gt;
+  &lt;string&gt;Microsoft.ZuneMusic&lt;/string&gt;
+  &lt;string&gt;Microsoft.ZuneVideo&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -130,5 +130,41 @@ namespace DockerForm.Properties {
                 this["SaveOnExit"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>Microsoft.FlightDashboard</string>\r\n  <string>Microsoft.GamingServices</st" +
+            "ring>\r\n  <string>Microsoft.MicrosoftStickyNotes</string>\r\n  <string>Microsoft.Sc" +
+            "reenSketch</string>\r\n  <string>Microsoft.StorePurchaseApp</string>\r\n  <string>Mi" +
+            "crosoft.WindowsCalculator</string>\r\n  <string>Microsoft.WindowsFeedbackHub</stri" +
+            "ng>\r\n  <string>Microsoft.WindowsStore</string>\r\n  <string>Microsoft.XboxApp</str" +
+            "ing>\r\n  <string>Microsoft.XboxDevices</string>\r\n  <string>Microsoft.XboxIdentity" +
+            "Provider</string>\r\n  <string>Microsoft.XboxSpeechToTextOverlay</string>\r\n  <stri" +
+            "ng>Microsoft.YourPhone</string>\r\n  <string>Microsoft.BingNews</string>\r\n  <strin" +
+            "g>Microsoft.BingWeather</string>\r\n  <string>Microsoft.DesktopAppInstaller</strin" +
+            "g>\r\n  <string>Xbox</string>\r\n  <string>Microsoft.GetHelp</string>\r\n  <string>Mic" +
+            "rosoft.Getstarted</string>\r\n  <string>Microsoft.Messaging</string>\r\n  <string>Mi" +
+            "crosoft.Microsoft3DViewer</string>\r\n  <string>Office</string>\r\n  <string>Microso" +
+            "ft Solitaire Collection</string>\r\n  <string>Microsoft.MixedReality.Portal</strin" +
+            "g>\r\n  <string>Microsoft.MSPaint</string>\r\n  <string>OneNote for Windows 10</stri" +
+            "ng>\r\n  <string>Microsoft.OneConnect</string>\r\n  <string>Microsoft.People</string" +
+            ">\r\n  <string>Microsoft.Photos.MediaEngineDLC</string>\r\n  <string>Print 3D</strin" +
+            "g>\r\n  <string>Skype</string>\r\n  <string>Microsoft.Windows.Photos</string>\r\n  <st" +
+            "ring>Microsoft.WindowsAlarms</string>\r\n  <string>Microsoft.WindowsCamera</string" +
+            ">\r\n  <string>microsoft.windowscommunicationsapps</string>\r\n  <string>Microsoft.W" +
+            "indowsMaps</string>\r\n  <string>Microsoft.WindowsSoundRecorder</string>\r\n  <strin" +
+            "g>Xbox TCUI</string>\r\n  <string>Xbox Game Bar Plugin</string>\r\n  <string>Xbox Ga" +
+            "me Bar</string>\r\n  <string>Microsoft.ZuneMusic</string>\r\n  <string>Microsoft.Zun" +
+            "eVideo</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Blacklist {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Blacklist"]));
+            }
+            set {
+                this["Blacklist"] = value;
+            }
+        }
     }
 }
