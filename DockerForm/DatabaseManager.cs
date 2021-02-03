@@ -87,27 +87,9 @@ namespace DockerForm
                     continue;
                 }
 
-                // use opposite status if current powerstatus is missing
-                if (setting.data.ContainsKey((updateDB ? path_game : path_dest) + Form1.PowerStatus))
-                {
-                    if (updateDB)
-                        path_game += Form1.PowerStatus;
-                    else
-                        path_dest += Form1.PowerStatus;
-
-                    crc_value = (updateDB ? path_game : path_dest);
-                }
-                else if (setting.data.ContainsKey((updateDB ? path_game : path_dest) + !Form1.PowerStatus))
-                {
-                    if (updateDB)
-                        path_game += Form1.PowerStatus;
-                    else
-                        path_dest += Form1.PowerStatus;
-
-                    crc_value = (updateDB ? path_game : path_dest);
-                }
-                else if (!setting.data.ContainsKey((updateDB ? path_game : path_dest)))
-                    continue;
+                // check if we have opposite plugged status
+                if (updateFILE && !setting.data.ContainsKey(path_dest))
+                    path_dest = path_dest.Replace(":False", "");
 
                 if (setting.Type == SettingsType.File)
                 {
@@ -132,7 +114,7 @@ namespace DockerForm
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " database update skipped for file [" + file + "] - no data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for file [" + file + "] - no data available");
                         }
                     }
                 }
@@ -163,7 +145,7 @@ namespace DockerForm
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " database update skipped for registry entry [" + file + "] - no data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for registry entry [" + file + "] - no data available");
                         }
                     }
 
@@ -175,12 +157,12 @@ namespace DockerForm
             game.SetCrc(crc_value);
             game.Serialize();
 
-            Form1.SendNotification(game.Name + " settings have been updated for (" + path_dest + ")", pushToast);
+            Form1.SendNotification(game.Name + " settings have been updated", pushToast);
         }
 
         public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
         {
-            string path_db = Form1.CurrentController.Name;
+            string path_db = Form1.GetCurrentState();
 
             foreach (DockerGame game in GameDB.Values)
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
@@ -218,7 +200,7 @@ namespace DockerForm
 
         public static bool SanityCheck()
         {
-            string path_db = Form1.CurrentController.Name;
+            string path_db = Form1.GetCurrentState();
 
             foreach (DockerGame game in GameDB.Values)
             {
@@ -249,14 +231,6 @@ namespace DockerForm
                         setting.IsEnabled = false;
                         continue;
                     }
-
-                    // use opposite status if current powerstatus is missing
-                    if (setting.data.ContainsKey(path_db + Form1.PowerStatus))
-                        path_db += Form1.PowerStatus;
-                    else if (setting.data.ContainsKey(path_db + !Form1.PowerStatus))
-                        path_db += !Form1.PowerStatus;
-                    else if (!setting.data.ContainsKey(path_db))
-                        continue;
 
                     if (setting.Type == SettingsType.File)
                     {

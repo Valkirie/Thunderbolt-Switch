@@ -64,6 +64,11 @@ namespace DockerForm
             base.WndProc(ref m);
         }
 
+        private static void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            IsHardwarePending = true;
+        }
+
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
         {
             if (pushLog)
@@ -127,10 +132,30 @@ namespace DockerForm
 
                     // Update current title
                     if (game_exe == info_exe || game_uri == info_uri)
-                        DatabaseManager.UpdateFilesAndRegistries(game, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
+                        DatabaseManager.UpdateFilesAndRegistries(game, GetCurrentState(), GetCurrentState(), true, false, true, GetCurrentState());
                 }
             }
             catch (Exception ex) { }
+        }
+
+        public static string GetCurrentState()
+        {
+            string state = CurrentController.Name;
+
+            /*            
+             *            NVIDIA GeForce RTX 2070
+             *            Intel(R) Iris(R) Plus Graphics
+             *            Intel(R) Iris(R) Plus Graphics:False
+            */
+            if (!DockStatus && !PowerStatus)
+                state += ":" + PowerStatus;
+
+            return state;
+        }
+
+        public static string GetCurrentPower()
+        {
+            return PowerStatus ? "plugged in" : "on battery";
         }
 
         public static void VideoControllerMonitor(object data)
@@ -178,15 +203,14 @@ namespace DockerForm
                     {
                         if (IsHardwareNew)
                         {
-                            if (VideoControllers.ContainsKey(Type.Internal))
-                                LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
                             if (VideoControllers.ContainsKey(Type.Discrete))
                                 LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
+                            else if (VideoControllers.ContainsKey(Type.Internal))
+                                LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
                         }
-                        else if (IsPowerNew)
-                        {
-                            LogManager.UpdateLog("Power: " + PowerStatus);
-                        }
+                        
+                        if (IsPowerNew)
+                            LogManager.UpdateLog("Power Status: " + GetCurrentPower());
 
                         if (IsFirstBoot)
                         {
@@ -230,7 +254,7 @@ namespace DockerForm
                 // drawing
                 _instance.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.menuStrip2.Items[0].Text = CurrentController.Name + " (" + (PowerStatus ? "plugged in" : "on battery") + ")";
+                    _instance.menuStrip2.Items[0].Text = CurrentController.Name + " (" + GetCurrentPower() + ")";
                     _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
                     _instance.notifyIcon1.Icon = myIcon;
                     _instance.Icon = myIcon;
@@ -266,7 +290,7 @@ namespace DockerForm
 
             // Update current title
             DockerGame output = DatabaseManager.GameDB[game.GUID];
-            DatabaseManager.UpdateFilesAndRegistries(output, CurrentController.Name, CurrentController.Name, true, false, true, CurrentController.Name);
+            DatabaseManager.UpdateFilesAndRegistries(output, GetCurrentState(), GetCurrentState(), true, false, true, GetCurrentState());
 
             GameList.Sort();
         }
@@ -369,6 +393,9 @@ namespace DockerForm
 
                 LogManager.UpdateLog("Process monitor has started");
             }
+
+            // Monitor Power Status
+            SystemEvents.PowerModeChanged += OnPowerModeChanged;
         }
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
