@@ -100,7 +100,7 @@ namespace DockerForm
             }
         }
 
-        private static void SetPowerProfile(PowerProfile profile, bool IsGame = false)
+        private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
             string command = "/nologo /min /command=\"";
 
@@ -144,8 +144,13 @@ namespace DockerForm
             };
             Process.Start(RWInfo);
 
-            GameProfileApplied = IsGame;
-            LogManager.UpdateLog("Power Profile applied: " + profile.GetName());
+            if (game != null)
+            {
+                GameProfileApplied = true;
+                LogManager.UpdateLog("[" + game.Name + "] has applied Power Profile [" + profile.GetName() + "] applied");
+            }
+            else
+                LogManager.UpdateLog("Power Profile applied: " + profile.GetName());
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
@@ -214,7 +219,7 @@ namespace DockerForm
                         if (profile == null)
                             return;
 
-                        SetPowerProfile(profile, true);
+                        SetPowerProfile(profile, game);
                     }
                 }
 

@@ -90,7 +90,7 @@ namespace DockerForm
                     if (!File.Exists(filename))
                     {
                         setting.IsEnabled = false;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings disabled for file [" + file + "] - no data available");
+                        LogManager.UpdateLog("[" + game.Name + "] settings disabled for file [" + file + "] [" + path_dest + "]");
                         continue;
                     }
 
@@ -101,7 +101,7 @@ namespace DockerForm
                     if (updateDB)
                     {
                         setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for file [" + file + "]");
+                        LogManager.UpdateLog("[" + game.Name + "] database updated for file [" + file + "] [" + path_game + "]");
                     }
 
                     // 2. Restore proper settings
@@ -111,11 +111,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(filename, setting.data[path_dest]);
                             File.SetLastWriteTime(filename, game.LastCheck);
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for file [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings restored for file [" + file + "] [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for file [" + file + "] - no data available");
+                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for file [" + file + "] [" + path_dest + "]");
                         }
                     }
                 }
@@ -128,7 +128,7 @@ namespace DockerForm
                     if (!File.Exists(tempfile))
                     {
                         setting.IsEnabled = false;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings disabled registry entry " + filename + " - no data available");
+                        LogManager.UpdateLog("[" + game.Name + "] settings disabled registry entry " + filename + " [" + path_dest + "]");
                         continue;
                     }
 
@@ -139,7 +139,7 @@ namespace DockerForm
                     if (updateDB)
                     {
                         setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for registry entry " + filename);
+                        LogManager.UpdateLog("[" + game.Name + "] database updated for registry entry " + filename + " [" + path_game + "]");
                     }
 
                     // 2. Restore proper settings
@@ -149,11 +149,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for registry entry " + filename);
+                            LogManager.UpdateLog("[" + game.Name + "] settings restored for registry entry " + filename + " [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for registry entry " + filename + " - no data available");
+                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for registry entry " + filename + " [" + path_dest + "]");
                         }
                     }
 

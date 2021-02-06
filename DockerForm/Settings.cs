@@ -88,7 +88,7 @@ namespace DockerForm
             foreach (KeyValuePair<string, PowerProfile> profile in Form1.ProfileDB)
                 comboBoxProfile.Items.Add(profile.Key);
 
-            comboBoxProfile.Enabled = Form1.MonitorProcesses;
+            groupBoxProfile.Enabled = Form1.MonitorProcesses;
 
             IsReady = true;
         }
