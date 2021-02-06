@@ -121,6 +121,7 @@
     <Compile Include="MyPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="PowerProfile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -212,6 +213,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\1200px-Microsoft_Store_logo.svg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dependencies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
