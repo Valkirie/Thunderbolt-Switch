@@ -59,6 +59,7 @@ namespace DockerForm
         public Settings(Form1 form, DockerGame game)
         {
             InitializeComponent();
+            Form1.UpdateProfiles();
 
             // instances
             thisGame = game;
@@ -71,6 +72,8 @@ namespace DockerForm
             field_Filename.Text     = game.Executable;
             field_Version.Text      = game.Version;
             field_Developer.Text    = game.Company;
+            field_Arguments.Text    = game.Arguments;
+            textBoxProfile.Text     = game.Profile != null ? game.Profile.ProfileName : "";
 
             GameIcon.BackgroundImage = game.Image;
 
@@ -81,6 +84,11 @@ namespace DockerForm
                 newSetting.Tag = setting.IsRelative;
                 SettingsList.Items.Add(newSetting);
             }
+
+            foreach (KeyValuePair<string, PowerProfile> profile in Form1.ProfileDB)
+                comboBoxProfile.Items.Add(profile.Key);
+
+            comboBoxProfile.Enabled = Form1.MonitorProcesses;
 
             IsReady = true;
         }
@@ -165,6 +173,24 @@ namespace DockerForm
         private void field_Name_TextChanged(object sender, EventArgs e)
         {
             thisGame.Name = field_Name.Text;
+        }
+
+        private void field_arguments_TextChanged(object sender, EventArgs e)
+        {
+            thisGame.Arguments = field_Arguments.Text;
+        }
+
+        private void comboBoxProfile_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string key = comboBoxProfile.Text;
+            if (Form1.ProfileDB.ContainsKey(key))
+            {
+                PowerProfile profile = Form1.ProfileDB[key];
+                thisGame.Profile = profile;
+            }
+            else
+                thisGame.Profile = null;
+            textBoxProfile.Text = key;
         }
 
         private void MenuItemRemoveSetting_Click(object sender, EventArgs e)

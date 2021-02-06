@@ -81,18 +81,19 @@ namespace DockerForm
                 string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
                 string file = Path.GetFileName(filename);
 
-                if (!File.Exists(filename))
-                {
-                    setting.IsEnabled = false;
-                    continue;
-                }
-
                 // check if we have opposite plugged status
                 if (updateFILE && !setting.data.ContainsKey(path_dest))
                     path_dest = path_dest.Replace(":False", "");
 
                 if (setting.Type == SettingsType.File)
                 {
+                    if (!File.Exists(filename))
+                    {
+                        setting.IsEnabled = false;
+                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings disabled for file [" + file + "] - no data available");
+                        continue;
+                    }
+
                     // We store the data
                     byte[] s_file = File.ReadAllBytes(filename);
 
@@ -124,6 +125,13 @@ namespace DockerForm
                     string tempfile = Path.Combine(Form1.path_application, "temp.reg");
                     RegistryManager.ExportKey(filename, tempfile);
 
+                    if (!File.Exists(tempfile))
+                    {
+                        setting.IsEnabled = false;
+                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings disabled registry entry " + filename + " - no data available");
+                        continue;
+                    }
+
                     // We store the data
                     byte[] s_file = File.ReadAllBytes(tempfile);
 
@@ -131,7 +139,7 @@ namespace DockerForm
                     if (updateDB)
                     {
                         setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for registry entry [" + file + "]");
+                        LogManager.UpdateLog("[" + game.Name + "]" + " " + path_game + " database updated for registry entry " + filename);
                     }
 
                     // 2. Restore proper settings
@@ -141,11 +149,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for registry entry [" + file + "]");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restored for registry entry " + filename);
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for registry entry [" + file + "] - no data available");
+                            LogManager.UpdateLog("[" + game.Name + "]" + " " + path_dest + " settings restoration skipped for registry entry " + filename + " - no data available");
                         }
                     }
 

@@ -63,7 +63,7 @@ namespace DockerForm
     }
 
     [Serializable]
-    public class DockerGame
+    public class DockerGame : IDisposable
     {
         public string Executable = "";      // Executable Name
         public string Name = "";            // Description
@@ -75,10 +75,12 @@ namespace DockerForm
         public string Uri = "";             // File path
         public string Company = "";         // Product Company
         public string crc_value = "";       // Crc
+        public string Arguments = "";       // Executable arguments
         public bool Enabled = true;         // IsEnabled
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
         public PlatformCode Platform = PlatformCode.Default;
+        public PowerProfile Profile;
 
         public Dictionary<int, GameSettings> Settings = new Dictionary<int, GameSettings>();
 
@@ -123,9 +125,9 @@ namespace DockerForm
                 FileInfo fileInfo = new FileInfo(filePath);
                 Uri = fileInfo.DirectoryName.ToLower();
 
+                // cleanup before using as FolderName
                 string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-
                 FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
             }
             catch(Exception)
@@ -202,6 +204,16 @@ namespace DockerForm
                 if (setting.IsFile())
                     return true;
             return false;
+        }
+
+        public bool HasIGDB()
+        {
+            return IGDB_Url != "";
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

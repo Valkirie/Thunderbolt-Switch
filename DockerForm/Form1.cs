@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using Microsoft.Win32;
+using System.Xml.Serialization;
 
 namespace DockerForm
 {
@@ -28,6 +29,7 @@ namespace DockerForm
         public static bool PowerStatus;
         public static bool IsPowerNew = false;
         public static bool IsRunning = true;
+        public static bool GameProfileApplied = false;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -44,7 +46,8 @@ namespace DockerForm
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
 
         // Folder vars
-        public static string path_application, path_database;
+        public static string path_application, path_database, path_dependencies, path_profiles;
+        public static string path_rw;
 
         // Form vars
         private static Form1 _instance;
@@ -53,6 +56,9 @@ namespace DockerForm
         private static Thread ThreadGPU;
         private static ManagementEventWatcher processStartWatcher, processStopWatcher;
         private static Dictionary<int, string> GameProcesses = new Dictionary<int, string>();
+
+        // PowerProfile vars
+        public static Dictionary<string, PowerProfile> ProfileDB = new Dictionary<string, PowerProfile>();
 
         private const int WM_DEVICECHANGE = 0x0219;
         protected override void WndProc(ref Message m)
@@ -64,9 +70,82 @@ namespace DockerForm
             base.WndProc(ref m);
         }
 
-        private static void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        private void OnPowerModeChanged(object s, PowerModeChangedEventArgs e)
         {
+            switch (e.Mode)
+            {
+                case PowerModes.Resume:
+                    break;
+                case PowerModes.Suspend:
+                    break;
+            }
+
             IsHardwarePending = true;
+        }
+
+        private static void CheckPowerProfiles()
+        {
+            foreach (PowerProfile profile in ProfileDB.Values)
+            {
+                bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) != 0;
+                bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) != 0;
+
+                // if device is plugged in
+                if (PowerStatus && isPluggedIn)
+                    SetPowerProfile(profile);
+
+                // if device is running on battery
+                if (!PowerStatus && isOnBattery)
+                    SetPowerProfile(profile);
+            }
+        }
+
+        private static void SetPowerProfile(PowerProfile profile, bool IsGame = false)
+        {
+            string command = "/nologo /min /command=\"";
+
+            if (profile.HasLongPowerMax())
+            {
+                command += "w 0xFEDC59a1 0x8" + profile.GetLongPowerMax().Substring(0, 1) + ";";
+                command += "w 0xFEDC59a0 0x8" + profile.GetLongPowerMax().Substring(1) + ";";
+            }
+
+            if (profile.HasShortPowerMax())
+            {
+                command += "w 0xFEDC59a5 0x8" + profile.GetShortPowerMax().Substring(0, 1) + ";";
+                command += "w 0xFEDC59a4 0x8" + profile.GetShortPowerMax().Substring(1) + ";";
+            }
+
+            if (profile.HasCPUCore())
+                command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + "00000;";
+            if (profile.HasIntelGPU())
+                command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + "00000;";
+            if (profile.HasCPUCache())
+                command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + "00000;";
+            if (profile.HasSystemAgent())
+                command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + "00000;";
+
+            // power balance
+            if (profile.HasPowerBalanceCPU())
+                command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";
+            if (profile.HasPowerBalanceGPU())
+                command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
+
+            command += "rwexit\"";
+
+            ProcessStartInfo RWInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                Arguments = command,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = path_rw,
+                Verb = "runas"
+            };
+            Process.Start(RWInfo);
+
+            GameProfileApplied = IsGame;
+            LogManager.UpdateLog("Power Profile applied: " + profile.GetName());
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
@@ -86,6 +165,25 @@ namespace DockerForm
             return Process.GetProcesses().Any(x => x.Id == id);
         }
 
+        static DockerGame GetGameFromPath(string PathToApp)
+        {
+            foreach (DockerGame game in DatabaseManager.GameDB.Values)
+            {
+                string game_exe = game.Executable.ToLower();
+                string game_uri = game.Uri.ToLower();
+
+                FileInfo info = new FileInfo(PathToApp);
+                string info_exe = info.Name.ToLower();
+                string info_uri = info.FullName.ToLower();
+
+                // Update current title
+                if (game_exe == info_exe || game_uri == info_uri)
+                    return game;
+            }
+
+            return null;
+        }
+
         static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
         {
             try
@@ -101,9 +199,24 @@ namespace DockerForm
                 if (PathToApp == string.Empty)
                     return;
 
-                if (GameProcesses.ContainsKey(ProcessID))
-                    GameProcesses.Remove(ProcessID);
-                GameProcesses.Add(ProcessID, PathToApp);
+                // Apply application specific profile
+                using (DockerGame game = GetGameFromPath(PathToApp))
+                {
+                    if (game == null)
+                        return;
+
+                    if (GameProcesses.ContainsKey(ProcessID))
+                        GameProcesses.Remove(ProcessID);
+                    GameProcesses.Add(ProcessID, PathToApp);
+
+                    using (PowerProfile profile = game.Profile)
+                    {
+                        if (profile == null)
+                            return;
+
+                        SetPowerProfile(profile, true);
+                    }
+                }
 
             }catch(Exception ex) { }
         }
@@ -121,18 +234,18 @@ namespace DockerForm
                 if (PathToApp == string.Empty)
                     return;
 
-                foreach (DockerGame game in DatabaseManager.GameDB.Values)
+                using (DockerGame game = GetGameFromPath(PathToApp))
                 {
-                    string game_exe = game.Executable.ToLower();
-                    string game_uri = game.Uri.ToLower();
+                    if (game == null)
+                        return;
 
-                    FileInfo info = new FileInfo(PathToApp);
-                    string info_exe = info.Name.ToLower();
-                    string info_uri = info.FullName.ToLower();
+                    if (GameProcesses.ContainsKey(ProcessID))
+                        GameProcesses.Remove(ProcessID);
 
-                    // Update current title
-                    if (game_exe == info_exe || game_uri == info_uri)
-                        DatabaseManager.UpdateFilesAndRegistries(game, GetCurrentState(), GetCurrentState(), true, false, true, GetCurrentState());
+                    DatabaseManager.UpdateFilesAndRegistries(game, GetCurrentState(), GetCurrentState(), true, false, true, GetCurrentState());
+
+                    if(GameProfileApplied)
+                        CheckPowerProfiles();
                 }
             }
             catch (Exception ex) { }
@@ -143,7 +256,6 @@ namespace DockerForm
             string state = CurrentController.Name;
 
             /*            
-             *            NVIDIA GeForce RTX 2070
              *            Intel(R) Iris(R) Plus Graphics
              *            Intel(R) Iris(R) Plus Graphics:False
             */
@@ -162,7 +274,9 @@ namespace DockerForm
         {
             while(IsRunning)
             {
-                if (IsHardwarePending || IsFirstBoot)
+                bool IsGameRunning = GameProcesses.Count != 0;
+                
+                if ((IsHardwarePending || IsFirstBoot) && !IsGameRunning)
                 {
                     DateTime currentCheck = DateTime.Now;
                     VideoControllers.Clear();
@@ -201,6 +315,7 @@ namespace DockerForm
 
                     if (IsHardwareNew || IsPowerNew || IsFirstBoot)
                     {
+                        // Video Controllers has changed
                         if (IsHardwareNew)
                         {
                             if (VideoControllers.ContainsKey(Type.Discrete))
@@ -208,10 +323,12 @@ namespace DockerForm
                             else if (VideoControllers.ContainsKey(Type.Internal))
                                 LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
                         }
-                        
+
+                        // Power Status has changed
                         if (IsPowerNew)
                             LogManager.UpdateLog("Power Status: " + GetCurrentPower());
 
+                        // Software is initializing 
                         if (IsFirstBoot)
                         {
                             IsFirstBoot = false;
@@ -222,6 +339,8 @@ namespace DockerForm
                             DatabaseManager.UpdateFilesAndRegistries(false, true);
                             DatabaseManager.UpdateFilesAndRegistries(true, false);
                         }
+
+                        CheckPowerProfiles();
                     }
 
                     // update status
@@ -331,6 +450,33 @@ namespace DockerForm
             GameList.Sort();
         }
 
+        public static void UpdateProfiles()
+        {
+            // Clear array before update
+            ProfileDB.Clear();
+
+            // Read all the game files (xml)
+            string[] fileEntries = Directory.GetFiles(path_profiles, "*.xml");
+            foreach (string filename in fileEntries)
+            {
+                try
+                {
+                    using (Stream reader = new FileStream(filename, FileMode.Open))
+                    {
+                        XmlSerializer formatter = new XmlSerializer(typeof(PowerProfile));
+                        PowerProfile profile = (PowerProfile)formatter.Deserialize(reader);
+                        profile.ComputeHex();
+
+                        if (!ProfileDB.ContainsKey(profile.ProfileName))
+                            ProfileDB.Add(profile.ProfileName, profile);
+
+                        reader.Dispose();
+                    }
+                }
+                catch (Exception ex) { LogManager.UpdateLog("UpdateProfiles: " + ex.Message, true); }
+            }
+        }
+
         public int GetIGDBListLength()
         {
             return IGDBListLength;
@@ -349,9 +495,18 @@ namespace DockerForm
 
             // path settings
             path_database = Path.Combine(path_application, "database");
+            path_dependencies = Path.Combine(path_application, "dependencies");
+            path_profiles = Path.Combine(path_application, "profiles");
+            path_rw = Path.Combine(path_dependencies, "Rw.exe");
 
             if (!Directory.Exists(path_database))
                 Directory.CreateDirectory(path_database);
+
+            if (!Directory.Exists(path_dependencies))
+                Directory.CreateDirectory(path_dependencies);
+
+            if (!Directory.Exists(path_profiles))
+                Directory.CreateDirectory(path_profiles);
 
             // configurable settings
             GameList.SetSize(Math.Max(32, Properties.Settings.Default.ImageHeight), Math.Max(32, Properties.Settings.Default.ImageWidth));
@@ -369,13 +524,16 @@ namespace DockerForm
                 this.WindowState = FormWindowState.Minimized;
                 this.ShowInTaskbar = false;
             }
+
+            // update Database
+            UpdateGameList();
+
+            // update Profiles
+            UpdateProfiles();
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)
         {
-            // draw GameDB
-            UpdateGameList();
-
             // search for GPUs
             ThreadGPU = new Thread(VideoControllerMonitor);
             ThreadGPU.Start();
@@ -455,12 +613,11 @@ namespace DockerForm
                             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
                             DockerGame game = DatabaseManager.GameDB[item.Guid];
 
-                            navigateToIGDBEntryToolStripMenuItem.Enabled = (game.IGDB_Url != "");
-
                             // Sanity checks
                             openToolStripMenuItem.Enabled = game.HasReachableFolder();
                             toolStripStartItem.Enabled = game.HasReachableExe();
                             toolStripMenuItem1.Enabled = game.HasFileSettings();
+                            navigateToIGDBEntryToolStripMenuItem.Enabled = game.HasIGDB();
 
                             toolStripMenuItem1.DropDownItems.Clear();
                             foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
@@ -551,7 +708,13 @@ namespace DockerForm
             DockerGame game = DatabaseManager.GameDB[item.Guid];
             string filename = Path.Combine(game.Uri, game.Executable);
 
-            Process.Start(filename);
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                Arguments = game.Arguments,
+                FileName = filename
+            };
+
+            Process.Start(startInfo);
         }
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)

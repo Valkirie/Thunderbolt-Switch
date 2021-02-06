@@ -59,11 +59,17 @@ namespace DockerForm
             this.IGDBList = new System.Windows.Forms.ToolStripMenuItem();
             this.searchOnPCGamingWikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.field_Arguments = new System.Windows.Forms.TextBox();
+            this.labelArguments = new System.Windows.Forms.Label();
+            this.groupBoxProfile = new System.Windows.Forms.GroupBox();
+            this.comboBoxProfile = new System.Windows.Forms.ComboBox();
+            this.textBoxProfile = new System.Windows.Forms.TextBox();
             this.SettingMenuStrip.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).BeginInit();
             this.ImageMenuStrip.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
+            this.groupBoxProfile.SuspendLayout();
             this.SuspendLayout();
             // 
             // SettingsList
@@ -80,7 +86,7 @@ namespace DockerForm
             this.SettingsList.Location = new System.Drawing.Point(3, 19);
             this.SettingsList.Margin = new System.Windows.Forms.Padding(2);
             this.SettingsList.Name = "SettingsList";
-            this.SettingsList.Size = new System.Drawing.Size(453, 279);
+            this.SettingsList.Size = new System.Drawing.Size(453, 203);
             this.SettingsList.TabIndex = 7;
             this.SettingsList.UseCompatibleStateImageBehavior = false;
             this.SettingsList.View = System.Windows.Forms.View.Details;
@@ -150,6 +156,8 @@ namespace DockerForm
             // 
             // groupBoxInfo
             // 
+            this.groupBoxInfo.Controls.Add(this.labelArguments);
+            this.groupBoxInfo.Controls.Add(this.field_Arguments);
             this.groupBoxInfo.Controls.Add(this.field_Filename);
             this.groupBoxInfo.Controls.Add(this.labelFilename);
             this.groupBoxInfo.Controls.Add(this.buttonBrowseFile);
@@ -165,7 +173,7 @@ namespace DockerForm
             this.groupBoxInfo.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxInfo.Location = new System.Drawing.Point(12, 12);
             this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Size = new System.Drawing.Size(459, 196);
+            this.groupBoxInfo.Size = new System.Drawing.Size(459, 209);
             this.groupBoxInfo.TabIndex = 0;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
@@ -273,7 +281,7 @@ namespace DockerForm
             this.GameIcon.ContextMenuStrip = this.ImageMenuStrip;
             this.GameIcon.Location = new System.Drawing.Point(330, 22);
             this.GameIcon.Name = "GameIcon";
-            this.GameIcon.Size = new System.Drawing.Size(122, 161);
+            this.GameIcon.Size = new System.Drawing.Size(122, 172);
             this.GameIcon.TabIndex = 0;
             this.GameIcon.TabStop = false;
             this.GameIcon.BackgroundImageChanged += new System.EventHandler(this.GameIcon_Click);
@@ -304,18 +312,67 @@ namespace DockerForm
             // 
             this.groupBoxSettings.Controls.Add(this.SettingsList);
             this.groupBoxSettings.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxSettings.Location = new System.Drawing.Point(12, 214);
+            this.groupBoxSettings.Location = new System.Drawing.Point(12, 290);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(459, 301);
+            this.groupBoxSettings.Size = new System.Drawing.Size(459, 225);
             this.groupBoxSettings.TabIndex = 1;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
+            // 
+            // field_Arguments
+            // 
+            this.field_Arguments.Location = new System.Drawing.Point(93, 171);
+            this.field_Arguments.Name = "field_Arguments";
+            this.field_Arguments.Size = new System.Drawing.Size(229, 23);
+            this.field_Arguments.TabIndex = 12;
+            this.field_Arguments.TextChanged += new System.EventHandler(this.field_arguments_TextChanged);
+            // 
+            // labelArguments
+            // 
+            this.labelArguments.AutoSize = true;
+            this.labelArguments.Location = new System.Drawing.Point(7, 171);
+            this.labelArguments.Name = "labelArguments";
+            this.labelArguments.Size = new System.Drawing.Size(66, 15);
+            this.labelArguments.TabIndex = 13;
+            this.labelArguments.Text = "Arguments";
+            // 
+            // groupBoxProfile
+            // 
+            this.groupBoxProfile.Controls.Add(this.textBoxProfile);
+            this.groupBoxProfile.Controls.Add(this.comboBoxProfile);
+            this.groupBoxProfile.Location = new System.Drawing.Point(12, 227);
+            this.groupBoxProfile.Name = "groupBoxProfile";
+            this.groupBoxProfile.Size = new System.Drawing.Size(459, 57);
+            this.groupBoxProfile.TabIndex = 2;
+            this.groupBoxProfile.TabStop = false;
+            this.groupBoxProfile.Text = "Profile";
+            // 
+            // comboBoxProfile
+            // 
+            this.comboBoxProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProfile.FormattingEnabled = true;
+            this.comboBoxProfile.Items.AddRange(new object[] {
+            ""});
+            this.comboBoxProfile.Location = new System.Drawing.Point(10, 22);
+            this.comboBoxProfile.Name = "comboBoxProfile";
+            this.comboBoxProfile.Size = new System.Drawing.Size(313, 23);
+            this.comboBoxProfile.TabIndex = 0;
+            this.comboBoxProfile.SelectedIndexChanged += new System.EventHandler(this.comboBoxProfile_SelectedIndexChanged);
+            // 
+            // textBoxProfile
+            // 
+            this.textBoxProfile.Location = new System.Drawing.Point(329, 22);
+            this.textBoxProfile.Name = "textBoxProfile";
+            this.textBoxProfile.ReadOnly = true;
+            this.textBoxProfile.Size = new System.Drawing.Size(123, 23);
+            this.textBoxProfile.TabIndex = 4;
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(483, 527);
+            this.Controls.Add(this.groupBoxProfile);
             this.Controls.Add(this.groupBoxSettings);
             this.Controls.Add(this.groupBoxInfo);
             this.DoubleBuffered = true;
@@ -324,7 +381,7 @@ namespace DockerForm
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Settings";
-            this.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
+            this.Padding = new System.Windows.Forms.Padding(12);
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Properties";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_Closing);
@@ -334,6 +391,8 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).EndInit();
             this.ImageMenuStrip.ResumeLayout(false);
             this.groupBoxSettings.ResumeLayout(false);
+            this.groupBoxProfile.ResumeLayout(false);
+            this.groupBoxProfile.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -367,5 +426,10 @@ namespace DockerForm
         private TextBox field_Filename;
         private Label labelFilename;
         private ToolStripMenuItem searchOnPCGamingWikiToolStripMenuItem;
+        private Label labelArguments;
+        private TextBox field_Arguments;
+        private GroupBox groupBoxProfile;
+        private ComboBox comboBoxProfile;
+        private TextBox textBoxProfile;
     }
 }
