@@ -67,6 +67,11 @@ namespace DockerForm
             return "0" + decValue.ToString("X");
         }
 
+        private string VoltageToHex(int decValue)
+        {
+            return (4096 + decValue * 2).ToString("X");
+        }
+
         public string GetName()
         {
             return ProfileName;
@@ -164,13 +169,13 @@ namespace DockerForm
                 TurboBoostShortPowerMaxHex = TDPToHex(TurboBoostShortPowerMax);
 
             if (HasCPUCore())
-                CPUCoreHex = (4096 + CPUCore * 2).ToString("X");
+                CPUCoreHex = VoltageToHex(CPUCore);
             if (HasIntelGPU())
-                IntelGPUHex = (4096 + IntelGPU * 2).ToString("X");
+                IntelGPUHex = VoltageToHex(IntelGPU);
             if (HasCPUCache())
-                CPUCacheHex = (4096 + CPUCache * 2).ToString("X");
+                CPUCacheHex = VoltageToHex(CPUCache);
             if(HasSystemAgent())
-                SystemAgentHex = (4096 + SystemAgent * 2).ToString("X");
+                SystemAgentHex = VoltageToHex(SystemAgent);
 
             if (HasPowerBalanceCPU())
             {
