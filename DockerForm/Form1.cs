@@ -150,7 +150,7 @@ namespace DockerForm
                 LogManager.UpdateLog("[" + game.Name + "] has applied Power Profile [" + profile.GetName() + "] applied");
             }
             else
-                LogManager.UpdateLog("Power Profile applied: " + profile.GetName());
+                SendNotification("Power Profile [" + profile.GetName() + "] was applied.", true);
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
@@ -324,14 +324,17 @@ namespace DockerForm
                         if (IsHardwareNew)
                         {
                             if (VideoControllers.ContainsKey(Type.Discrete))
-                                LogManager.UpdateLog("eGPU: " + VideoControllers[Type.Discrete].Name);
+                                SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
                             else if (VideoControllers.ContainsKey(Type.Internal))
-                                LogManager.UpdateLog("iGPU: " + VideoControllers[Type.Internal].Name);
+                                SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
                         }
 
                         // Power Status has changed
                         if (IsPowerNew)
+                        {
                             LogManager.UpdateLog("Power Status: " + GetCurrentPower());
+                            SendNotification("Device is " + GetCurrentPower() + ".", true);
+                        }
 
                         // Software is initializing 
                         if (IsFirstBoot)
