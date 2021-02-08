@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 using Microsoft.Win32;
 using System.Xml.Serialization;
+using Microsoft.Win32.TaskScheduler;
+using Task = Microsoft.Win32.TaskScheduler.Task;
 
 namespace DockerForm
 {
@@ -59,6 +61,10 @@ namespace DockerForm
 
         // PowerProfile vars
         public static Dictionary<string, PowerProfile> ProfileDB = new Dictionary<string, PowerProfile>();
+
+        // TaskManager vars
+        private static TaskService ts;
+        private const string taskName = "ThunderboltSwitch";
 
         private const int WM_DEVICECHANGE = 0x0219;
         protected override void WndProc(ref Message m)
@@ -499,6 +505,7 @@ namespace DockerForm
 
             // initialize vars
             _instance = this;
+            ts = new TaskService();
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
@@ -536,6 +543,36 @@ namespace DockerForm
                 this.ShowInTaskbar = false;
             }
 
+            Task myTask = ts.FindTask(taskName);
+            if (myTask == null)
+            {
+                TaskDefinition td = TaskService.Instance.NewTask();
+                td.Principal.RunLevel = TaskRunLevel.Highest;
+                td.Principal.LogonType = TaskLogonType.InteractiveToken;
+                td.Settings.DisallowStartIfOnBatteries = false;
+                td.Settings.StopIfGoingOnBatteries = false;
+                td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
+                td.Settings.Enabled = false;
+                td.Triggers.Add(new LogonTrigger());
+                td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
+                myTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
+                LogManager.UpdateLog("Task Scheduler: " + taskName + " was successfully created");
+            }
+
+            if (myTask != null)
+            {
+                if (BootOnStartup && !myTask.Enabled)
+                {
+                    myTask.Enabled = true;
+                    LogManager.UpdateLog("Task Scheduler: " + taskName + " was enabled");
+                }
+                else if (!BootOnStartup && myTask.Enabled)
+                {
+                    myTask.Enabled = false;
+                    LogManager.UpdateLog("Task Scheduler: " + taskName + " was disabled");
+                }
+            }
+
             // update Database
             UpdateGameList();
 
@@ -560,7 +597,7 @@ namespace DockerForm
                 processStopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
                 processStopWatcher.Start();
 
-                LogManager.UpdateLog("Process monitor has started");
+                LogManager.UpdateLog("Process Monitor: started");
             }
 
             // Monitor Power Status
