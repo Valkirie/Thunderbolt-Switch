@@ -46,6 +46,7 @@ namespace DockerForm
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
+        public static string MCHBAR = null;
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
@@ -112,24 +113,31 @@ namespace DockerForm
 
         private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
+            // is this a supported platform (Intel)
+            if (MCHBAR == null)
+                return;
+
             string command = "/Min /Nologo /Stdout /command=\"";
 
             if (profile.HasLongPowerMax())
             {
-                command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
+                command += "w16 " + MCHBAR + "a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
                 command += "wrmsr 0x610 0x0 0x00dd8" + profile.GetLongPowerMax() + ";";
             }
 
             if (profile.HasShortPowerMax())
             {
-                command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
+                command += "w16 " + MCHBAR + "a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
                 command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
             }
 
             if (profile.HasCPUCore())
                 command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + ";";
             if (profile.HasIntelGPU())
+            {
                 command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + ";";
+                command += "wrmsr 0x150 0x80000311 0x" + profile.GetVoltageGPU() + ";"; //unslice (obsolete ?)
+            }
             if (profile.HasCPUCache())
                 command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + ";";
             if (profile.HasSystemAgent())
@@ -573,11 +581,41 @@ namespace DockerForm
                 }
             }
 
+            // update MCHBAR
+            string ProcessorID = GetProcessorID();
+            switch(ProcessorID.Substring(ProcessorID.Length-5))
+            {
+                case "206A7": // SandyBridge
+                case "306A9": // IvyBridge
+                case "40651": // Haswell
+                case "306D4": // Broadwell
+                case "406E3": // Skylake
+                case "906ED": // CoffeeLake
+                case "806E9": // AmberLake
+                case "706E5": // IceLake
+                    MCHBAR = "0xFED159";
+                    break;
+                case "806C1": // TigerLake
+                    MCHBAR = "0xFEDC59";
+                    break;
+            }
+
             // update Database
             UpdateGameList();
 
             // update Profiles
             UpdateProfiles();
+        }
+
+        private string GetProcessorID()
+        {
+            ManagementClass managClass = new ManagementClass("win32_processor");
+            ManagementObjectCollection managCollec = managClass.GetInstances();
+
+            foreach (ManagementObject managObj in managCollec)
+                return managObj.Properties["processorID"].Value.ToString();
+
+            return "";
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)
