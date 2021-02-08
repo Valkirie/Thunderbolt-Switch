@@ -1,0 +1,13 @@
+﻿<?xml version="1.0"?>
+<PowerProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TurboBoostLongPowerMax>25</TurboBoostLongPowerMax>
+  <TurboBoostShortPowerMax>30</TurboBoostShortPowerMax>
+  <CPUCore>0</CPUCore>
+  <IntelGPU>0</IntelGPU>
+  <CPUCache>0</CPUCache>
+  <SystemAgent>0</SystemAgent>
+  <PowerBalanceCPU>9</PowerBalanceCPU>
+  <PowerBalanceGPU>13</PowerBalanceGPU>
+  <ProfileName>default</ProfileName>
+  <ApplyMask>0</ApplyMask>
+</PowerProfile>
