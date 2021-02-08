@@ -106,13 +106,18 @@ namespace DockerForm
 
         private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
-            string command = "/nologo /command=\"";
+            string command = "/Min /Nologo /Stdout /command=\"";
 
-            if (profile.HasShortPowerMax() && profile.HasLongPowerMax())
+            if (profile.HasShortPowerMax())
             {
                 command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
+                command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
+            }
+
+            if (profile.HasLongPowerMax())
+            {
                 command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
-                command += "wrmsr 0x610 0x00438" + profile.GetShortPowerMax() + " 0x00dd8" + profile.GetLongPowerMax() + ";";
+                command += "wrmsr 0x610 0x0 0x00dd8" + profile.GetLongPowerMax() + ";";
             }
 
             if (profile.HasCPUCore())
