@@ -114,26 +114,26 @@ namespace DockerForm
         {
             string command = "/Min /Nologo /Stdout /command=\"";
 
-            if (profile.HasShortPowerMax())
-            {
-                command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
-                command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
-            }
-
             if (profile.HasLongPowerMax())
             {
                 command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
                 command += "wrmsr 0x610 0x0 0x00dd8" + profile.GetLongPowerMax() + ";";
             }
 
+            if (profile.HasShortPowerMax())
+            {
+                command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
+                command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
+            }
+
             if (profile.HasCPUCore())
-                command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + "00000;";
+                command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + ";";
             if (profile.HasIntelGPU())
-                command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + "00000;";
+                command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + ";";
             if (profile.HasCPUCache())
-                command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + "00000;";
+                command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + ";";
             if (profile.HasSystemAgent())
-                command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + "00000;";
+                command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + ";";
 
             if (profile.HasPowerBalanceCPU())
                 command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";

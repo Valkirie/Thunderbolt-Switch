@@ -70,7 +70,10 @@ namespace DockerForm
 
         private string VoltageToHex(int decValue)
         {
-            return (4096 + decValue * 2).ToString("X");
+            // https://github.com/mihic/linux-intel-undervolt
+            double temp = decValue * 1.024;
+            decValue = (int)Math.Round(temp) << 21;
+            return decValue.ToString("X");
         }
 
         public string GetName()
