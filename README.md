@@ -24,7 +24,7 @@ Settings menu has not yet been implemented. All your Thunderbolt Switch settings
 From there you can change a few settings:
 - MinimizeOnStartup : If True, software will start minimized.
 - MinimizeOnClosing : If True, software will get minimized instead of closing when using the top right cross.
-- BootOnStartup : Not yet implemented. Use Windows Task Scheduler instead.
+- BootOnStartup : If True, software will be automatically starts on Logon.
 - ImageHeight / ImageWidth : Defines the size of executable image inside the application list.
 - MonitorProcesses : If True, software will detect database application start/stop and manage bounds power profile and settings.
 - IGDBListLength : Defines the number of returned application details suggestions when using "Download from IGDB" from the Game Properties window.
