@@ -106,12 +106,14 @@ namespace DockerForm
 
         private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
-            string command = "/min /nologo /command=\"";
+            string command = "/nologo /command=\"";
 
-            if (profile.HasLongPowerMax())
-                command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
-            if (profile.HasShortPowerMax())
+            if (profile.HasShortPowerMax() && profile.HasLongPowerMax())
+            {
                 command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
+                command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
+                command += "wrmsr 0x610 0x00438" + profile.GetShortPowerMax() + " 0x00dd8" + profile.GetLongPowerMax() + ";";
+            }
 
             if (profile.HasCPUCore())
                 command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + "00000;";
@@ -126,9 +128,6 @@ namespace DockerForm
                 command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";
             if (profile.HasPowerBalanceGPU())
                 command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
-
-            if (profile.HasShortPowerMax() && profile.HasLongPowerMax())
-                command += "wrmsr 0x610 0x00438" + profile.GetShortPowerMax() + " 0x00dd8" + profile.GetLongPowerMax() + ";";
 
             command += "rwexit\"";
 
