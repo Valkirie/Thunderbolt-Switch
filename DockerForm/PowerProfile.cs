@@ -219,6 +219,18 @@ namespace DockerForm
             ComputeHex();
         }
 
+        public override string ToString()
+        {
+            return  "\n\t\t\t\t\t\t\t\tPL1:" + TurboBoostShortPowerMax + "W" +
+                    "\t\t\t\tPL2:" + TurboBoostLongPowerMax + "W" +
+                    "\n\t\t\t\t\t\t\t\tCPUCore:" + CPUCore + "mv" +
+                    "\t\tCPUCache:" + CPUCache + "mv" +
+                    "\n\t\t\t\t\t\t\t\tGPU:" + IntelGPU + "mv" +
+                    "\t\t\tSystemAgent:" + SystemAgent + "mv" +
+                    "\n\t\t\t\t\t\t\t\tPowerBalanceCPU:" + PowerBalanceCPU +
+                    "\tPowerBalanceGPU:" + PowerBalanceGPU;
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();

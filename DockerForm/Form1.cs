@@ -117,6 +117,9 @@ namespace DockerForm
             if (MCHBAR == null)
                 return;
 
+            // is this a game-associated Power Profile
+            GameProfileApplied = game != null;
+
             string command = "/Min /Nologo /Stdout /command=\"";
 
             if (profile.HasLongPowerMax())
@@ -161,13 +164,8 @@ namespace DockerForm
             };
             Process.Start(RWInfo);
 
-            if (game != null)
-            {
-                GameProfileApplied = true;
-                LogManager.UpdateLog("[" + game.Name + "] has applied Power Profile [" + profile.GetName() + "] applied");
-            }
-            else
-                SendNotification("Power Profile [" + profile.GetName() + "] was applied.", true);
+            SendNotification("Power Profile [" + profile.GetName() + "] applied.", true);
+            LogManager.UpdateLog("Power Profile [" + profile.GetName() + "] applied." + profile.ToString());
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
