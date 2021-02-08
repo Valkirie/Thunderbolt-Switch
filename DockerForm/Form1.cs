@@ -85,36 +85,33 @@ namespace DockerForm
 
         private static void CheckPowerProfiles()
         {
-            foreach (PowerProfile profile in ProfileDB.Values)
+            PowerProfile sum_profile = new PowerProfile();
+            foreach (PowerProfile profile in ProfileDB.Values.OrderBy(a => a.ApplyMask))
             {
                 bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) != 0;
                 bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) != 0;
-
-                // if device is plugged in
-                if (PowerStatus && isPluggedIn)
-                    SetPowerProfile(profile);
+                bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExtGPU) != 0;
 
                 // if device is running on battery
-                if (!PowerStatus && isOnBattery)
-                    SetPowerProfile(profile);
+                if (!PowerStatus && isOnBattery || PowerStatus && isPluggedIn || DockStatus && isExtGPU)
+                {
+                    sum_profile.DigestProfile(profile);
+                    sum_profile.ProfileName += profile.ProfileName + ",";
+                }
             }
+            sum_profile.ProfileName = sum_profile.ProfileName.TrimEnd(',');
+
+            SetPowerProfile(sum_profile);
         }
 
         private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
-            string command = "/nologo /min /command=\"";
+            string command = "/min /nologo /command=\"";
 
             if (profile.HasLongPowerMax())
-            {
-                command += "w 0xFEDC59a1 0x8" + profile.GetLongPowerMax().Substring(0, 1) + ";";
-                command += "w 0xFEDC59a0 0x8" + profile.GetLongPowerMax().Substring(1) + ";";
-            }
-
+                command += "w16 0xFED159a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
             if (profile.HasShortPowerMax())
-            {
-                command += "w 0xFEDC59a5 0x8" + profile.GetShortPowerMax().Substring(0, 1) + ";";
-                command += "w 0xFEDC59a4 0x8" + profile.GetShortPowerMax().Substring(1) + ";";
-            }
+                command += "w16 0xFED159a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
 
             if (profile.HasCPUCore())
                 command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + "00000;";
@@ -125,11 +122,13 @@ namespace DockerForm
             if (profile.HasSystemAgent())
                 command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + "00000;";
 
-            // power balance
             if (profile.HasPowerBalanceCPU())
                 command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";
             if (profile.HasPowerBalanceGPU())
                 command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
+
+            if (profile.HasShortPowerMax() && profile.HasLongPowerMax())
+                command += "wrmsr 0x610 0x00438" + profile.GetShortPowerMax() + " 0x00dd8" + profile.GetLongPowerMax() + ";";
 
             command += "rwexit\"";
 

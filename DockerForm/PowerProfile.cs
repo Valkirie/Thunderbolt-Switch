@@ -13,7 +13,8 @@ namespace DockerForm
     public enum ProfileMask
     {
         OnBattery = 0x01, // 0000 0000 0000 0001
-        PluggedIn = 0x02  // 0000 0000 0000 0010
+        PluggedIn = 0x02, // 0000 0000 0000 0010
+        ExtGPU    = 0x04  // 0000 0000 0000 0100
     }
 
     public static class StringExtension
@@ -189,6 +190,30 @@ namespace DockerForm
                 hex = hex.Length < 2 ? "0" + hex : hex;
                 PowerBalanceGPUHex = hex;
             }
+        }
+
+        public void DigestProfile(PowerProfile profile)
+        {
+            if (profile.HasLongPowerMax())
+                TurboBoostLongPowerMax = profile.TurboBoostLongPowerMax;
+            if (profile.HasShortPowerMax())
+                TurboBoostShortPowerMax = profile.TurboBoostShortPowerMax;
+
+            if (profile.HasCPUCore())
+                CPUCore = profile.CPUCore;
+            if (profile.HasIntelGPU())
+                IntelGPU = profile.IntelGPU;
+            if (profile.HasCPUCache())
+                CPUCache = profile.CPUCache;
+            if (profile.HasSystemAgent())
+                SystemAgent = profile.SystemAgent;
+
+            if (profile.HasPowerBalanceCPU())
+                PowerBalanceCPU = profile.PowerBalanceCPU;
+            if (profile.HasPowerBalanceGPU())
+                PowerBalanceGPU = profile.PowerBalanceGPU;
+
+            ComputeHex();
         }
 
         public void Dispose()
