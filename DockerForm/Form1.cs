@@ -407,27 +407,26 @@ namespace DockerForm
 
         public void InsertOrUpdateGameItem(DockerGame game, bool Update = true)
         {
-            exListBoxItem newitem = new exListBoxItem(game);
-
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
+                exListBoxItem newitem = new exListBoxItem(game);
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
                 LogManager.UpdateLog("[" + game.Name + "] profile has been added to the database");
             }
             else if (Update)
             {
-                for (int i = 0; i < GameList.Items.Count; i++)
-                {
-                    exListBoxItem item = (exListBoxItem)GameList.Items[i];
-                    if (item.Guid == game.GUID)
-                    {
-                        GameList.Items[i] = newitem;
-                        DatabaseManager.GameDB[game.GUID] = game;
-                        LogManager.UpdateLog("[" + game.Name + "] profile has been updated");
-                        break;
-                    }
-                }
+                exListBoxItem item = GameList.GetItemFromGuid(game.GUID);
+                if (item == null)
+                    return;
+
+                DockerGame list_game = DatabaseManager.GameDB[game.GUID];
+                list_game.Uri = game.Uri;
+                list_game.Version = game.Version;
+                list_game.LastCheck = game.LastCheck;
+                list_game.SanityCheck();
+                item.Enabled = list_game.Enabled;
+                LogManager.UpdateLog("[" + list_game.Name + "] profile has been updated");
             }
 
             // Update current title
@@ -833,7 +832,7 @@ namespace DockerForm
             {
                 DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
                 if (dialogResult == DialogResult.Yes)
-                    InsertOrUpdateGameItem(game, false);
+                    InsertOrUpdateGameItem(game, true);
                 else if (dialogResult == DialogResult.No)
                 {
                     // Properties.Settings.Default.Blacklist.Add(game.Name);

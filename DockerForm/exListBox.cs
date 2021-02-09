@@ -112,6 +112,17 @@ namespace DockerForm
             catch (Exception) { }
         }
 
+        public exListBoxItem GetItemFromGuid(string guid)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                exListBoxItem item = (exListBoxItem)Items[i];
+                if (item.Guid == guid)
+                    return item;
+            }
+            return null;
+        }
+
         public void Sort()
         {
             if (Items.Count > 1)
