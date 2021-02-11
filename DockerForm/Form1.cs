@@ -15,6 +15,7 @@ using Microsoft.Win32;
 using System.Xml.Serialization;
 using Microsoft.Win32.TaskScheduler;
 using Task = Microsoft.Win32.TaskScheduler.Task;
+using System.Runtime.InteropServices;
 
 namespace DockerForm
 {
@@ -31,7 +32,6 @@ namespace DockerForm
         public static bool PowerStatus;
         public static bool IsPowerNew = false;
         public static bool IsRunning = true;
-        public static bool GameProfileApplied = false;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -62,10 +62,16 @@ namespace DockerForm
 
         // PowerProfile vars
         public static Dictionary<string, PowerProfile> ProfileDB = new Dictionary<string, PowerProfile>();
+        public static PowerProfile CurrentProfile;
 
         // TaskManager vars
         private static TaskService ts;
         private const string taskName = "ThunderboltSwitch";
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private const int WM_DEVICECHANGE = 0x0219;
         protected override void WndProc(ref Message m)
@@ -113,12 +119,13 @@ namespace DockerForm
 
         private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
         {
-            // is this a supported platform (Intel)
+            // skip if unsupported platform
             if (MCHBAR == null)
                 return;
 
-            // is this a game-associated Power Profile
-            GameProfileApplied = game != null;
+            // skip if call isn't needed
+            if (profile == CurrentProfile)
+                return;
 
             string command = "/Min /Nologo /Stdout /command=\"";
 
@@ -153,6 +160,9 @@ namespace DockerForm
 
             command += "rwexit\"";
 
+            // get current handle
+            IntPtr curHnd = GetForegroundWindow();
+
             ProcessStartInfo RWInfo = new ProcessStartInfo
             {
                 CreateNoWindow = true,
@@ -163,6 +173,12 @@ namespace DockerForm
                 Verb = "runas"
             };
             Process.Start(RWInfo);
+
+            // restore handle
+            SetForegroundWindow(curHnd);
+
+            // update current profile
+            CurrentProfile = profile;
 
             SendNotification("Power Profile [" + profile.GetName() + "] applied.", true);
             LogManager.UpdateLog("Power Profile [" + profile.GetName() + "] applied." + profile.ToString());
@@ -264,8 +280,7 @@ namespace DockerForm
 
                     DatabaseManager.UpdateFilesAndRegistries(game, GetCurrentState(), GetCurrentState(), true, false, true, GetCurrentState());
 
-                    if(GameProfileApplied)
-                        CheckPowerProfiles();
+                    CheckPowerProfiles();
                 }
             }
             catch (Exception ex) { }
