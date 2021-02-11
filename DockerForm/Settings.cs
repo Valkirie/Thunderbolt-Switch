@@ -131,7 +131,7 @@ namespace DockerForm
             }
 
             thisGame.SanityCheck();
-            thisForm.InsertOrUpdateGameItem(thisGame);
+            thisForm.InsertOrUpdateGameItem(thisGame, false);
         }
 
         private bool PickAGame()

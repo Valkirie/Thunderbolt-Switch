@@ -96,7 +96,7 @@ namespace DockerForm
             else if (!HasFileSettings())
                 ErrorCode = ErrorCode.MissingSettings;
             
-            Enabled = (ErrorCode == ErrorCode.None ? true : false);
+            Enabled = ErrorCode == ErrorCode.None;
         }
 
         public string GetCrc()

@@ -123,6 +123,17 @@ namespace DockerForm
             return null;
         }
 
+        public int GetIndexFromGuid(string guid)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                exListBoxItem item = (exListBoxItem)Items[i];
+                if (item.Guid == guid)
+                    return i;
+            }
+            return -1;
+        }
+
         public void Sort()
         {
             if (Items.Count > 1)

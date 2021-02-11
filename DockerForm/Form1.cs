@@ -405,27 +405,38 @@ namespace DockerForm
             catch (Exception ex) { LogManager.UpdateLog("UpdateFormIcons: " + ex.Message, true); }
         }
 
-        public void InsertOrUpdateGameItem(DockerGame game, bool Update = true)
+        public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
+            exListBoxItem newitem = new exListBoxItem(game);
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
-                exListBoxItem newitem = new exListBoxItem(game);
                 GameList.Items.Add(newitem);
                 DatabaseManager.GameDB[game.GUID] = game;
                 LogManager.UpdateLog("[" + game.Name + "] profile has been added to the database");
             }
-            else if (Update)
+            else
             {
-                exListBoxItem item = GameList.GetItemFromGuid(game.GUID);
-                if (item == null)
+                int idx = GameList.GetIndexFromGuid(game.GUID);
+                if (idx == -1)
                     return;
 
                 DockerGame list_game = DatabaseManager.GameDB[game.GUID];
-                list_game.Uri = game.Uri;
-                list_game.Version = game.Version;
-                list_game.LastCheck = game.LastCheck;
-                list_game.SanityCheck();
-                item.Enabled = list_game.Enabled;
+                if (auto)
+                {
+                    // automatic detection
+                    list_game.Uri = game.Uri;
+                    list_game.Version = game.Version;
+                    list_game.LastCheck = DateTime.Now;
+                    list_game.SanityCheck();
+                }
+                else
+                {
+                    // manually updated game
+                    list_game = game;
+                    GameList.Items[idx] = newitem;
+                }
+
+                ((exListBoxItem)GameList.Items[idx]).Enabled = list_game.Enabled;
                 LogManager.UpdateLog("[" + list_game.Name + "] profile has been updated");
             }
 
@@ -447,11 +458,11 @@ namespace DockerForm
                     using (Stream reader = new FileStream(filename, FileMode.Open))
                     {
                         BinaryFormatter formatter = new BinaryFormatter();
-                        DockerGame game = (DockerGame)formatter.Deserialize(reader);
-                        game.SanityCheck();
+                        DockerGame thisGame = (DockerGame)formatter.Deserialize(reader);
+                        thisGame.SanityCheck();
 
-                        if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
-                            DatabaseManager.GameDB.AddOrUpdate(game.GUID, game, (key, value) => game);
+                        if (!DatabaseManager.GameDB.ContainsKey(thisGame.GUID))
+                            DatabaseManager.GameDB.AddOrUpdate(thisGame.GUID, thisGame, (key, value) => thisGame);
 
                         reader.Dispose();
                     }
