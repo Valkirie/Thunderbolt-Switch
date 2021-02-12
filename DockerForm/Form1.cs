@@ -305,7 +305,7 @@ namespace DockerForm
             return PowerStatus ? "plugged in" : "on battery";
         }
 
-        public static void VideoControllerMonitor(object data)
+        public static void MonitorThread(object data)
         {
             while(IsRunning)
             {
