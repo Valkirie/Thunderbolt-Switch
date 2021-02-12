@@ -26,7 +26,8 @@ namespace DockerForm
         public static bool DockStatus = false;
         public static bool IsFirstBoot = true;
         public static bool IsHardwareNew = false;
-        public static bool IsHardwarePending = false;
+        public static bool IsHardwarePending = true;
+        public static bool IsPowerPending = true;
         public static VideoController CurrentController;
         public static bool prevPowerStatus;
         public static bool PowerStatus;
@@ -43,6 +44,7 @@ namespace DockerForm
         public static bool SaveOnExit = false;
         public static int IGDBListLength;
         public static StringCollection Blacklist;
+        public static int MonitorThreadRefresh;
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
@@ -93,7 +95,7 @@ namespace DockerForm
                     break;
             }
 
-            IsHardwarePending = true;
+            IsPowerPending = true;
         }
 
         private static void CheckPowerProfiles()
@@ -310,8 +312,7 @@ namespace DockerForm
             while(IsRunning)
             {
                 bool IsGameRunning = GameProcesses.Count != 0;
-                
-                if ((IsHardwarePending || IsFirstBoot) && !IsGameRunning)
+                if (IsHardwarePending && !IsGameRunning)
                 {
                     DateTime currentCheck = DateTime.Now;
                     VideoControllers.Clear();
@@ -342,52 +343,56 @@ namespace DockerForm
                     // update all status
                     DockStatus = VideoControllers.ContainsKey(Type.Discrete);
                     CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
-                    PowerStatus = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
 
                     // monitor hardware changes
                     IsHardwareNew = IsFirstBoot ? false : (prevDockStatus != DockStatus);
+
+                    // hardware has changed
+                    if (IsHardwareNew)
+                    {
+                        if (VideoControllers.ContainsKey(Type.Discrete))
+                            SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
+                        else if (VideoControllers.ContainsKey(Type.Internal))
+                            SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
+
+                        DatabaseManager.UpdateFilesAndRegistries(false, true);
+                        DatabaseManager.UpdateFilesAndRegistries(true, false);
+                    }
+
+                    // update status
+                    prevDockStatus = DockStatus;
+
+                    // update form
+                    UpdateFormIcons();
+                    IsHardwarePending = false;
+                }
+
+                if (IsPowerPending)
+                {
+                    PowerStatus = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
                     IsPowerNew = IsFirstBoot ? false : (prevPowerStatus != PowerStatus);
 
-                    if (IsHardwareNew || IsPowerNew || IsFirstBoot)
+                    // Power Status has changed
+                    if (IsPowerNew)
                     {
-                        // Video Controllers has changed
-                        if (IsHardwareNew)
-                        {
-                            if (VideoControllers.ContainsKey(Type.Discrete))
-                                SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
-                            else if (VideoControllers.ContainsKey(Type.Internal))
-                                SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
-                        }
-
-                        // Power Status has changed
-                        if (IsPowerNew)
-                        {
-                            LogManager.UpdateLog("Power Status: " + GetCurrentPower());
-                            SendNotification("Device is " + GetCurrentPower() + ".", true);
-                        }
-
-                        // Software is initializing 
-                        if (IsFirstBoot)
-                        {
-                            IsFirstBoot = false;
-                            DatabaseManager.SanityCheck();
-                        }
-                        else
-                        {
-                            DatabaseManager.UpdateFilesAndRegistries(false, true);
-                            DatabaseManager.UpdateFilesAndRegistries(true, false);
-                        }
+                        LogManager.UpdateLog("Power Status: " + GetCurrentPower());
+                        SendNotification("Device is " + GetCurrentPower() + ".", true);
 
                         CheckPowerProfiles();
                     }
 
                     // update status
-                    prevDockStatus = DockStatus;
                     prevPowerStatus = PowerStatus;
 
                     // update form
                     UpdateFormIcons();
-                    IsHardwarePending = false;
+                    IsPowerPending = false;
+                }
+
+                if (IsFirstBoot)
+                {
+                    DatabaseManager.SanityCheck();
+                    CheckPowerProfiles();
                 }
 
                 Thread.Sleep(MonitorThreadRefresh);
@@ -400,10 +405,14 @@ namespace DockerForm
             {
                 // taskbar icon
                 Image ConstructorLogo = Properties.Resources.intel;
-                switch(CurrentController.Constructor)
+                string ConstructorName = CurrentController != null ? CurrentController.Name : "Unknown";
+                if (CurrentController != null)
                 {
-                    case Constructor.AMD: ConstructorLogo = Properties.Resources.amd; break;
-                    case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
+                    switch (CurrentController.Constructor)
+                    {
+                        case Constructor.AMD: ConstructorLogo = Properties.Resources.amd; break;
+                        case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
+                    }
                 }
                 // main application icon
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
@@ -411,7 +420,7 @@ namespace DockerForm
                 // drawing
                 _instance.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.menuStrip2.Items[0].Text = CurrentController.Name + " (" + GetCurrentPower() + ")";
+                    _instance.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
                     _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
                     _instance.notifyIcon1.Icon = myIcon;
                     _instance.Icon = myIcon;
@@ -567,6 +576,7 @@ namespace DockerForm
             ToastNotifications = Properties.Settings.Default.ToastNotifications;
             SaveOnExit = Properties.Settings.Default.SaveOnExit;
             Blacklist = Properties.Settings.Default.Blacklist;
+            MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
 
             if (MinimizeOnStartup)
             {
@@ -644,7 +654,7 @@ namespace DockerForm
         private void Form1_Shown(object sender, System.EventArgs e)
         {
             // search for GPUs
-            ThreadGPU = new Thread(VideoControllerMonitor);
+            ThreadGPU = new Thread(MonitorThread);
             ThreadGPU.Start();
 
             // Monitor processes
