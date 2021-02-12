@@ -357,6 +357,8 @@ namespace DockerForm
 
                         DatabaseManager.UpdateFilesAndRegistries(false, true);
                         DatabaseManager.UpdateFilesAndRegistries(true, false);
+
+                        CheckPowerProfiles();
                     }
 
                     // update status
