@@ -390,7 +390,7 @@ namespace DockerForm
                     IsHardwarePending = false;
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(MonitorThreadRefresh);
             }
         }
 

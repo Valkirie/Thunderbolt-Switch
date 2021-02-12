@@ -166,5 +166,17 @@ namespace DockerForm.Properties {
                 this["Blacklist"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int MonitorThreadRefresh {
+            get {
+                return ((int)(this["MonitorThreadRefresh"]));
+            }
+            set {
+                this["MonitorThreadRefresh"] = value;
+            }
+        }
     }
 }
