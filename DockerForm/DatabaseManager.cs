@@ -111,11 +111,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(filename, setting.data[path_dest]);
                             File.SetLastWriteTime(filename, game.LastCheck);
-                            LogManager.UpdateLog("[" + game.Name + "] settings restored for file [" + file + "] [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings updated for file [" + file + "] [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for file [" + file + "] [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for file [" + file + "] [" + path_dest + "]");
                         }
                     }
                 }
@@ -149,11 +149,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "] settings restored for registry entry " + filename + " [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings updated for registry entry " + filename + " [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for registry entry " + filename + " [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for registry entry " + filename + " [" + path_dest + "]");
                         }
                     }
 

@@ -14,7 +14,8 @@ namespace DockerForm
     {
         OnBattery = 0x01, // 0000 0000 0000 0001
         PluggedIn = 0x02, // 0000 0000 0000 0010
-        ExtGPU    = 0x04  // 0000 0000 0000 0100
+        ExtGPU    = 0x04, // 0000 0000 0000 0100
+        OnBoot    = 0x08, // 0000 0000 0000 1000
     }
 
     public static class StringExtension
@@ -221,8 +222,8 @@ namespace DockerForm
 
         public override string ToString()
         {
-            return  "\n\t\t\t\t\t\t\t\tPL1:" + TurboBoostShortPowerMax + "W" +
-                    "\t\t\t\tPL2:" + TurboBoostLongPowerMax + "W" +
+            return  "\n\t\t\t\t\t\t\t\tPL1:" + TurboBoostLongPowerMax + "W" +
+                    "\t\t\t\tPL2:" + TurboBoostShortPowerMax + "W" +
                     "\n\t\t\t\t\t\t\t\tCPUCore:" + CPUCore + "mv" +
                     "\t\tCPUCache:" + CPUCache + "mv" +
                     "\n\t\t\t\t\t\t\t\tGPU:" + IntelGPU + "mv" +

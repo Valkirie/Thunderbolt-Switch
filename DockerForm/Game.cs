@@ -15,16 +15,16 @@ namespace DockerForm
     [Serializable]
     public class GameSettings
     {
-        public int GUID;
         public SettingsType Type;
         public bool IsEnabled;
+        public string FileName;
         public string Uri;
         public bool IsRelative;
         public Dictionary<string, byte[]> data = new Dictionary<string, byte[]>();
 
-        public GameSettings(int _guid, SettingsType _type, string _uri, bool _enabled, bool _relative)
+        public GameSettings(string _filename, SettingsType _type, string _uri, bool _enabled, bool _relative)
         {
-            this.GUID = _guid;
+            this.FileName = _filename;
             this.Type = _type;
             this.Uri = _uri;
             this.IsEnabled = _enabled;
@@ -80,9 +80,9 @@ namespace DockerForm
         public DateTime LastCheck;          // Last time the game settings were saved
         public Bitmap Image = Properties.Resources.DefaultBackgroundImage;
         public PlatformCode Platform = PlatformCode.Default;
-        public PowerProfile Profile;
 
-        public Dictionary<int, GameSettings> Settings = new Dictionary<int, GameSettings>();
+        public Dictionary<string, GameSettings> Settings = new Dictionary<string, GameSettings>();
+        public Dictionary<string, PowerProfile> Profiles = new Dictionary<string, PowerProfile>();
 
         [NonSerialized()] public ErrorCode ErrorCode = ErrorCode.None;
         public void SanityCheck()
@@ -91,9 +91,9 @@ namespace DockerForm
 
             if (!HasReachableFolder())
                 ErrorCode = ErrorCode.MissingFolder;
-            else if (!HasReachableExe())
+            if (!HasReachableExe())
                 ErrorCode = Platform != PlatformCode.Microsoft ? ErrorCode.MissingExecutable : ErrorCode.None;
-            else if (!HasFileSettings())
+            if (!HasFileSettings())
                 ErrorCode = ErrorCode.MissingSettings;
             
             Enabled = ErrorCode == ErrorCode.None;
@@ -107,6 +107,38 @@ namespace DockerForm
         public void SetCrc(string _crc)
         {
             crc_value = _crc;
+        }
+
+        public DockerGame(DockerGame other)
+        {
+            this.Arguments = other.Arguments;
+            this.Company = other.Company;
+            this.crc_value = other.crc_value;
+            this.Enabled = other.Enabled;
+            this.ErrorCode = other.ErrorCode;
+            this.Executable = other.Executable;
+            this.FolderName = other.FolderName;
+            this.GUID = other.GUID;
+            this.IGDB_Url = other.IGDB_Url;
+            this.Image = other.Image;
+            this.LastCheck = other.LastCheck;
+            this.Name = other.Name;
+            this.Platform = other.Platform;
+            this.ProductName = other.ProductName;
+            this.Uri = other.Uri;
+            this.Version = other.Version;
+            this.Profiles = new Dictionary<string, PowerProfile>();
+            this.Settings = new Dictionary<string, GameSettings>();
+
+            if (other.Profiles != null)
+                foreach (PowerProfile profile in other.Profiles.Values)
+                    this.Profiles.Add(profile.ProfileName, profile);
+
+            if (other.Settings != null)
+                foreach (GameSettings settings in other.Settings.Values)
+                    this.Settings.Add(settings.FileName, settings);
+
+            this.SanityCheck();
         }
 
         public DockerGame(string filePath)

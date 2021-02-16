@@ -73,7 +73,7 @@ namespace DockerForm
             this.settingsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1008, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(925, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -131,9 +131,9 @@ namespace DockerForm
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undockedToolStripMenuItem});
-            this.menuStrip2.Location = new System.Drawing.Point(0, 529);
+            this.menuStrip2.Location = new System.Drawing.Point(0, 558);
             this.menuStrip2.Name = "menuStrip2";
-            this.menuStrip2.Size = new System.Drawing.Size(1008, 32);
+            this.menuStrip2.Size = new System.Drawing.Size(925, 32);
             this.menuStrip2.TabIndex = 2;
             this.menuStrip2.Text = "menuStrip2";
             // 
@@ -270,14 +270,14 @@ namespace DockerForm
             this.GameList.FormattingEnabled = true;
             this.GameList.Location = new System.Drawing.Point(0, 24);
             this.GameList.Name = "GameList";
-            this.GameList.Size = new System.Drawing.Size(1008, 505);
+            this.GameList.Size = new System.Drawing.Size(925, 534);
             this.GameList.Sorted = true;
             this.GameList.TabIndex = 0;
             this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
             // 
             // Form1
             // 
-            this.ClientSize = new System.Drawing.Size(1008, 561);
+            this.ClientSize = new System.Drawing.Size(925, 590);
             this.Controls.Add(this.GameList);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.menuStrip2);
@@ -287,6 +287,7 @@ namespace DockerForm
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "Thunderbolt Switch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Shown += new System.EventHandler(this.Form1_Shown);

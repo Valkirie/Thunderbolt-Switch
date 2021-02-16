@@ -32,9 +32,7 @@ namespace DockerForm
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.SettingsList = new System.Windows.Forms.ListView();
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
             this.SettingMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.MenuItemRemoveSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItemCreateSetting = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,6 +41,8 @@ namespace DockerForm
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
+            this.labelArguments = new System.Windows.Forms.Label();
+            this.field_Arguments = new System.Windows.Forms.TextBox();
             this.field_Filename = new System.Windows.Forms.TextBox();
             this.labelFilename = new System.Windows.Forms.Label();
             this.buttonBrowseFile = new System.Windows.Forms.Button();
@@ -58,50 +58,26 @@ namespace DockerForm
             this.ImageMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.IGDBList = new System.Windows.Forms.ToolStripMenuItem();
             this.searchOnPCGamingWikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBoxSettings = new System.Windows.Forms.GroupBox();
-            this.field_Arguments = new System.Windows.Forms.TextBox();
-            this.labelArguments = new System.Windows.Forms.Label();
-            this.groupBoxProfile = new System.Windows.Forms.GroupBox();
-            this.comboBoxProfile = new System.Windows.Forms.ComboBox();
-            this.textBoxProfile = new System.Windows.Forms.TextBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabSettings = new System.Windows.Forms.TabPage();
+            this.SettingsList = new System.Windows.Forms.ListView();
+            this.Path = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Type = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.groupBoxGeneral = new System.Windows.Forms.GroupBox();
+            this.tabPowerProfiles = new System.Windows.Forms.TabPage();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.buttonOK = new System.Windows.Forms.Button();
+            this.tabSettingsDesc = new System.Windows.Forms.TabControl();
+            this.File = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SettingMenuStrip.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).BeginInit();
             this.ImageMenuStrip.SuspendLayout();
-            this.groupBoxSettings.SuspendLayout();
-            this.groupBoxProfile.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabSettings.SuspendLayout();
+            this.tabGeneral.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // SettingsList
-            // 
-            this.SettingsList.CheckBoxes = true;
-            this.SettingsList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader4,
-            this.columnHeader5});
-            this.SettingsList.ContextMenuStrip = this.SettingMenuStrip;
-            this.SettingsList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SettingsList.FullRowSelect = true;
-            this.SettingsList.HideSelection = false;
-            this.SettingsList.LabelEdit = true;
-            this.SettingsList.Location = new System.Drawing.Point(3, 19);
-            this.SettingsList.Margin = new System.Windows.Forms.Padding(2);
-            this.SettingsList.Name = "SettingsList";
-            this.SettingsList.Size = new System.Drawing.Size(453, 203);
-            this.SettingsList.TabIndex = 7;
-            this.SettingsList.UseCompatibleStateImageBehavior = false;
-            this.SettingsList.View = System.Windows.Forms.View.Details;
-            this.SettingsList.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
-            this.SettingsList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.SettingsList_MouseDown);
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Path";
-            this.columnHeader4.Width = 314;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "Type";
-            this.columnHeader5.Width = 70;
             // 
             // SettingMenuStrip
             // 
@@ -170,26 +146,42 @@ namespace DockerForm
             this.groupBoxInfo.Controls.Add(this.field_Name);
             this.groupBoxInfo.Controls.Add(this.labelName);
             this.groupBoxInfo.Controls.Add(this.GameIcon);
-            this.groupBoxInfo.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxInfo.Location = new System.Drawing.Point(12, 12);
             this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Size = new System.Drawing.Size(459, 209);
+            this.groupBoxInfo.Size = new System.Drawing.Size(282, 566);
             this.groupBoxInfo.TabIndex = 0;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
             // 
+            // labelArguments
+            // 
+            this.labelArguments.AutoSize = true;
+            this.labelArguments.Location = new System.Drawing.Point(6, 532);
+            this.labelArguments.Name = "labelArguments";
+            this.labelArguments.Size = new System.Drawing.Size(66, 15);
+            this.labelArguments.TabIndex = 13;
+            this.labelArguments.Text = "Arguments";
+            // 
+            // field_Arguments
+            // 
+            this.field_Arguments.Location = new System.Drawing.Point(76, 529);
+            this.field_Arguments.Name = "field_Arguments";
+            this.field_Arguments.Size = new System.Drawing.Size(197, 23);
+            this.field_Arguments.TabIndex = 12;
+            this.field_Arguments.TextChanged += new System.EventHandler(this.field_arguments_TextChanged);
+            // 
             // field_Filename
             // 
-            this.field_Filename.Location = new System.Drawing.Point(93, 142);
+            this.field_Filename.Location = new System.Drawing.Point(76, 500);
             this.field_Filename.Name = "field_Filename";
             this.field_Filename.ReadOnly = true;
-            this.field_Filename.Size = new System.Drawing.Size(185, 23);
+            this.field_Filename.Size = new System.Drawing.Size(153, 23);
             this.field_Filename.TabIndex = 5;
             // 
             // labelFilename
             // 
             this.labelFilename.AutoSize = true;
-            this.labelFilename.Location = new System.Drawing.Point(7, 142);
+            this.labelFilename.Location = new System.Drawing.Point(6, 504);
             this.labelFilename.Name = "labelFilename";
             this.labelFilename.Size = new System.Drawing.Size(55, 15);
             this.labelFilename.TabIndex = 11;
@@ -197,7 +189,7 @@ namespace DockerForm
             // 
             // buttonBrowseFile
             // 
-            this.buttonBrowseFile.Location = new System.Drawing.Point(286, 142);
+            this.buttonBrowseFile.Location = new System.Drawing.Point(236, 500);
             this.buttonBrowseFile.Name = "buttonBrowseFile";
             this.buttonBrowseFile.Size = new System.Drawing.Size(37, 23);
             this.buttonBrowseFile.TabIndex = 6;
@@ -207,16 +199,16 @@ namespace DockerForm
             // 
             // field_Version
             // 
-            this.field_Version.Location = new System.Drawing.Point(93, 82);
+            this.field_Version.Location = new System.Drawing.Point(76, 440);
             this.field_Version.Name = "field_Version";
             this.field_Version.ReadOnly = true;
-            this.field_Version.Size = new System.Drawing.Size(229, 23);
+            this.field_Version.Size = new System.Drawing.Size(197, 23);
             this.field_Version.TabIndex = 3;
             // 
             // labelVersion
             // 
             this.labelVersion.AutoSize = true;
-            this.labelVersion.Location = new System.Drawing.Point(7, 82);
+            this.labelVersion.Location = new System.Drawing.Point(6, 443);
             this.labelVersion.Name = "labelVersion";
             this.labelVersion.Size = new System.Drawing.Size(45, 15);
             this.labelVersion.TabIndex = 7;
@@ -224,16 +216,16 @@ namespace DockerForm
             // 
             // field_Developer
             // 
-            this.field_Developer.Location = new System.Drawing.Point(93, 52);
+            this.field_Developer.Location = new System.Drawing.Point(76, 410);
             this.field_Developer.Name = "field_Developer";
-            this.field_Developer.Size = new System.Drawing.Size(229, 23);
+            this.field_Developer.Size = new System.Drawing.Size(197, 23);
             this.field_Developer.TabIndex = 2;
             this.field_Developer.TextChanged += new System.EventHandler(this.field_Developer_TextChanged);
             // 
             // labelDeveloper
             // 
             this.labelDeveloper.AutoSize = true;
-            this.labelDeveloper.Location = new System.Drawing.Point(7, 52);
+            this.labelDeveloper.Location = new System.Drawing.Point(6, 413);
             this.labelDeveloper.Name = "labelDeveloper";
             this.labelDeveloper.Size = new System.Drawing.Size(60, 15);
             this.labelDeveloper.TabIndex = 5;
@@ -241,16 +233,16 @@ namespace DockerForm
             // 
             // field_GUID
             // 
-            this.field_GUID.Location = new System.Drawing.Point(93, 112);
+            this.field_GUID.Location = new System.Drawing.Point(76, 470);
             this.field_GUID.Name = "field_GUID";
             this.field_GUID.ReadOnly = true;
-            this.field_GUID.Size = new System.Drawing.Size(229, 23);
+            this.field_GUID.Size = new System.Drawing.Size(197, 23);
             this.field_GUID.TabIndex = 4;
             // 
             // labelGUID
             // 
             this.labelGUID.AutoSize = true;
-            this.labelGUID.Location = new System.Drawing.Point(7, 112);
+            this.labelGUID.Location = new System.Drawing.Point(6, 473);
             this.labelGUID.Name = "labelGUID";
             this.labelGUID.Size = new System.Drawing.Size(43, 15);
             this.labelGUID.TabIndex = 3;
@@ -258,16 +250,16 @@ namespace DockerForm
             // 
             // field_Name
             // 
-            this.field_Name.Location = new System.Drawing.Point(93, 22);
+            this.field_Name.Location = new System.Drawing.Point(76, 380);
             this.field_Name.Name = "field_Name";
-            this.field_Name.Size = new System.Drawing.Size(229, 23);
+            this.field_Name.Size = new System.Drawing.Size(197, 23);
             this.field_Name.TabIndex = 1;
             this.field_Name.TextChanged += new System.EventHandler(this.field_Name_TextChanged);
             // 
             // labelName
             // 
             this.labelName.AutoSize = true;
-            this.labelName.Location = new System.Drawing.Point(7, 22);
+            this.labelName.Location = new System.Drawing.Point(6, 383);
             this.labelName.Name = "labelName";
             this.labelName.Size = new System.Drawing.Size(39, 15);
             this.labelName.TabIndex = 1;
@@ -279,9 +271,9 @@ namespace DockerForm
             this.GameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.GameIcon.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.GameIcon.ContextMenuStrip = this.ImageMenuStrip;
-            this.GameIcon.Location = new System.Drawing.Point(330, 22);
+            this.GameIcon.Location = new System.Drawing.Point(9, 22);
             this.GameIcon.Name = "GameIcon";
-            this.GameIcon.Size = new System.Drawing.Size(122, 172);
+            this.GameIcon.Size = new System.Drawing.Size(264, 352);
             this.GameIcon.TabIndex = 0;
             this.GameIcon.TabStop = false;
             this.GameIcon.BackgroundImageChanged += new System.EventHandler(this.GameIcon_Click);
@@ -308,91 +300,152 @@ namespace DockerForm
             this.searchOnPCGamingWikiToolStripMenuItem.Text = "Search on PCGaming Wiki";
             this.searchOnPCGamingWikiToolStripMenuItem.Click += new System.EventHandler(this.searchOnPCGamingWikiToolStripMenuItem_Click);
             // 
-            // groupBoxSettings
+            // tabControl1
             // 
-            this.groupBoxSettings.Controls.Add(this.SettingsList);
-            this.groupBoxSettings.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxSettings.Location = new System.Drawing.Point(12, 290);
-            this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(459, 225);
-            this.groupBoxSettings.TabIndex = 1;
-            this.groupBoxSettings.TabStop = false;
-            this.groupBoxSettings.Text = "Settings";
+            this.tabControl1.Controls.Add(this.tabSettings);
+            this.tabControl1.Controls.Add(this.tabGeneral);
+            this.tabControl1.Controls.Add(this.tabPowerProfiles);
+            this.tabControl1.Location = new System.Drawing.Point(300, 12);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(613, 566);
+            this.tabControl1.TabIndex = 3;
             // 
-            // field_Arguments
+            // tabSettings
             // 
-            this.field_Arguments.Location = new System.Drawing.Point(93, 171);
-            this.field_Arguments.Name = "field_Arguments";
-            this.field_Arguments.Size = new System.Drawing.Size(229, 23);
-            this.field_Arguments.TabIndex = 12;
-            this.field_Arguments.TextChanged += new System.EventHandler(this.field_arguments_TextChanged);
+            this.tabSettings.Controls.Add(this.tabSettingsDesc);
+            this.tabSettings.Controls.Add(this.SettingsList);
+            this.tabSettings.Location = new System.Drawing.Point(4, 24);
+            this.tabSettings.Name = "tabSettings";
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSettings.Size = new System.Drawing.Size(605, 538);
+            this.tabSettings.TabIndex = 0;
+            this.tabSettings.Text = "Settings";
+            this.tabSettings.UseVisualStyleBackColor = true;
             // 
-            // labelArguments
+            // SettingsList
             // 
-            this.labelArguments.AutoSize = true;
-            this.labelArguments.Location = new System.Drawing.Point(7, 171);
-            this.labelArguments.Name = "labelArguments";
-            this.labelArguments.Size = new System.Drawing.Size(66, 15);
-            this.labelArguments.TabIndex = 13;
-            this.labelArguments.Text = "Arguments";
+            this.SettingsList.CheckBoxes = true;
+            this.SettingsList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.File,
+            this.Path,
+            this.Type});
+            this.SettingsList.ContextMenuStrip = this.SettingMenuStrip;
+            this.SettingsList.Dock = System.Windows.Forms.DockStyle.Top;
+            this.SettingsList.FullRowSelect = true;
+            this.SettingsList.HideSelection = false;
+            this.SettingsList.Location = new System.Drawing.Point(3, 3);
+            this.SettingsList.Margin = new System.Windows.Forms.Padding(2);
+            this.SettingsList.MultiSelect = false;
+            this.SettingsList.Name = "SettingsList";
+            this.SettingsList.Size = new System.Drawing.Size(599, 260);
+            this.SettingsList.TabIndex = 8;
+            this.SettingsList.UseCompatibleStateImageBehavior = false;
+            this.SettingsList.View = System.Windows.Forms.View.Details;
+            this.SettingsList.SelectedIndexChanged += new System.EventHandler(this.SettingsList_SelectedIndexChanged);
             // 
-            // groupBoxProfile
+            // Path
             // 
-            this.groupBoxProfile.Controls.Add(this.textBoxProfile);
-            this.groupBoxProfile.Controls.Add(this.comboBoxProfile);
-            this.groupBoxProfile.Location = new System.Drawing.Point(12, 227);
-            this.groupBoxProfile.Name = "groupBoxProfile";
-            this.groupBoxProfile.Size = new System.Drawing.Size(459, 57);
-            this.groupBoxProfile.TabIndex = 2;
-            this.groupBoxProfile.TabStop = false;
-            this.groupBoxProfile.Text = "Profile";
+            this.Path.Text = "Path";
+            this.Path.Width = 350;
             // 
-            // comboBoxProfile
+            // Type
             // 
-            this.comboBoxProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxProfile.FormattingEnabled = true;
-            this.comboBoxProfile.Items.AddRange(new object[] {
-            ""});
-            this.comboBoxProfile.Location = new System.Drawing.Point(10, 22);
-            this.comboBoxProfile.Name = "comboBoxProfile";
-            this.comboBoxProfile.Size = new System.Drawing.Size(313, 23);
-            this.comboBoxProfile.TabIndex = 0;
-            this.comboBoxProfile.SelectedIndexChanged += new System.EventHandler(this.comboBoxProfile_SelectedIndexChanged);
+            this.Type.Text = "Type";
+            this.Type.Width = 100;
             // 
-            // textBoxProfile
+            // tabGeneral
             // 
-            this.textBoxProfile.Location = new System.Drawing.Point(329, 22);
-            this.textBoxProfile.Name = "textBoxProfile";
-            this.textBoxProfile.ReadOnly = true;
-            this.textBoxProfile.Size = new System.Drawing.Size(123, 23);
-            this.textBoxProfile.TabIndex = 4;
+            this.tabGeneral.Controls.Add(this.groupBoxGeneral);
+            this.tabGeneral.Location = new System.Drawing.Point(4, 24);
+            this.tabGeneral.Name = "tabGeneral";
+            this.tabGeneral.Size = new System.Drawing.Size(605, 538);
+            this.tabGeneral.TabIndex = 2;
+            this.tabGeneral.Text = "General";
+            this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxGeneral
+            // 
+            this.groupBoxGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxGeneral.Location = new System.Drawing.Point(0, 0);
+            this.groupBoxGeneral.Name = "groupBoxGeneral";
+            this.groupBoxGeneral.Size = new System.Drawing.Size(605, 538);
+            this.groupBoxGeneral.TabIndex = 0;
+            this.groupBoxGeneral.TabStop = false;
+            this.groupBoxGeneral.Text = "General";
+            // 
+            // tabPowerProfiles
+            // 
+            this.tabPowerProfiles.Location = new System.Drawing.Point(4, 24);
+            this.tabPowerProfiles.Name = "tabPowerProfiles";
+            this.tabPowerProfiles.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPowerProfiles.Size = new System.Drawing.Size(605, 538);
+            this.tabPowerProfiles.TabIndex = 1;
+            this.tabPowerProfiles.Text = "Power Profiles";
+            this.tabPowerProfiles.UseVisualStyleBackColor = true;
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Location = new System.Drawing.Point(838, 580);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.TabIndex = 4;
+            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            // 
+            // buttonOK
+            // 
+            this.buttonOK.Location = new System.Drawing.Point(757, 580);
+            this.buttonOK.Name = "buttonOK";
+            this.buttonOK.Size = new System.Drawing.Size(75, 23);
+            this.buttonOK.TabIndex = 5;
+            this.buttonOK.Text = "OK";
+            this.buttonOK.UseVisualStyleBackColor = true;
+            this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
+            // 
+            // tabSettingsDesc
+            // 
+            this.tabSettingsDesc.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tabSettingsDesc.Location = new System.Drawing.Point(3, 268);
+            this.tabSettingsDesc.Name = "tabSettingsDesc";
+            this.tabSettingsDesc.SelectedIndex = 0;
+            this.tabSettingsDesc.Size = new System.Drawing.Size(599, 267);
+            this.tabSettingsDesc.TabIndex = 9;
+            // 
+            // File
+            // 
+            this.File.Text = "File";
+            this.File.Width = 150;
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(483, 527);
-            this.Controls.Add(this.groupBoxProfile);
-            this.Controls.Add(this.groupBoxSettings);
+            this.ClientSize = new System.Drawing.Size(924, 611);
+            this.Controls.Add(this.buttonOK);
+            this.Controls.Add(this.buttonCancel);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.groupBoxInfo);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Settings";
             this.Padding = new System.Windows.Forms.Padding(12);
+            this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Properties";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_Closing);
             this.SettingMenuStrip.ResumeLayout(false);
             this.groupBoxInfo.ResumeLayout(false);
             this.groupBoxInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).EndInit();
             this.ImageMenuStrip.ResumeLayout(false);
-            this.groupBoxSettings.ResumeLayout(false);
-            this.groupBoxProfile.ResumeLayout(false);
-            this.groupBoxProfile.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
+            this.tabSettings.ResumeLayout(false);
+            this.tabGeneral.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -407,12 +460,8 @@ namespace DockerForm
         private System.Windows.Forms.Label labelGUID;
         private System.Windows.Forms.TextBox field_Developer;
         private System.Windows.Forms.Label labelDeveloper;
-        private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.ListView SettingsList;
-        private ColumnHeader columnHeader4;
-        private ColumnHeader columnHeader5;
         private TextBox field_Version;
         private Label labelVersion;
         private Button buttonBrowseFile;
@@ -428,8 +477,17 @@ namespace DockerForm
         private ToolStripMenuItem searchOnPCGamingWikiToolStripMenuItem;
         private Label labelArguments;
         private TextBox field_Arguments;
-        private GroupBox groupBoxProfile;
-        private ComboBox comboBoxProfile;
-        private TextBox textBoxProfile;
+        private TabControl tabControl1;
+        private TabPage tabSettings;
+        private TabPage tabPowerProfiles;
+        private ListView SettingsList;
+        private ColumnHeader Path;
+        private ColumnHeader Type;
+        private TabPage tabGeneral;
+        private GroupBox groupBoxGeneral;
+        private Button buttonCancel;
+        private Button buttonOK;
+        private TabControl tabSettingsDesc;
+        private ColumnHeader File;
     }
 }
