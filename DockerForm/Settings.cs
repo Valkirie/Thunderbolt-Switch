@@ -79,6 +79,7 @@ namespace DockerForm
 
             GameIcon.BackgroundImage = thisGame.Image;
 
+            // Settings tab
             foreach (GameSettings setting in thisGame.Settings.Values)
             {
                 string FileName = System.IO.Path.GetFileName(setting.Uri);
@@ -88,18 +89,26 @@ namespace DockerForm
                 SettingsList.Items.Add(newSetting);
             }
 
-            /*foreach (PowerProfile profile in game.Profiles.Values)
+            // General tab
+            checkBoxPowerSpecific.Checked = thisGame.PowerSpecific;
+
+            // Power Profiles tab
+            groupBoxPowerProfile.Enabled = Form1.MonitorProcesses;
+
+            foreach (KeyValuePair<string, PowerProfile> pair in Form1.ProfileDB)
             {
-                ListViewItem newSetting = new ListViewItem(new string[] { setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.GUID);
-                newSetting.Checked = setting.IsEnabled;
-                newSetting.Tag = setting.IsRelative;
-                SettingsList.Items.Add(newSetting);
+                PowerProfile profile = pair.Value;
+                string isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) != 0 ? "Yes" : "No";
+                string isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) != 0 ? "Yes" : "No";
+                string isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExtGPU) != 0 ? "Yes" : "No";
+                string isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnBoot) != 0 ? "Yes" : "No";
+                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery, isPluggedIn, isExtGPU, isOnBoot }, profile.ProfileName);
+
+                if (thisGame.Profiles.ContainsKey(profile.ProfileName))
+                    newProfile.Checked = true;
+
+                ProfilesList.Items.Add(newProfile);
             }
-
-            foreach (KeyValuePair<string, PowerProfile> profile in Form1.ProfileDB)
-                comboBoxProfile.Items.Add(profile.Key);
-
-            groupBoxProfile.Enabled = Form1.MonitorProcesses;*/
 
             IsReady = true;
         }
@@ -244,7 +253,7 @@ namespace DockerForm
 
                         byte[] s_file = System.IO.File.ReadAllBytes(file);
                         GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FilePath, true, IsRelative);
-                        newSetting.data[Form1.GetCurrentState()] = s_file;
+                        newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
                         thisGame.Settings[FileName] = newSetting;
                     }
                 }
@@ -268,7 +277,7 @@ namespace DockerForm
 
             byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
             GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FileName, true, false);
-            newSetting.data[Form1.GetCurrentState()] = s_file;
+            newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
             thisGame.Settings[FileName] = newSetting;
         }
 
@@ -407,10 +416,20 @@ namespace DockerForm
             if (!thisGame.CanSerialize())
                 return;
 
+            // Settings tab
             foreach (ListViewItem item in SettingsList.Items)
             {
                 string FileName = item.SubItems[0].Text;
                 thisGame.Settings[FileName].IsEnabled = item.Checked;
+            }
+
+            // Power Profiles tab
+            thisGame.Profiles.Clear();
+            foreach (ListViewItem item in ProfilesList.Items)
+            {
+                PowerProfile profile = Form1.ProfileDB[item.Text];
+                if (item.Checked)
+                    thisGame.Profiles.Add(profile.ProfileName, profile);
             }
 
             thisForm.InsertOrUpdateGameItem(thisGame, false);
@@ -477,7 +496,7 @@ namespace DockerForm
                                 Dock = DockStyle.Fill,
                                 Visible = true,
                                 UseFixedBytesPerLine = true,
-                                BytesPerLine = 16,
+                                BytesPerLine = 12,
                                 ColumnInfoVisible = true,
                                 LineInfoVisible = true,
                                 StringViewVisible = true,
@@ -520,6 +539,53 @@ namespace DockerForm
                 thisGame.Settings[FileName].data[myViewer.Name] = Encoding.ASCII.GetBytes(myViewer.Text);
 
                 break;
+            }
+        }
+
+        private void checkBoxPowerSpecific_CheckedChanged(object sender, EventArgs e)
+        {
+            thisGame.PowerSpecific = checkBoxPowerSpecific.Checked;
+        }
+
+        private void Settings_Load(object sender, EventArgs e)
+        {
+            toolTip1.SetToolTip(checkBoxPowerSpecific, "Use specific settings when device power status changes (on battery, plugged in)");
+        }
+
+        private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            foreach(Control ctrl in groupBoxFIVR.Controls)
+                if(ctrl.GetType() == typeof(TextBox))
+                    ctrl.Text = "";
+
+            foreach (Control ctrl in groupBoxPowerProfile.Controls)
+                if (ctrl.GetType() == typeof(TextBox))
+                    ctrl.Text = "";
+
+            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            {
+                string ProfileName = item.SubItems[0].Text;
+                PowerProfile profile = Form1.ProfileDB[ProfileName];
+
+                // Misc
+                if(profile.HasLongPowerMax())
+                    textBox1.Text = profile.TurboBoostLongPowerMax + "W";
+                if (profile.HasShortPowerMax())
+                    textBox2.Text = profile.TurboBoostShortPowerMax + "W";
+                if (profile.HasPowerBalanceCPU())
+                    textBox3.Text = profile.PowerBalanceCPU.ToString();
+                if (profile.HasPowerBalanceGPU())
+                    textBox4.Text = profile.PowerBalanceGPU.ToString();
+
+                // FIVR
+                if (profile.HasCPUCore())
+                    textBox5.Text = profile.CPUCore + "mV";
+                if (profile.HasCPUCache())
+                    textBox6.Text = profile.CPUCache + "mV";
+                if (profile.HasSystemAgent())
+                    textBox7.Text = profile.SystemAgent + "mV";
+                if (profile.HasIntelGPU())
+                    textBox8.Text = profile.IntelGPU + "mV";
             }
         }
     }

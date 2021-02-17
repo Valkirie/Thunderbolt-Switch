@@ -40,14 +40,7 @@ namespace DockerForm
         public int TurboBoostLongPowerMax, TurboBoostShortPowerMax;
         public int CPUCore, IntelGPU, CPUCache, SystemAgent;
         public int PowerBalanceCPU, PowerBalanceGPU;
-        public string ProfileName;
-
-        /*
-         * bitmask
-         * 0000 0001 : apply when (on battery)
-         * 0000 0010 : apply when (plugged in)
-         */
-
+        public string ProfileName = "";
         public byte ApplyMask;
 
         public string Serialize()

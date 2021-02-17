@@ -170,10 +170,11 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
         {
-            string path_db = Form1.GetCurrentState();
-
             foreach (DockerGame game in GameDB.Values)
+            {
+                string path_db = Form1.GetCurrentState(game);
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
+            }
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -208,11 +209,11 @@ namespace DockerForm
 
         public static bool SanityCheck()
         {
-            string path_db = Form1.GetCurrentState();
-
             foreach (DockerGame game in GameDB.Values)
             {
-                if(game.ErrorCode != ErrorCode.None)
+                string path_db = Form1.GetCurrentState(game);
+
+                if (game.ErrorCode != ErrorCode.None)
                 {
                     switch(game.ErrorCode)
                     {

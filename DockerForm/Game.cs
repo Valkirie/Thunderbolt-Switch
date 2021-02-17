@@ -84,6 +84,8 @@ namespace DockerForm
         public Dictionary<string, GameSettings> Settings = new Dictionary<string, GameSettings>();
         public Dictionary<string, PowerProfile> Profiles = new Dictionary<string, PowerProfile>();
 
+        public bool PowerSpecific = false;  // Use power-specific settings (on battery, plugged in)
+
         [NonSerialized()] public ErrorCode ErrorCode = ErrorCode.None;
         public void SanityCheck()
         {
@@ -127,16 +129,18 @@ namespace DockerForm
             this.ProductName = other.ProductName;
             this.Uri = other.Uri;
             this.Version = other.Version;
-            this.Profiles = new Dictionary<string, PowerProfile>();
-            this.Settings = new Dictionary<string, GameSettings>();
 
+            this.Profiles = new Dictionary<string, PowerProfile>();
             if (other.Profiles != null)
                 foreach (PowerProfile profile in other.Profiles.Values)
                     this.Profiles.Add(profile.ProfileName, profile);
 
+            this.Settings = new Dictionary<string, GameSettings>();
             if (other.Settings != null)
                 foreach (GameSettings settings in other.Settings.Values)
                     this.Settings.Add(settings.FileName, settings);
+
+            this.PowerSpecific = other.PowerSpecific;
 
             this.SanityCheck();
         }
