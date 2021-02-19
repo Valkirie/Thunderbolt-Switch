@@ -519,12 +519,25 @@ namespace DockerForm
             GameList.Sort();
         }
 
+        public static Dictionary<string, DateTime> prevFileInfos = new Dictionary<string, DateTime>();
         public static void UpdateProfiles()
         {
             // read all the profiles files (xml)
             string[] fileEntries = Directory.GetFiles(path_profiles, "*.xml");
-            Dictionary<string, PowerProfile> tempList = new Dictionary<string, PowerProfile>();
-            List<string> remoList = new List<string>();
+            Dictionary<string, DateTime> fileInfos = new Dictionary<string, DateTime>();
+
+            foreach (string filename in fileEntries)
+            {
+                FileInfo info = new FileInfo(filename);
+                fileInfos[filename] = info.LastWriteTime;
+            }
+
+            // skip if no changes on profiles files
+            if (prevFileInfos.ContentEquals(fileInfos))
+                return;
+
+            Dictionary<string, PowerProfile> profileList = new Dictionary<string, PowerProfile>();
+            List<string> removeList = new List<string>();
             foreach (string filename in fileEntries)
             {
                 try
@@ -533,7 +546,7 @@ namespace DockerForm
                     {
                         XmlSerializer formatter = new XmlSerializer(typeof(PowerProfile));
                         PowerProfile profile = (PowerProfile)formatter.Deserialize(reader);
-                        tempList.Add(profile.ProfileName, profile);
+                        profileList.Add(profile.ProfileName, profile);
                         reader.Dispose();
                     }
                 }
@@ -541,21 +554,21 @@ namespace DockerForm
             }
 
             // add or update profiles
-            foreach (PowerProfile profile in tempList.Values)
+            foreach (PowerProfile profile in profileList.Values)
             {
                 ProfileDB[profile.ProfileName] = profile;
                 ProfileDB[profile.ProfileName].ComputeHex();
             }
 
             // insert all removed profiles
-            foreach (string profile in ProfileDB.Keys.Where(a => !tempList.ContainsKey(a)))
-                remoList.Add(profile);
+            foreach (string profile in ProfileDB.Keys.Where(a => !profileList.ContainsKey(a)))
+                removeList.Add(profile);
 
             // update games
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 // remove outdated profiles
-                foreach (string ProfileName in remoList)
+                foreach (string ProfileName in removeList)
                     game.Profiles.Remove(ProfileName);
 
                 // update associated profiles
@@ -667,9 +680,6 @@ namespace DockerForm
 
             // update Database
             UpdateGameList();
-
-            // update Profiles
-            UpdateProfiles();
         }
 
         private string GetProcessorID()
@@ -685,10 +695,6 @@ namespace DockerForm
 
         private void Form1_Shown(object sender, System.EventArgs e)
         {
-            // search for GPUs
-            ThreadGPU = new Thread(MonitorThread);
-            ThreadGPU.Start();
-
             // Monitor processes
             if (MonitorProcesses)
             {
@@ -703,11 +709,16 @@ namespace DockerForm
                 LogManager.UpdateLog("Process Monitor: started");
             }
 
+            // Monitor power profiles
             if (MonitorProfiles)
             {
                 ThreadProfile = new Thread(ProfilesMonitorThread);
                 ThreadProfile.Start();
             }
+
+            // search for GPUs
+            ThreadGPU = new Thread(MonitorThread);
+            ThreadGPU.Start();
 
             // Monitor Power Status
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
@@ -940,6 +951,17 @@ namespace DockerForm
                 Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.Guid]);
                 currentSettings.ShowDialog();
             }
+        }
+    }
+
+    public static class DictionaryExtensionMethods
+    {
+        public static bool ContentEquals<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> otherDictionary)
+        {
+            return (otherDictionary ?? new Dictionary<TKey, TValue>())
+                .OrderBy(kvp => kvp.Key)
+                .SequenceEqual((dictionary ?? new Dictionary<TKey, TValue>())
+                                   .OrderBy(kvp => kvp.Key));
         }
     }
 }
