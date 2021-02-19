@@ -292,7 +292,6 @@ namespace DockerForm
                 }
             }
 
-            Form1.IsFirstBoot = false;
             return true;
         }
 

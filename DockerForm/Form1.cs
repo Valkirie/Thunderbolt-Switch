@@ -400,8 +400,11 @@ namespace DockerForm
                     InitializePowerProfiles();
 
                 if (IsFirstBoot)
+                {
                     DatabaseManager.SanityCheck();
-
+                    IsFirstBoot = false;
+                }
+                
                 Thread.Sleep(MonitorThreadRefresh);
             }
         }
