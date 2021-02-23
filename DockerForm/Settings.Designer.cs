@@ -70,12 +70,21 @@ namespace DockerForm
             this.checkBoxPowerSpecific = new System.Windows.Forms.CheckBox();
             this.tabPowerProfiles = new System.Windows.Forms.TabPage();
             this.groupBoxFIVR = new System.Windows.Forms.GroupBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.textBox6 = new System.Windows.Forms.TextBox();
             this.ProfilesList = new System.Windows.Forms.ListView();
             this.PowerProfileHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.PowerProfileHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBoxPowerProfile = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -88,14 +97,6 @@ namespace DockerForm
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
             this.SettingMenuStrip.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).BeginInit();
@@ -462,6 +463,74 @@ namespace DockerForm
             this.groupBoxFIVR.TabStop = false;
             this.groupBoxFIVR.Text = "FIVR Control";
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 112);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(94, 15);
+            this.label8.TabIndex = 14;
+            this.label8.Text = "Intel GPU Offset:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 83);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(118, 15);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "System Agent Offset:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 54);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(104, 15);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "CPU Cache Offset:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 25);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(96, 15);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "CPU Core Offset:";
+            // 
+            // textBox8
+            // 
+            this.textBox8.Location = new System.Drawing.Point(166, 109);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.ReadOnly = true;
+            this.textBox8.Size = new System.Drawing.Size(84, 23);
+            this.textBox8.TabIndex = 11;
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(166, 22);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.ReadOnly = true;
+            this.textBox5.Size = new System.Drawing.Size(84, 23);
+            this.textBox5.TabIndex = 8;
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(166, 80);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.ReadOnly = true;
+            this.textBox7.Size = new System.Drawing.Size(84, 23);
+            this.textBox7.TabIndex = 10;
+            // 
+            // textBox6
+            // 
+            this.textBox6.Location = new System.Drawing.Point(166, 51);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.ReadOnly = true;
+            this.textBox6.Size = new System.Drawing.Size(84, 23);
+            this.textBox6.TabIndex = 9;
+            // 
             // ProfilesList
             // 
             this.ProfilesList.CheckBoxes = true;
@@ -470,7 +539,8 @@ namespace DockerForm
             this.PowerProfileHeader2,
             this.PowerProfileHeader3,
             this.PowerProfileHeader4,
-            this.PowerProfileHeader5});
+            this.PowerProfileHeader5,
+            this.PowerProfileHeader6});
             this.ProfilesList.Dock = System.Windows.Forms.DockStyle.Top;
             this.ProfilesList.FullRowSelect = true;
             this.ProfilesList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -488,27 +558,32 @@ namespace DockerForm
             // PowerProfileHeader1
             // 
             this.PowerProfileHeader1.Text = "Name";
-            this.PowerProfileHeader1.Width = 190;
+            this.PowerProfileHeader1.Width = 139;
             // 
             // PowerProfileHeader2
             // 
             this.PowerProfileHeader2.Text = "OnBattery";
-            this.PowerProfileHeader2.Width = 80;
+            this.PowerProfileHeader2.Width = 75;
             // 
             // PowerProfileHeader3
             // 
             this.PowerProfileHeader3.Text = "OnPlugged";
-            this.PowerProfileHeader3.Width = 80;
+            this.PowerProfileHeader3.Width = 75;
             // 
             // PowerProfileHeader4
             // 
             this.PowerProfileHeader4.Text = "OnExtGPU";
-            this.PowerProfileHeader4.Width = 80;
+            this.PowerProfileHeader4.Width = 75;
             // 
             // PowerProfileHeader5
             // 
             this.PowerProfileHeader5.Text = "OnStartup";
-            this.PowerProfileHeader5.Width = 80;
+            this.PowerProfileHeader5.Width = 75;
+            // 
+            // PowerProfileHeader6
+            // 
+            this.PowerProfileHeader6.Text = "OnScreen";
+            this.PowerProfileHeader6.Width = 75;
             // 
             // groupBoxPowerProfile
             // 
@@ -615,74 +690,6 @@ namespace DockerForm
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // textBox8
-            // 
-            this.textBox8.Location = new System.Drawing.Point(166, 109);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.ReadOnly = true;
-            this.textBox8.Size = new System.Drawing.Size(84, 23);
-            this.textBox8.TabIndex = 11;
-            // 
-            // textBox7
-            // 
-            this.textBox7.Location = new System.Drawing.Point(166, 80);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.ReadOnly = true;
-            this.textBox7.Size = new System.Drawing.Size(84, 23);
-            this.textBox7.TabIndex = 10;
-            // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(166, 51);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.ReadOnly = true;
-            this.textBox6.Size = new System.Drawing.Size(84, 23);
-            this.textBox6.TabIndex = 9;
-            // 
-            // textBox5
-            // 
-            this.textBox5.Location = new System.Drawing.Point(166, 22);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.ReadOnly = true;
-            this.textBox5.Size = new System.Drawing.Size(84, 23);
-            this.textBox5.TabIndex = 8;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 25);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(96, 15);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "CPU Core Offset:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 54);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(104, 15);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "CPU Cache Offset:";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 83);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(118, 15);
-            this.label7.TabIndex = 13;
-            this.label7.Text = "System Agent Offset:";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 112);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(94, 15);
-            this.label8.TabIndex = 14;
-            this.label8.Text = "Intel GPU Offset:";
-            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -788,5 +795,6 @@ namespace DockerForm
         private Label label7;
         private Label label6;
         private Label label5;
+        private ColumnHeader PowerProfileHeader6;
     }
 }

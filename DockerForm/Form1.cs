@@ -28,10 +28,14 @@ namespace DockerForm
         public static bool IsHardwareNew = false;
         public static bool IsHardwarePending = true;
         public static bool IsPowerPending = true;
+        public static bool IsScreenPending = true;
         public static VideoController CurrentController;
         public static bool prevPowerStatus;
         public static bool PowerStatus;
         public static bool IsPowerNew = false;
+        public static int prevScreenCount;
+        public static int ScreenCount;
+        public static bool IsScreenNew = false;
         public static bool IsRunning = true;
 
         // Configurable vars
@@ -49,7 +53,7 @@ namespace DockerForm
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
-        public static string MCHBAR = null;
+        public static string MCHBAR;
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
@@ -76,13 +80,22 @@ namespace DockerForm
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        private const int WM_DEVICECHANGE = 0x0219;
+        [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == WM_DEVICECHANGE)
+            const int WM_DISPLAYCHANGE = 0x007e;
+            const int WM_DEVICECHANGE = 0x0219;
+
+            switch(m.Msg)
             {
-                IsHardwarePending = true;
+                case WM_DEVICECHANGE:
+                    IsHardwarePending = true;
+                    break;
+                case WM_DISPLAYCHANGE:
+                    IsHardwarePending = true;
+                    break;
             }
+
             base.WndProc(ref m);
         }
 
@@ -99,47 +112,51 @@ namespace DockerForm
             IsPowerPending = true;
         }
 
-        private static PowerProfile SumPowerProfiles(List<PowerProfile> profiles)
+        private static bool CanRunProfile(PowerProfile profile, bool IsFirstBoot)
+        {
+            bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
+            bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
+            bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
+            bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
+            bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
+
+            // exclusive conditions ...
+            if (IsFirstBoot && !isOnBoot)
+                return false;
+
+            // inclusive conditions ...
+            if (PowerStatus && isPluggedIn)
+                return true;
+            else if (!PowerStatus && isOnBattery)
+                return true;
+            else if(DockStatus && isExtGPU)
+                return true;
+            else if(ScreenCount > 1 && isOnScreen)
+                return true;
+
+            return false;
+        }
+
+        private static void ApplyPowerProfiles()
         {
             PowerProfile sum_profile = new PowerProfile();
-            foreach (PowerProfile profile in profiles.OrderBy(a => a.ApplyMask))
-            {
-                bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) != 0;
-                bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) != 0;
-                bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExtGPU) != 0;
-                bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnBoot) != 0;
+            foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.RunMe).OrderBy(a => a.ApplyPriority))
+                sum_profile.DigestProfile(profile, true);
 
-                // if only on initialisation
-                if (!isOnBoot)
-                    continue;
-
-                // if device is running on battery
-                if (!PowerStatus && isOnBattery || PowerStatus && isPluggedIn || DockStatus && isExtGPU)
-                {
-                    sum_profile.DigestProfile(profile);
-                    sum_profile.ProfileName += profile.ProfileName + ",";
-                }
-            }
-
-            sum_profile.ProfileName = sum_profile.ProfileName.TrimEnd(',');
-
-            return sum_profile;
-        }
-
-        private static void InitializePowerProfiles()
-        {
-            PowerProfile sum_profile = SumPowerProfiles(ProfileDB.Values.ToList());
             SetPowerProfile(sum_profile);
+
+            // update form
+            UpdateForm();
         }
 
-        private static void SetPowerProfile(PowerProfile profile, DockerGame game = null)
+        private static void SetPowerProfile(PowerProfile profile)
         {
             // skip if unsupported platform
             if (MCHBAR == null)
                 return;
 
             // skip if call isn't needed
-            if (profile.ProfileName == CurrentProfile.ProfileName)
+            if (profile.ProfileName == CurrentProfile.ProfileName || profile.ProfileName == "")
                 return;
 
             string command = "/Min /Nologo /Stdout /command=\"";
@@ -186,8 +203,7 @@ namespace DockerForm
             // update current profile
             CurrentProfile = profile;
 
-            SendNotification("Power Profile [" + profile.GetName() + "] applied.", true);
-            LogManager.UpdateLog("Power Profile [" + profile.GetName() + "] applied." + profile.ToString());
+            SendNotification("Power Profile [" + profile.GetName() + "] applied.", true, true);
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
@@ -251,8 +267,13 @@ namespace DockerForm
                         GameProcesses.Remove(ProcessID);
                     GameProcesses.Add(ProcessID, PathToApp);
 
-                    PowerProfile sum_profile = SumPowerProfiles(game.Profiles.Values.ToList());
-                    SetPowerProfile(sum_profile);
+                    foreach (PowerProfile profile in game.Profiles.Values)
+                    {
+                        ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, false);
+                        ProfileDB[profile.ProfileName].GameBounds = game.Name;
+                    }
+
+                    ApplyPowerProfiles();
                 }
 
             }catch(Exception ex) { }
@@ -282,7 +303,13 @@ namespace DockerForm
                     string path_db = GetCurrentState(game);
                     DatabaseManager.UpdateFilesAndRegistries(game, path_db, path_db, true, false, true, path_db);
 
-                    InitializePowerProfiles();
+                    foreach (PowerProfile profile in game.Profiles.Values.Where(a => a.GameBounds != null))
+                    {
+                        ProfileDB[profile.ProfileName].GameBounds = null;
+                        ProfileDB[profile.ProfileName].RunMe = false; //CanRunProfile(profile, true)
+                    }
+
+                    ApplyPowerProfiles();
                 }
             }
             catch (Exception ex) { }
@@ -312,7 +339,7 @@ namespace DockerForm
             while (IsRunning)
             {
                 UpdateProfiles();
-                Thread.Sleep(5000);
+                Thread.Sleep(MonitorThreadRefresh);
             }
         }
 
@@ -372,7 +399,7 @@ namespace DockerForm
                     prevDockStatus = DockStatus;
 
                     // update form
-                    UpdateFormIcons();
+                    UpdateForm();
                     IsHardwarePending = false;
                 }
 
@@ -392,12 +419,30 @@ namespace DockerForm
                     prevPowerStatus = PowerStatus;
 
                     // update form
-                    UpdateFormIcons();
+                    UpdateForm();
                     IsPowerPending = false;
                 }
 
-                if (IsFirstBoot || IsPowerNew || IsHardwareNew)
-                    InitializePowerProfiles();
+                if (IsScreenPending)
+                {
+                    ScreenCount = Screen.AllScreens.Length;
+                    IsScreenNew = prevScreenCount != ScreenCount;
+
+                    // update status
+                    prevScreenCount = ScreenCount;
+                    IsScreenPending = false;
+                }
+
+                if (IsFirstBoot || IsPowerNew || IsHardwareNew || IsScreenNew)
+                {
+                    foreach (PowerProfile profile in ProfileDB.Values)
+                        ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, IsFirstBoot);
+                    
+                    ApplyPowerProfiles();
+                    if (IsPowerNew) IsPowerNew = false;
+                    if (IsHardwareNew) IsHardwareNew = false;
+                    if (IsScreenNew) IsScreenNew = false;
+                }
 
                 if (IsFirstBoot)
                 {
@@ -409,7 +454,7 @@ namespace DockerForm
             }
         }
 
-        public static void UpdateFormIcons()
+        public static void UpdateForm()
         {
             try
             {
@@ -424,6 +469,7 @@ namespace DockerForm
                         case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
                     }
                 }
+
                 // main application icon
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
 
@@ -435,8 +481,36 @@ namespace DockerForm
                     _instance.notifyIcon1.Icon = myIcon;
                     _instance.Icon = myIcon;
                 });
+
+                // profiles
+                _instance.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    _instance.toolStripMenuItem2.DropDownItems.Clear();
+
+                    ToolStripMenuItem currentItem = new ToolStripMenuItem()
+                    {
+                        Text = "Current profile",
+                        ToolTipText = CurrentProfile.ToString(),
+                        Enabled = false
+                    };
+                    _instance.toolStripMenuItem2.DropDownItems.Add(currentItem);
+                    _instance.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
+
+                    // do not display the default profile
+                    foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
+                    {
+                        ToolStripMenuItem newItem = new ToolStripMenuItem()
+                        {
+                            Text = profile.ProfileName,
+                            Checked = profile.RunMe,
+                            ToolTipText = profile.ToString()
+                        };
+                        newItem.Click += new EventHandler(PowerMenuClickHandler);
+                        _instance.toolStripMenuItem2.DropDownItems.Add(newItem);
+                    }
+                });
             }
-            catch (Exception ex) { LogManager.UpdateLog("UpdateFormIcons: " + ex.Message, true); }
+            catch (Exception ex) { LogManager.UpdateLog("UpdateForm: " + ex.Message, true); }
         }
 
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
@@ -556,13 +630,25 @@ namespace DockerForm
             // add or update profiles
             foreach (PowerProfile profile in profileList.Values)
             {
-                ProfileDB[profile.ProfileName] = profile;
-                ProfileDB[profile.ProfileName].ComputeHex();
+                string ProfileName = profile.ProfileName;
+
+                bool RunMe = ProfileDB.ContainsKey(ProfileName) ? ProfileDB[ProfileName].RunMe : false;
+                string GameBounds = ProfileDB.ContainsKey(ProfileName) ? ProfileDB[ProfileName].GameBounds : "";
+
+                ProfileDB[ProfileName] = profile;
+                ProfileDB[ProfileName].RunMe = RunMe;
+                ProfileDB[ProfileName].GameBounds = GameBounds;
+
+                ProfileDB[ProfileName].ComputeHex();
             }
 
             // insert all removed profiles
-            foreach (string profile in ProfileDB.Keys.Where(a => !profileList.ContainsKey(a)))
-                removeList.Add(profile);
+            foreach (string ProfileName in ProfileDB.Keys.Where(a => !profileList.ContainsKey(a)))
+                removeList.Add(ProfileName);
+
+            // remove obsolete profiles
+            foreach (string ProfileName in removeList)
+                ProfileDB.Remove(ProfileName);
 
             // update games
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
@@ -576,6 +662,23 @@ namespace DockerForm
                     if (game.Profiles.ContainsKey(profile.ProfileName))
                         game.Profiles[profile.ProfileName] = profile;
             }
+
+            // update form
+            UpdateForm();
+
+            // update var
+            prevFileInfos = fileInfos;
+        }
+
+        private static void PowerMenuClickHandler(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            string ProfileName = item.Text;
+
+            item.Checked = !item.Checked;
+            ProfileDB[ProfileName].RunMe = item.Checked;
+
+            ApplyPowerProfiles();
         }
 
         public int GetIGDBListLength()
@@ -709,6 +812,9 @@ namespace DockerForm
                 LogManager.UpdateLog("Process Monitor: started");
             }
 
+            // update ProfileDB
+            UpdateProfiles();
+
             // Monitor power profiles
             if (MonitorProfiles)
             {
@@ -826,11 +932,6 @@ namespace DockerForm
             DisplayForm();
         }
 
-        private void showToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DisplayForm();
-        }
-
         private void DisplayForm()
         {
             Show();
@@ -870,6 +971,32 @@ namespace DockerForm
             Close();
         }
 
+        private void microsoftStoreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
+            AutomaticDetection(DetectedGames);
+        }
+
+        private void battleNetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
+            AutomaticDetection(DetectedGames);
+        }
+
+        private void AutomaticDetection(List<DockerGame> DetectedGames)
+        {
+            foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
+            {
+                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
+                if (dialogResult == DialogResult.Yes)
+                    InsertOrUpdateGameItem(game, true);
+                else if (dialogResult == DialogResult.Cancel)
+                    break;
+            }
+        }
+
         private void toolStripStartItem_Click(object sender, EventArgs e)
         {
             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
@@ -879,7 +1006,8 @@ namespace DockerForm
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 Arguments = game.Arguments,
-                FileName = filename
+                WorkingDirectory = game.Uri,
+                FileName = game.Executable
             };
 
             Process.Start(startInfo);
@@ -904,27 +1032,6 @@ namespace DockerForm
                     GameList.Items.Remove(item);
                     LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
                 }
-            }
-        }
-
-        private void automaticDetectionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            List<DockerGame> DetectedGames = new List<DockerGame>();
-            DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
-            DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
-
-            foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
-            {
-                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
-                if (dialogResult == DialogResult.Yes)
-                    InsertOrUpdateGameItem(game, true);
-                else if (dialogResult == DialogResult.No)
-                {
-                    // Properties.Settings.Default.Blacklist.Add(game.Name);
-                    // Properties.Settings.Default.Save();
-                }
-                else if (dialogResult == DialogResult.Cancel)
-                    break;
             }
         }
 

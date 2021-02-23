@@ -24,11 +24,11 @@ namespace DockerForm
     {
         // Form vars
         static Form1 thisForm;
-        static Settings thisSetting;
-        static bool IsReady;
+        Settings thisSetting;
+        bool IsReady;
 
         // Game vars
-        static DockerGame thisGame;
+        DockerGame thisGame;
 
         public bool GetIsReady()
         {
@@ -47,9 +47,23 @@ namespace DockerForm
             this.Top = thisForm.Location.Y + (thisForm.Size.Height - this.Size.Height) / 2;
         }
 
+        private void InitializeForm()
+        {
+            tabSettingsDesc.HandleCreated += new System.EventHandler(TabControl_HandleCreated);
+        }
+
+        void TabControl_HandleCreated(object sender, System.EventArgs e)
+        {
+            // Send TCM_SETMINTABWIDTH
+            SendMessage((sender as TabControl).Handle, 0x1300 + 49, IntPtr.Zero, (IntPtr)4);
+        }
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
+
         public Settings(Form1 form)
         {
             InitializeComponent();
+            InitializeForm();
 
             // instances
             thisForm = form;
@@ -62,7 +76,7 @@ namespace DockerForm
         public Settings(Form1 form, DockerGame game)
         {
             InitializeComponent();
-            Form1.UpdateProfiles();
+            InitializeForm();
 
             // instances
             thisGame                = new DockerGame(game);
@@ -95,14 +109,17 @@ namespace DockerForm
             // Power Profiles tab
             groupBoxPowerProfile.Enabled = Form1.MonitorProcesses;
 
-            foreach (KeyValuePair<string, PowerProfile> pair in Form1.ProfileDB)
+            foreach (PowerProfile profile in Form1.ProfileDB.Values)
             {
-                PowerProfile profile = pair.Value;
-                string isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) != 0 ? "Yes" : "No";
-                string isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) != 0 ? "Yes" : "No";
-                string isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExtGPU) != 0 ? "Yes" : "No";
-                string isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnBoot) != 0 ? "Yes" : "No";
-                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery, isPluggedIn, isExtGPU, isOnBoot }, profile.ProfileName);
+                bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
+                bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
+                bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
+                bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
+                bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
+                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnBoot.ToString(), isOnScreen.ToString() }, profile.ProfileName);
+
+                if (isOnBoot || profile.ApplyPriority == -1)
+                    continue;
 
                 if (thisGame.Profiles.ContainsKey(profile.ProfileName))
                     newProfile.Checked = true;
@@ -132,14 +149,23 @@ namespace DockerForm
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    thisGame = new DockerGame(filePath);
+                    DockerGame newGame = new DockerGame(filePath);
 
-                    field_Name.Text = thisGame.ProductName;
-                    field_Version.Text = thisGame.Version;
-                    field_Filename.Text = thisGame.Executable;
-                    field_Developer.Text = thisGame.Company;
-                    field_GUID.Text = thisGame.GUID;
-                    GameIcon.BackgroundImage = thisGame.Image;
+                    // are we picking a new executable ?
+                    if (thisGame != null)
+                    {
+                        newGame.Settings = thisGame.Settings;
+                        newGame.Profiles = thisGame.Profiles;
+                    }
+
+                    field_Name.Text = newGame.ProductName;
+                    field_Version.Text = newGame.Version;
+                    field_Filename.Text = newGame.Executable;
+                    field_Developer.Text = newGame.Company;
+                    field_GUID.Text = newGame.GUID;
+                    GameIcon.BackgroundImage = newGame.Image;
+
+                    thisGame = new DockerGame(newGame);
 
                     return true;
                 }
@@ -154,16 +180,25 @@ namespace DockerForm
 
         private void field_Developer_TextChanged(object sender, EventArgs e)
         {
+            if (thisGame == null)
+                return;
+
             thisGame.Company = field_Developer.Text;
         }
 
         private void field_Name_TextChanged(object sender, EventArgs e)
         {
+            if (thisGame == null)
+                return;
+
             thisGame.Name = field_Name.Text;
         }
 
         private void field_arguments_TextChanged(object sender, EventArgs e)
         {
+            if (thisGame == null)
+                return;
+
             thisGame.Arguments = field_Arguments.Text;
         }
 
@@ -194,7 +229,7 @@ namespace DockerForm
             return relativeUri.ToString().Replace("/", "\\");
         }
 
-        public static string ContractEnvironmentVariables(string path, ref bool IsRelative)
+        public static string ContractEnvironmentVariables(string path, ref bool IsRelative, DockerGame thisGame)
         {
             string filename = path.ToLower();
 
@@ -243,7 +278,7 @@ namespace DockerForm
                     foreach (String file in openFileDialog.FileNames)
                     {
                         bool IsRelative = false;
-                        string FilePath = ContractEnvironmentVariables(file, ref IsRelative);
+                        string FilePath = ContractEnvironmentVariables(file, ref IsRelative, thisGame);
                         string FileName = System.IO.Path.GetFileName(FilePath);
 
                         ListViewItem listViewItem1 = new ListViewItem(new string[] { FileName, FilePath, "File" }, -1);
@@ -420,7 +455,8 @@ namespace DockerForm
             foreach (ListViewItem item in SettingsList.Items)
             {
                 string FileName = item.SubItems[0].Text;
-                thisGame.Settings[FileName].IsEnabled = item.Checked;
+                if (thisGame.Settings.ContainsKey(FileName))
+                    thisGame.Settings[FileName].IsEnabled = item.Checked;
             }
 
             // Power Profiles tab
@@ -432,6 +468,7 @@ namespace DockerForm
                     thisGame.Profiles.Add(profile.ProfileName, profile);
             }
 
+            thisGame.SanityCheck();
             thisForm.InsertOrUpdateGameItem(thisGame, false);
             this.Close();
         }

@@ -38,6 +38,8 @@ namespace DockerForm
             this.databaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findAGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.automaticDetectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.microsoftStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.battleNetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,7 +55,7 @@ namespace DockerForm
             this.navigateToIGDBEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
@@ -104,19 +106,35 @@ namespace DockerForm
             // findAGameToolStripMenuItem
             // 
             this.findAGameToolStripMenuItem.Name = "findAGameToolStripMenuItem";
-            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.findAGameToolStripMenuItem.Text = "Select Manually";
             this.findAGameToolStripMenuItem.ToolTipText = "Select a game to add to your library.";
             this.findAGameToolStripMenuItem.Click += new System.EventHandler(this.findAGameToolStripMenuItem_Click);
             // 
             // automaticDetectionToolStripMenuItem
             // 
+            this.automaticDetectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.microsoftStoreToolStripMenuItem,
+            this.battleNetToolStripMenuItem});
             this.automaticDetectionToolStripMenuItem.Name = "automaticDetectionToolStripMenuItem";
-            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
-            this.automaticDetectionToolStripMenuItem.Text = "(Beta) Automatic Detection";
+            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.automaticDetectionToolStripMenuItem.Text = "Automatic Detection";
             this.automaticDetectionToolStripMenuItem.ToolTipText = "We will search all supported games and allow you to select two that you wish to a" +
     "dd.";
-            this.automaticDetectionToolStripMenuItem.Click += new System.EventHandler(this.automaticDetectionToolStripMenuItem_Click);
+            // 
+            // microsoftStoreToolStripMenuItem
+            // 
+            this.microsoftStoreToolStripMenuItem.Name = "microsoftStoreToolStripMenuItem";
+            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.microsoftStoreToolStripMenuItem.Text = "Microsoft Store";
+            this.microsoftStoreToolStripMenuItem.Click += new System.EventHandler(this.microsoftStoreToolStripMenuItem_Click);
+            // 
+            // battleNetToolStripMenuItem
+            // 
+            this.battleNetToolStripMenuItem.Name = "battleNetToolStripMenuItem";
+            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.battleNetToolStripMenuItem.Text = "Battle.net";
+            this.battleNetToolStripMenuItem.Click += new System.EventHandler(this.battleNetToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -228,28 +246,27 @@ namespace DockerForm
             // 
             this.contextMenuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showToolStripMenuItem,
+            this.toolStripMenuItem2,
             this.toolStripSeparator3,
             this.exittoolStripStartItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(104, 54);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(181, 76);
             // 
-            // showToolStripMenuItem
+            // toolStripMenuItem2
             // 
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.showToolStripMenuItem.Text = "Show";
-            this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem2.Text = "Power Profile";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(100, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
             // 
             // exittoolStripStartItem
             // 
             this.exittoolStripStartItem.Name = "exittoolStripStartItem";
-            this.exittoolStripStartItem.Size = new System.Drawing.Size(103, 22);
+            this.exittoolStripStartItem.Size = new System.Drawing.Size(180, 22);
             this.exittoolStripStartItem.Text = "Exit";
             this.exittoolStripStartItem.Click += new System.EventHandler(this.exittoolStripStartItem_Click);
             // 
@@ -324,12 +341,14 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem navigateToIGDBEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
-        private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem exittoolStripStartItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripStartItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem microsoftStoreToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem battleNetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
     }
 }
 

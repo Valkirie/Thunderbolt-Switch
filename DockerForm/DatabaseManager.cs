@@ -431,7 +431,6 @@ namespace DockerForm
                             thisGame.Platform = PlatformCode.Microsoft;
                             thisGame.Name = DisplayName.Contains("ms-resource") ? IdentityName : DisplayName;
                             thisGame.Company = PublisherDisplayName;
-                            thisGame.SanityCheck();
 
                             string filename = Path.Combine(folder, StoreLogo);
                             if (File.Exists(filename))
