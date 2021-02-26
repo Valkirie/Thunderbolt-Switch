@@ -87,6 +87,7 @@ namespace DockerForm
         public bool PowerSpecific = false;  // Use power-specific settings (on battery, plugged in)
 
         [NonSerialized()] public ErrorCode ErrorCode = ErrorCode.None;
+        [NonSerialized()] public bool IsRunning = false;
         public void SanityCheck()
         {
             ErrorCode = ErrorCode.None;

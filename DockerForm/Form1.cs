@@ -263,15 +263,15 @@ namespace DockerForm
                     if (game == null)
                         return;
 
-                    if (GameProcesses.ContainsKey(ProcessID))
-                        GameProcesses.Remove(ProcessID);
-                    GameProcesses.Add(ProcessID, PathToApp);
+                    GameProcesses[ProcessID] = PathToApp;
 
                     foreach (PowerProfile profile in game.Profiles.Values)
                     {
                         ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, false);
                         ProfileDB[profile.ProfileName].GameBounds = game.Name;
                     }
+
+                    game.IsRunning = true;
 
                     ApplyPowerProfiles();
                 }
@@ -297,8 +297,7 @@ namespace DockerForm
                     if (game == null)
                         return;
 
-                    if (GameProcesses.ContainsKey(ProcessID))
-                        GameProcesses.Remove(ProcessID);
+                    GameProcesses.Remove(ProcessID);
 
                     string path_db = GetCurrentState(game);
                     DatabaseManager.UpdateFilesAndRegistries(game, path_db, path_db, true, false, true, path_db);
@@ -306,8 +305,10 @@ namespace DockerForm
                     foreach (PowerProfile profile in game.Profiles.Values.Where(a => a.GameBounds != null))
                     {
                         ProfileDB[profile.ProfileName].GameBounds = null;
-                        ProfileDB[profile.ProfileName].RunMe = false; //CanRunProfile(profile, true)
+                        ProfileDB[profile.ProfileName].RunMe = false;
                     }
+
+                    game.IsRunning = false;
 
                     ApplyPowerProfiles();
                 }
@@ -887,7 +888,10 @@ namespace DockerForm
                             exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
                             DockerGame game = DatabaseManager.GameDB[item.Guid];
 
-                            // Sanity checks
+                            // disable all modifications on running app
+                            contextMenuStrip1.Enabled = !game.IsRunning;
+
+                            // disable options based on app properties
                             openToolStripMenuItem.Enabled = game.HasReachableFolder();
                             toolStripStartItem.Enabled = game.HasReachableExe();
                             toolStripMenuItem1.Enabled = game.HasFileSettings();
