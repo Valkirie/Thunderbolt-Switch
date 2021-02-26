@@ -59,7 +59,10 @@ namespace DockerForm
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.GameList = new DockerForm.exListBox();
+            this.GameListView = new System.Windows.Forms.ListView();
+            this.columnName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnDev = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -177,6 +180,7 @@ namespace DockerForm
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(198, 154);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // toolStripStartItem
             // 
@@ -250,23 +254,23 @@ namespace DockerForm
             this.toolStripSeparator3,
             this.exittoolStripStartItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(181, 76);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(145, 54);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(144, 22);
             this.toolStripMenuItem2.Text = "Power Profile";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(141, 6);
             // 
             // exittoolStripStartItem
             // 
             this.exittoolStripStartItem.Name = "exittoolStripStartItem";
-            this.exittoolStripStartItem.Size = new System.Drawing.Size(180, 22);
+            this.exittoolStripStartItem.Size = new System.Drawing.Size(144, 22);
             this.exittoolStripStartItem.Text = "Exit";
             this.exittoolStripStartItem.Click += new System.EventHandler(this.exittoolStripStartItem_Click);
             // 
@@ -276,26 +280,49 @@ namespace DockerForm
             this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
-            // GameList
+            // GameListView
             // 
-            this.GameList.BackColor = System.Drawing.SystemColors.Control;
-            this.GameList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.GameList.ContextMenuStrip = this.contextMenuStrip1;
-            this.GameList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GameList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.GameList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.GameList.FormattingEnabled = true;
-            this.GameList.Location = new System.Drawing.Point(0, 24);
-            this.GameList.Name = "GameList";
-            this.GameList.Size = new System.Drawing.Size(925, 534);
-            this.GameList.Sorted = true;
-            this.GameList.TabIndex = 0;
-            this.GameList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameList_MouseDown);
+            this.GameListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnName,
+            this.columnDev,
+            this.columnVersion});
+            this.GameListView.ContextMenuStrip = this.contextMenuStrip1;
+            this.GameListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GameListView.FullRowSelect = true;
+            this.GameListView.HideSelection = false;
+            this.GameListView.LargeImageList = this.imageList1;
+            this.GameListView.Location = new System.Drawing.Point(0, 24);
+            this.GameListView.Margin = new System.Windows.Forms.Padding(2);
+            this.GameListView.MultiSelect = false;
+            this.GameListView.Name = "GameListView";
+            this.GameListView.Size = new System.Drawing.Size(925, 534);
+            this.GameListView.SmallImageList = this.imageList1;
+            this.GameListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
+            this.GameListView.TabIndex = 9;
+            this.GameListView.UseCompatibleStateImageBehavior = false;
+            this.GameListView.View = System.Windows.Forms.View.Details;
+            this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
+            this.GameListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
+            // 
+            // columnName
+            // 
+            this.columnName.Text = "Name";
+            this.columnName.Width = 360;
+            // 
+            // columnDev
+            // 
+            this.columnDev.Text = "Developer";
+            this.columnDev.Width = 250;
+            // 
+            // columnVersion
+            // 
+            this.columnVersion.Text = "Version";
+            this.columnVersion.Width = 150;
             // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(925, 590);
-            this.Controls.Add(this.GameList);
+            this.Controls.Add(this.GameListView);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.menuStrip2);
             this.DoubleBuffered = true;
@@ -325,7 +352,6 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private DockerForm.exListBox GameList;
         private System.Windows.Forms.MenuStrip menuStrip2;
         private System.Windows.Forms.ToolStripMenuItem undockedToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
@@ -349,6 +375,10 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem microsoftStoreToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem battleNetToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ListView GameListView;
+        private System.Windows.Forms.ColumnHeader columnName;
+        private System.Windows.Forms.ColumnHeader columnDev;
+        private System.Windows.Forms.ColumnHeader columnVersion;
     }
 }
 
