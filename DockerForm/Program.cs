@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DockerForm
@@ -25,10 +22,12 @@ namespace DockerForm
                 proc.FileName = Assembly.GetEntryAssembly().CodeBase;
                 proc.Verb = "runas";
 
-                try {
+                try
+                {
                     Process.Start(proc);
                 }
-                catch {
+                catch
+                {
                     MessageBox.Show("This application requires elevated credentials in order to operate correctly!");
                 }
             }

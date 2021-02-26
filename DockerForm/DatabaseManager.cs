@@ -119,7 +119,7 @@ namespace DockerForm
                         }
                     }
                 }
-                else if(setting.Type == SettingsType.Registry)
+                else if (setting.Type == SettingsType.Registry)
                 {
                     // We generate a temporary reg file
                     string tempfile = Path.Combine(Form1.path_application, "temp.reg");
@@ -145,7 +145,7 @@ namespace DockerForm
                     // 2. Restore proper settings
                     if (updateFILE)
                     {
-                        if(setting.data.ContainsKey(path_dest))
+                        if (setting.data.ContainsKey(path_dest))
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
@@ -215,7 +215,7 @@ namespace DockerForm
 
                 if (game.ErrorCode != ErrorCode.None)
                 {
-                    switch(game.ErrorCode)
+                    switch (game.ErrorCode)
                     {
                         case ErrorCode.MissingExecutable: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable executable", true); break;
                         case ErrorCode.MissingFolder: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable folder", true); break;
@@ -246,14 +246,14 @@ namespace DockerForm
                         file = new FileInfo(filename);
 
                         fileBytes = File.ReadAllBytes(file.FullName);
-                        if(setting.data.ContainsKey(path_db))
+                        if (setting.data.ContainsKey(path_db))
                             fileDBBytes = setting.data[path_db];
                     }
                     else if (setting.Type == SettingsType.Registry)
                     {
                         // We generate a temporary reg file
                         string tempfile = Path.Combine(Form1.path_application, "temp.reg");
-                        
+
                         RegistryManager.ExportKey(filename, tempfile);
                         file = new FileInfo(tempfile);
 
@@ -270,16 +270,16 @@ namespace DockerForm
                     if (path_db != crc_value)
                     {
                         Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true, true);
-                        
+
                         // Overwrite current database and restore last known settings
                         UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
 
                         continue;
                     }
-                    else if (!Equality(fileBytes,fileDBBytes))
+                    else if (!Equality(fileBytes, fileDBBytes))
                     {
                         Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true, true);
-                        
+
                         DialogBox dialogBox = new DialogBox();
                         dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
                         DialogResult dialogResult = dialogBox.ShowDialog();
@@ -300,7 +300,7 @@ namespace DockerForm
             List<DockerGame> listofGames = new List<DockerGame>();
             string foldername = "C:\\Program Files\\WindowsApps";
 
-            foreach(string folder in Directory.GetDirectories(foldername).Where(a => a.Contains("x86") || a.Contains("x64")))
+            foreach (string folder in Directory.GetDirectories(foldername).Where(a => a.Contains("x86") || a.Contains("x64")))
             {
                 foreach (string file in Directory.GetFiles(folder))
                 {
@@ -319,7 +319,7 @@ namespace DockerForm
                         string StoreLogoScale = "";
 
                         XmlNodeList Identity = doc.GetElementsByTagName("Identity");
-                        foreach(XmlNode node in Identity)
+                        foreach (XmlNode node in Identity)
                         {
                             if (node.Attributes != null)
                             {
@@ -468,7 +468,7 @@ namespace DockerForm
                         if (UninstallString.Contains("Battle.net"))
                         {
                             string filePath = subKeys["DisplayIcon"];
-                            if(File.Exists(filePath))
+                            if (File.Exists(filePath))
                             {
                                 DockerGame thisGame = new DockerGame(filePath);
                                 thisGame.Platform = PlatformCode.BattleNet;
@@ -479,7 +479,7 @@ namespace DockerForm
                     }
                 }
             }
-            
+
             return listofGames;
         }
 

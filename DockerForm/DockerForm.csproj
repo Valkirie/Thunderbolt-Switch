@@ -115,9 +115,6 @@
     <Compile Include="DialogBox.Designer.cs">
       <DependentUpon>DialogBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="exListBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="FileManager.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

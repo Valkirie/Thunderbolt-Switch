@@ -98,7 +98,7 @@ namespace DockerForm
                 ErrorCode = Platform != PlatformCode.Microsoft ? ErrorCode.MissingExecutable : ErrorCode.None;
             if (!HasFileSettings())
                 ErrorCode = ErrorCode.MissingSettings;
-            
+
             Enabled = ErrorCode == ErrorCode.None;
         }
 
@@ -167,7 +167,7 @@ namespace DockerForm
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
                 FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
             }
-            catch(Exception)
+            catch (Exception)
             { }
 
             try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception ex) { Console.WriteLine(ex.Message); }
@@ -196,7 +196,7 @@ namespace DockerForm
 
             if (File.Exists(filename))
                 File.Delete(filename);
-            
+
             // avoid database corruption on device crash
             File.Move(tempname, filename);
         }
@@ -217,7 +217,8 @@ namespace DockerForm
                     else
                         return false;
                 }
-            }catch(Exception) { }
+            }
+            catch (Exception) { }
 
             return false;
         }

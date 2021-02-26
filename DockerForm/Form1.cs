@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Management;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Collections.Specialized;
-using Microsoft.Win32;
 using System.Xml.Serialization;
-using Microsoft.Win32.TaskScheduler;
 using Task = Microsoft.Win32.TaskScheduler.Task;
-using System.Runtime.InteropServices;
 
 namespace DockerForm
 {
@@ -84,7 +84,7 @@ namespace DockerForm
             const int WM_DISPLAYCHANGE = 0x007e;
             const int WM_DEVICECHANGE = 0x0219;
 
-            switch(m.Msg)
+            switch (m.Msg)
             {
                 case WM_DEVICECHANGE:
                     IsHardwarePending = true;
@@ -127,9 +127,9 @@ namespace DockerForm
                 return true;
             else if (!PowerStatus && isOnBattery)
                 return true;
-            else if(DockStatus && isExtGPU)
+            else if (DockStatus && isExtGPU)
                 return true;
-            else if(ScreenCount > 1 && isOnScreen)
+            else if (ScreenCount > 1 && isOnScreen)
                 return true;
 
             return false;
@@ -274,7 +274,8 @@ namespace DockerForm
                     ApplyPowerProfiles();
                 }
 
-            }catch(Exception ex) { }
+            }
+            catch (Exception ex) { }
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -344,7 +345,7 @@ namespace DockerForm
 
         public static void MonitorThread(object data)
         {
-            while(IsRunning)
+            while (IsRunning)
             {
                 bool IsGameRunning = GameProcesses.Count != 0;
                 if (IsHardwarePending && !IsGameRunning)
@@ -436,7 +437,7 @@ namespace DockerForm
                 {
                     foreach (PowerProfile profile in ProfileDB.Values)
                         ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, IsFirstBoot);
-                    
+
                     ApplyPowerProfiles();
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
@@ -448,7 +449,7 @@ namespace DockerForm
                     DatabaseManager.SanityCheck();
                     IsFirstBoot = false;
                 }
-                
+
                 Thread.Sleep(MonitorThreadRefresh);
             }
         }
@@ -772,7 +773,7 @@ namespace DockerForm
 
             // update MCHBAR
             string ProcessorID = GetProcessorID();
-            switch(ProcessorID.Substring(ProcessorID.Length-5))
+            switch (ProcessorID.Substring(ProcessorID.Length - 5))
             {
                 case "206A7": // SandyBridge
                 case "306A9": // IvyBridge
@@ -847,7 +848,7 @@ namespace DockerForm
             }
             else
             {
-                if(SaveOnExit)
+                if (SaveOnExit)
                     DatabaseManager.UpdateFilesAndRegistries(false, true);
 
                 notifyIcon1.Dispose();
