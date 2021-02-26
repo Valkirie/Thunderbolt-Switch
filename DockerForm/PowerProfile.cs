@@ -14,7 +14,9 @@ namespace DockerForm
     {
         OnBattery = 0x01, // 0000 0000 0000 0001
         PluggedIn = 0x02, // 0000 0000 0000 0010
-        ExtGPU    = 0x04  // 0000 0000 0000 0100
+        ExternalGPU    = 0x04, // 0000 0000 0000 0100
+        OnStartup    = 0x08, // 0000 0000 0000 1000
+        ExternalScreen  = 0x16, // 0000 0000 0001 0000
     }
 
     public static class StringExtension
@@ -36,18 +38,15 @@ namespace DockerForm
         private string PowerBalanceCPUHex, PowerBalanceGPUHex;
 
         // public
-        public int TurboBoostLongPowerMax, TurboBoostShortPowerMax;
-        public int CPUCore, IntelGPU, CPUCache, SystemAgent;
-        public int PowerBalanceCPU, PowerBalanceGPU;
-        public string ProfileName;
+        public string TurboBoostLongPowerMax, TurboBoostShortPowerMax;
+        public string CPUCore, IntelGPU, CPUCache, SystemAgent;
+        public string PowerBalanceCPU, PowerBalanceGPU;
+        public string ProfileName = "";
+        public byte ApplyMask = 0;
+        public int ApplyPriority = 0;
 
-        /*
-         * bitmask
-         * 0000 0001 : apply when (on battery)
-         * 0000 0010 : apply when (plugged in)
-         */
-
-        public byte ApplyMask;
+        [NonSerialized()] public bool RunMe;
+        [NonSerialized()] public string GameBounds;
 
         public string Serialize()
         {
@@ -127,75 +126,75 @@ namespace DockerForm
 
         public bool HasLongPowerMax()
         {
-            return TurboBoostLongPowerMax != 0;
+            return TurboBoostLongPowerMax != null;
         }
 
         public bool HasShortPowerMax()
         {
-            return TurboBoostShortPowerMax != 0;
+            return TurboBoostShortPowerMax != null;
         }
 
         public bool HasSystemAgent()
         {
-            return SystemAgent != 0;
+            return SystemAgent != null;
         }
 
         public bool HasCPUCore()
         {
-            return CPUCore != 0;
+            return CPUCore != null;
         }
 
         public bool HasIntelGPU()
         {
-            return IntelGPU != 0;
+            return IntelGPU != null;
         }
 
         public bool HasCPUCache()
         {
-            return CPUCache != 0;
+            return CPUCache != null;
         }
 
         public bool HasPowerBalanceCPU()
         {
-            return PowerBalanceCPU != 0;
+            return PowerBalanceCPU != null;
         }
 
         public bool HasPowerBalanceGPU()
         {
-            return PowerBalanceGPU != 0;
+            return PowerBalanceGPU != null;
         }
 
         public void ComputeHex()
         {
             if (HasLongPowerMax())
-                TurboBoostLongPowerMaxHex = TDPToHex(TurboBoostLongPowerMax);
+                TurboBoostLongPowerMaxHex = TDPToHex(int.Parse(TurboBoostLongPowerMax));
             if (HasShortPowerMax())
-                TurboBoostShortPowerMaxHex = TDPToHex(TurboBoostShortPowerMax);
+                TurboBoostShortPowerMaxHex = TDPToHex(int.Parse(TurboBoostShortPowerMax));
 
             if (HasCPUCore())
-                CPUCoreHex = VoltageToHex(CPUCore);
+                CPUCoreHex = VoltageToHex(int.Parse(CPUCore));
             if (HasIntelGPU())
-                IntelGPUHex = VoltageToHex(IntelGPU);
+                IntelGPUHex = VoltageToHex(int.Parse(IntelGPU));
             if (HasCPUCache())
-                CPUCacheHex = VoltageToHex(CPUCache);
+                CPUCacheHex = VoltageToHex(int.Parse(CPUCache));
             if(HasSystemAgent())
-                SystemAgentHex = VoltageToHex(SystemAgent);
+                SystemAgentHex = VoltageToHex(int.Parse(SystemAgent));
 
             if (HasPowerBalanceCPU())
             {
-                string hex = PowerBalanceCPU.ToString("X").GetLast(2);
+                string hex = int.Parse(PowerBalanceCPU).ToString("X").GetLast(2);
                 hex = hex.Length < 2 ? "0" + hex : hex;
                 PowerBalanceCPUHex = hex;
             }
             if (HasPowerBalanceGPU())
             {
-                string hex = PowerBalanceCPU.ToString("X").GetLast(2);
+                string hex = int.Parse(PowerBalanceCPU).ToString("X").GetLast(2);
                 hex = hex.Length < 2 ? "0" + hex : hex;
                 PowerBalanceGPUHex = hex;
             }
         }
 
-        public void DigestProfile(PowerProfile profile)
+        public void DigestProfile(PowerProfile profile, bool Merging)
         {
             if (profile.HasLongPowerMax())
                 TurboBoostLongPowerMax = profile.TurboBoostLongPowerMax;
@@ -216,19 +215,51 @@ namespace DockerForm
             if (profile.HasPowerBalanceGPU())
                 PowerBalanceGPU = profile.PowerBalanceGPU;
 
+            if (Merging)
+                ProfileName += (ProfileName.Equals("") ? "" : ",") + profile.ProfileName;
+            else
+            {
+                ProfileName = profile.ProfileName;
+                ApplyMask = profile.ApplyMask;
+                ApplyPriority = profile.ApplyPriority;
+            }
+
             ComputeHex();
         }
 
         public override string ToString()
         {
-            return  "\n\t\t\t\t\t\t\t\tPL1:" + TurboBoostShortPowerMax + "W" +
-                    "\t\t\t\tPL2:" + TurboBoostLongPowerMax + "W" +
-                    "\n\t\t\t\t\t\t\t\tCPUCore:" + CPUCore + "mv" +
-                    "\t\tCPUCache:" + CPUCache + "mv" +
-                    "\n\t\t\t\t\t\t\t\tGPU:" + IntelGPU + "mv" +
-                    "\t\t\tSystemAgent:" + SystemAgent + "mv" +
-                    "\n\t\t\t\t\t\t\t\tPowerBalanceCPU:" + PowerBalanceCPU +
-                    "\tPowerBalanceGPU:" + PowerBalanceGPU;
+            List<string> output = new List<string>();
+
+            if (HasLongPowerMax())
+                output.Add("TurboBoost LongPowerMax: " + TurboBoostLongPowerMax + "W");
+            if (HasShortPowerMax())
+                output.Add("TurboBoost ShortPowerMax: " + TurboBoostShortPowerMax + "W");
+
+            if (HasCPUCore())
+                output.Add("CPU Core: " + CPUCore + "mV");
+            if (HasCPUCache())
+                output.Add("CPU Cache: " + CPUCache + "mV");
+            if (HasIntelGPU())
+                output.Add("GPU Core: " + IntelGPU + "mV");
+            if (HasSystemAgent())
+                output.Add("System Agent: " + SystemAgent + "mV");
+
+            if (HasPowerBalanceCPU())
+                output.Add("PowerBalance CPU: " + PowerBalanceCPU);
+            if (HasPowerBalanceGPU())
+                output.Add("PowerBalance GPU: " + PowerBalanceGPU);
+
+            if (output.Count != 0)
+            {
+                string myOutput = "";
+                string latest = output.Last();
+                foreach (string value in output)
+                    myOutput += value + (value == latest ? "" : "\n");
+                return myOutput;
+            }
+
+            return null;
         }
 
         public void Dispose()

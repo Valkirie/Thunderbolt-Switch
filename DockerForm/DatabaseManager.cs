@@ -111,11 +111,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(filename, setting.data[path_dest]);
                             File.SetLastWriteTime(filename, game.LastCheck);
-                            LogManager.UpdateLog("[" + game.Name + "] settings restored for file [" + file + "] [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings updated for file [" + file + "] [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for file [" + file + "] [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for file [" + file + "] [" + path_dest + "]");
                         }
                     }
                 }
@@ -149,11 +149,11 @@ namespace DockerForm
                         {
                             File.WriteAllBytes(tempfile, setting.data[path_dest]);
                             RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "] settings restored for registry entry " + filename + " [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings updated for registry entry " + filename + " [" + path_dest + "]");
                         }
                         else
                         {
-                            LogManager.UpdateLog("[" + game.Name + "] settings restoration skipped for registry entry " + filename + " [" + path_dest + "]");
+                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for registry entry " + filename + " [" + path_dest + "]");
                         }
                     }
 
@@ -170,10 +170,11 @@ namespace DockerForm
 
         public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
         {
-            string path_db = Form1.GetCurrentState();
-
             foreach (DockerGame game in GameDB.Values)
+            {
+                string path_db = Form1.GetCurrentState(game);
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
+            }
         }
 
         public static bool Equality(byte[] a1, byte[] b1)
@@ -208,11 +209,11 @@ namespace DockerForm
 
         public static bool SanityCheck()
         {
-            string path_db = Form1.GetCurrentState();
-
             foreach (DockerGame game in GameDB.Values)
             {
-                if(game.ErrorCode != ErrorCode.None)
+                string path_db = Form1.GetCurrentState(game);
+
+                if (game.ErrorCode != ErrorCode.None)
                 {
                     switch(game.ErrorCode)
                     {
@@ -291,7 +292,6 @@ namespace DockerForm
                 }
             }
 
-            Form1.IsFirstBoot = false;
             return true;
         }
 
@@ -431,7 +431,6 @@ namespace DockerForm
                             thisGame.Platform = PlatformCode.Microsoft;
                             thisGame.Name = DisplayName.Contains("ms-resource") ? IdentityName : DisplayName;
                             thisGame.Company = PublisherDisplayName;
-                            thisGame.SanityCheck();
 
                             string filename = Path.Combine(folder, StoreLogo);
                             if (File.Exists(filename))

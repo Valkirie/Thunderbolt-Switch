@@ -178,5 +178,17 @@ namespace DockerForm.Properties {
                 this["MonitorThreadRefresh"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MonitorProfiles {
+            get {
+                return ((bool)(this["MonitorProfiles"]));
+            }
+            set {
+                this["MonitorProfiles"] = value;
+            }
+        }
     }
 }

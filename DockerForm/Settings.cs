@@ -14,6 +14,9 @@ using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using Microsoft.VisualBasic;
 using System.Windows.Input;
+using System.ComponentModel.Design;
+using System.Text;
+using Be.Windows.Forms;
 
 namespace DockerForm
 {
@@ -21,11 +24,11 @@ namespace DockerForm
     {
         // Form vars
         static Form1 thisForm;
-        static Settings thisSetting;
-        static bool IsReady;
+        Settings thisSetting;
+        bool IsReady;
 
         // Game vars
-        static DockerGame thisGame;
+        DockerGame thisGame;
 
         public bool GetIsReady()
         {
@@ -44,9 +47,23 @@ namespace DockerForm
             this.Top = thisForm.Location.Y + (thisForm.Size.Height - this.Size.Height) / 2;
         }
 
+        private void InitializeForm()
+        {
+            tabSettingsDesc.HandleCreated += new System.EventHandler(TabControl_HandleCreated);
+        }
+
+        void TabControl_HandleCreated(object sender, System.EventArgs e)
+        {
+            // Send TCM_SETMINTABWIDTH
+            SendMessage((sender as TabControl).Handle, 0x1300 + 49, IntPtr.Zero, (IntPtr)4);
+        }
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
+
         public Settings(Form1 form)
         {
             InitializeComponent();
+            InitializeForm();
 
             // instances
             thisForm = form;
@@ -59,36 +76,56 @@ namespace DockerForm
         public Settings(Form1 form, DockerGame game)
         {
             InitializeComponent();
-            Form1.UpdateProfiles();
+            InitializeForm();
 
             // instances
-            thisGame = game;
+            thisGame                = new DockerGame(game);
             thisForm                = form;
             thisSetting             = this;
             SetStartPos();
 
-            field_Name.Text         = game.Name;
-            field_GUID.Text         = game.GUID;
-            field_Filename.Text     = game.Executable;
-            field_Version.Text      = game.Version;
-            field_Developer.Text    = game.Company;
-            field_Arguments.Text    = game.Arguments;
-            textBoxProfile.Text     = game.Profile != null ? game.Profile.ProfileName : "";
+            field_Name.Text         = thisGame.Name;
+            field_GUID.Text         = thisGame.GUID;
+            field_Filename.Text     = thisGame.Executable;
+            field_Version.Text      = thisGame.Version;
+            field_Developer.Text    = thisGame.Company;
+            field_Arguments.Text    = thisGame.Arguments;
 
-            GameIcon.BackgroundImage = game.Image;
+            GameIcon.BackgroundImage = thisGame.Image;
 
-            foreach (GameSettings setting in game.Settings.Values)
+            // Settings tab
+            foreach (GameSettings setting in thisGame.Settings.Values)
             {
-                ListViewItem newSetting = new ListViewItem(new string[] { setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.GUID );
+                string FileName = System.IO.Path.GetFileName(setting.Uri);
+                ListViewItem newSetting = new ListViewItem(new string[] { FileName, setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.FileName );
                 newSetting.Checked = setting.IsEnabled;
                 newSetting.Tag = setting.IsRelative;
                 SettingsList.Items.Add(newSetting);
             }
 
-            foreach (KeyValuePair<string, PowerProfile> profile in Form1.ProfileDB)
-                comboBoxProfile.Items.Add(profile.Key);
+            // General tab
+            checkBoxPowerSpecific.Checked = thisGame.PowerSpecific;
 
-            groupBoxProfile.Enabled = Form1.MonitorProcesses;
+            // Power Profiles tab
+            groupBoxPowerProfile.Enabled = Form1.MonitorProcesses;
+
+            foreach (PowerProfile profile in Form1.ProfileDB.Values)
+            {
+                bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
+                bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
+                bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
+                bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
+                bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
+                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnBoot.ToString(), isOnScreen.ToString() }, profile.ProfileName);
+
+                if (isOnBoot || profile.ApplyPriority == -1)
+                    continue;
+
+                if (thisGame.Profiles.ContainsKey(profile.ProfileName))
+                    newProfile.Checked = true;
+
+                ProfilesList.Items.Add(newProfile);
+            }
 
             IsReady = true;
         }
@@ -99,39 +136,6 @@ namespace DockerForm
             {
                 case MouseButtons.Right: break;
             }
-        }
-
-        private void Settings_Closing(object sender, FormClosingEventArgs e)
-        {
-            if (!thisGame.CanSerialize())
-                return;
-
-            // Clear and update current settings
-            List<int> GUIDs = new List<int>();
-            foreach(ListViewItem item in SettingsList.Items)
-            {
-                string uri = item.SubItems[0].Text;
-                SettingsType type = (SettingsType)Enum.Parse(typeof(SettingsType), item.SubItems[1].Text);
-                int guid = Math.Abs((uri).GetHashCode());
-
-                GameSettings newSetting = new GameSettings(guid, type, uri, item.Checked, (bool)item.Tag);
-                if (!thisGame.Settings.ContainsKey(guid))
-                    thisGame.Settings.Add(guid, newSetting);
-                else
-                    thisGame.Settings[guid] = newSetting;
-
-                GUIDs.Add(guid);
-            }
-
-            int[] keys = thisGame.Settings.Keys.ToArray();
-            foreach(int key in keys)
-            {
-                if (!GUIDs.Contains(key))
-                    thisGame.Settings.Remove(key);
-            }
-
-            thisGame.SanityCheck();
-            thisForm.InsertOrUpdateGameItem(thisGame, false);
         }
 
         private bool PickAGame()
@@ -145,14 +149,23 @@ namespace DockerForm
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    thisGame = new DockerGame(filePath);
+                    DockerGame newGame = new DockerGame(filePath);
 
-                    field_Name.Text = thisGame.ProductName;
-                    field_Version.Text = thisGame.Version;
-                    field_Filename.Text = thisGame.Executable;
-                    field_Developer.Text = thisGame.Company;
-                    field_GUID.Text = thisGame.GUID;
-                    GameIcon.BackgroundImage = thisGame.Image;
+                    // are we picking a new executable ?
+                    if (thisGame != null)
+                    {
+                        newGame.Settings = thisGame.Settings;
+                        newGame.Profiles = thisGame.Profiles;
+                    }
+
+                    field_Name.Text = newGame.ProductName;
+                    field_Version.Text = newGame.Version;
+                    field_Filename.Text = newGame.Executable;
+                    field_Developer.Text = newGame.Company;
+                    field_GUID.Text = newGame.GUID;
+                    GameIcon.BackgroundImage = newGame.Image;
+
+                    thisGame = new DockerGame(newGame);
 
                     return true;
                 }
@@ -167,44 +180,38 @@ namespace DockerForm
 
         private void field_Developer_TextChanged(object sender, EventArgs e)
         {
+            if (thisGame == null)
+                return;
+
             thisGame.Company = field_Developer.Text;
         }
 
         private void field_Name_TextChanged(object sender, EventArgs e)
         {
+            if (thisGame == null)
+                return;
+
             thisGame.Name = field_Name.Text;
         }
 
         private void field_arguments_TextChanged(object sender, EventArgs e)
         {
-            thisGame.Arguments = field_Arguments.Text;
-        }
+            if (thisGame == null)
+                return;
 
-        private void comboBoxProfile_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string key = comboBoxProfile.Text;
-            if (Form1.ProfileDB.ContainsKey(key))
-            {
-                PowerProfile profile = Form1.ProfileDB[key];
-                thisGame.Profile = profile;
-            }
-            else
-                thisGame.Profile = null;
-            textBoxProfile.Text = key;
+            thisGame.Arguments = field_Arguments.Text;
         }
 
         private void MenuItemRemoveSetting_Click(object sender, EventArgs e)
         {
-            foreach(ListViewItem item in SettingsList.SelectedItems)
-                SettingsList.Items.Remove(item);
-        }
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.SubItems[0].Text;
 
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (SettingsList.SelectedItems.Count != 0)
-                SettingMenuStrip.Items[0].Enabled = true;
-            else
-                SettingMenuStrip.Items[0].Enabled = false;
+                SettingsList.Items.Remove(item);
+                if(thisGame.Settings.ContainsKey(FileName))
+                    thisGame.Settings.Remove(FileName);
+            }
         }
 
         public static string GetRelativePath(string fullPath, string basePath)
@@ -222,7 +229,7 @@ namespace DockerForm
             return relativeUri.ToString().Replace("/", "\\");
         }
 
-        public static string ContractEnvironmentVariables(string path, ref bool IsRelative)
+        public static string ContractEnvironmentVariables(string path, ref bool IsRelative, DockerGame thisGame)
         {
             string filename = path.ToLower();
 
@@ -271,11 +278,18 @@ namespace DockerForm
                     foreach (String file in openFileDialog.FileNames)
                     {
                         bool IsRelative = false;
-                        string filename = ContractEnvironmentVariables(file, ref IsRelative);
-                        ListViewItem listViewItem1 = new ListViewItem(new string[] { filename, "File" }, -1);
+                        string FilePath = ContractEnvironmentVariables(file, ref IsRelative, thisGame);
+                        string FileName = System.IO.Path.GetFileName(FilePath);
+
+                        ListViewItem listViewItem1 = new ListViewItem(new string[] { FileName, FilePath, "File" }, -1);
                         listViewItem1.Checked = true;
                         listViewItem1.Tag = IsRelative;
                         SettingsList.Items.Add(listViewItem1);
+
+                        byte[] s_file = System.IO.File.ReadAllBytes(file);
+                        GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FilePath, true, IsRelative);
+                        newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+                        thisGame.Settings[FileName] = newSetting;
                     }
                 }
             }
@@ -283,15 +297,23 @@ namespace DockerForm
 
         private void registryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string UserAnswer = Interaction.InputBox("", thisGame.Name + " - Registry Key", @"HKEY_CURRENT_USER\SOFTWARE\");
+            string FileName = Interaction.InputBox("", thisGame.Name + " - Registry Key", @"HKEY_CURRENT_USER\SOFTWARE\");
 
-            if (UserAnswer == "")
+            if (FileName == "")
                 return;
 
-            ListViewItem listViewItem1 = new ListViewItem(new string[] { UserAnswer, "Registry" }, -1);
+            ListViewItem listViewItem1 = new ListViewItem(new string[] { FileName, FileName, "Registry" }, -1);
             listViewItem1.Checked = true;
             listViewItem1.Tag = false;
             SettingsList.Items.Add(listViewItem1);
+
+            string FileTemp = System.IO.Path.Combine(Form1.path_application, "temp.reg");
+            RegistryManager.ExportKey(FileName, FileTemp);
+
+            byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
+            GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FileName, true, false);
+            newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+            thisGame.Settings[FileName] = newSetting;
         }
 
         public static string Between(ref string src, string start, string ended, bool del = false)
@@ -422,6 +444,186 @@ namespace DockerForm
         private void searchOnPCGamingWikiToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start("https://www.pcgamingwiki.com/wiki/" + thisGame.Name.Replace(" ", "_") + "#Game_data");
+        }
+
+        private void buttonOK_Click(object sender, EventArgs e)
+        {
+            if (!thisGame.CanSerialize())
+                return;
+
+            // Settings tab
+            foreach (ListViewItem item in SettingsList.Items)
+            {
+                string FileName = item.SubItems[0].Text;
+                if (thisGame.Settings.ContainsKey(FileName))
+                    thisGame.Settings[FileName].IsEnabled = item.Checked;
+            }
+
+            // Power Profiles tab
+            thisGame.Profiles.Clear();
+            foreach (ListViewItem item in ProfilesList.Items)
+            {
+                PowerProfile profile = Form1.ProfileDB[item.Text];
+                if (item.Checked)
+                    thisGame.Profiles.Add(profile.ProfileName, profile);
+            }
+
+            thisGame.SanityCheck();
+            thisForm.InsertOrUpdateGameItem(thisGame, false);
+            this.Close();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private string GetLanguage(string FileName)
+        {
+            string FileExtension = System.IO.Path.GetExtension(FileName);
+            switch(FileExtension)
+            {
+                case ".ini":
+                case ".txt":
+                case ".xml":
+                    return FileExtension;
+                default:
+                    return null;
+            }
+        }
+
+        private void SettingsList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MenuItemRemoveSetting.Enabled = false;
+            tabSettingsDesc.TabPages.Clear();
+
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.SubItems[0].Text;
+
+                if (thisGame.Settings.ContainsKey(FileName))
+                {
+                    MenuItemRemoveSetting.Enabled = true;
+
+                    foreach (KeyValuePair<string, byte[]> data in thisGame.Settings[FileName].data)
+                    {
+                        TabPage myPage = new TabPage();
+                        myPage.Text = data.Key;
+                        myPage.Name = data.Key;
+
+                        string myLanguage = GetLanguage(FileName);
+                        if (myLanguage != null)
+                        {
+                            string myString = System.Text.Encoding.UTF8.GetString(data.Value);
+
+                            RichTextBox myViewer = new RichTextBox()
+                            {
+                                Name = data.Key,
+                                Text = myString,
+                                Dock = DockStyle.Fill
+                            };
+                            myViewer.TextChanged += MyViewer_TextChanged;
+                            myPage.Controls.Add(myViewer);
+                        }
+                        else
+                        {
+                            HexBox myViewer = new HexBox()
+                            {
+                                ByteProvider = new DynamicByteProvider(data.Value),
+                                Dock = DockStyle.Fill,
+                                Visible = true,
+                                UseFixedBytesPerLine = true,
+                                BytesPerLine = 12,
+                                ColumnInfoVisible = true,
+                                LineInfoVisible = true,
+                                StringViewVisible = true,
+                                VScrollBarVisible = true
+                            };
+                            myViewer.ByteProvider.Changed += ByteProvider_Changed;
+                            myPage.Controls.Add(myViewer);
+                        }
+
+                        tabSettingsDesc.TabPages.Add(myPage);
+                    }
+                }
+                break;
+            }
+        }
+
+        private void ByteProvider_Changed(object sender, EventArgs e)
+        {
+            DynamicByteProvider myViewer = (DynamicByteProvider)sender;
+            myViewer.ApplyChanges();
+
+            TabPage myPage = tabSettingsDesc.TabPages[tabSettingsDesc.SelectedIndex];
+
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.SubItems[0].Text;
+                thisGame.Settings[FileName].data[myPage.Name] = myViewer.Bytes.ToArray();
+
+                break;
+            }
+        }
+
+        private void MyViewer_TextChanged(object sender, EventArgs e)
+        {
+            RichTextBox myViewer = (RichTextBox)sender;
+
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.SubItems[0].Text;
+                thisGame.Settings[FileName].data[myViewer.Name] = Encoding.ASCII.GetBytes(myViewer.Text);
+
+                break;
+            }
+        }
+
+        private void checkBoxPowerSpecific_CheckedChanged(object sender, EventArgs e)
+        {
+            thisGame.PowerSpecific = checkBoxPowerSpecific.Checked;
+        }
+
+        private void Settings_Load(object sender, EventArgs e)
+        {
+            toolTip1.SetToolTip(checkBoxPowerSpecific, "Use specific settings when device power status changes (on battery, plugged in)");
+        }
+
+        private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            foreach(Control ctrl in groupBoxFIVR.Controls)
+                if(ctrl.GetType() == typeof(TextBox))
+                    ctrl.Text = "";
+
+            foreach (Control ctrl in groupBoxPowerProfile.Controls)
+                if (ctrl.GetType() == typeof(TextBox))
+                    ctrl.Text = "";
+
+            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            {
+                string ProfileName = item.SubItems[0].Text;
+                PowerProfile profile = Form1.ProfileDB[ProfileName];
+
+                // Misc
+                if(profile.HasLongPowerMax())
+                    textBox1.Text = profile.TurboBoostLongPowerMax + "W";
+                if (profile.HasShortPowerMax())
+                    textBox2.Text = profile.TurboBoostShortPowerMax + "W";
+                if (profile.HasPowerBalanceCPU())
+                    textBox3.Text = profile.PowerBalanceCPU.ToString();
+                if (profile.HasPowerBalanceGPU())
+                    textBox4.Text = profile.PowerBalanceGPU.ToString();
+
+                // FIVR
+                if (profile.HasCPUCore())
+                    textBox5.Text = profile.CPUCore + "mV";
+                if (profile.HasCPUCache())
+                    textBox6.Text = profile.CPUCache + "mV";
+                if (profile.HasSystemAgent())
+                    textBox7.Text = profile.SystemAgent + "mV";
+                if (profile.HasIntelGPU())
+                    textBox8.Text = profile.IntelGPU + "mV";
+            }
         }
     }
 }
