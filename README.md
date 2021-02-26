@@ -28,14 +28,20 @@ From there you can change a few settings:
 - ImageHeight / ImageWidth : Defines the size of executable image inside the application list.
 - MonitorProcesses : If True, software will detect database application start/stop and manage bounds power profile and settings.
 - IGDBListLength : Defines the number of returned application details suggestions when using "Download from IGDB" from the Game Properties window.
--ToastNotifications : If True, windows will display notifications on specific software events.
+- ToastNotifications : If True, windows will display notifications on specific software events.
 - SaveOnExit : If True, software will force save all your current settings on software exit.
+- MonitorThreadRefresh : How often should the main thread be called (in milliseconds).
+- MonitorProfiles : If True, an extra thread will be used to monitor modifications made to the Power Profiles xml files.
 
 **Properties**
 
-The Game Properties window will be displayed and will try to collect as much information as possible from your executable, including: Game Name, Game Developer, Game Version and Game Visual. To link your application to IGDB and automatically gather details from there database, right click on the Game Visual and select "Download from IGDB". The IGDB search will be based on the "Name" settings field.
+![Visual](assets/properties.png)
 
-- Right clicking on the Settings tab will allow you to link Settings File or Registry to your application. To do so, click on "Create Setting" then select the setting type from the list: File or Registry depending on where your application settings are stored. (*If you need help locating your application settings location, right click on the Application Visual and select "Search on PCGaming Wiki"*).
+The Game Properties window will be displayed and will try to collect as much information as possible from your executable, including: Game Name, Game Developer, Game Version and Game Visual. To link your application to IGDB and automatically gather details from there database, right click on the Game Visual and select "Download from IGDB". The IGDB search will be based on the "Name" settings field. Right clicking on the Settings tab will allow you to change game specific Parameters, link Files and Registries to your application or attribute specific Power Profiles to it.
+
+- To attribue a Settings File or Registry to your application, right click on the Settings tab and click on "Create Setting" then select the setting type from the list: File or Registry depending on where your application settings are stored. (*If you need help locating your application settings location, right click on the Application Visual and select "Search on PCGaming Wiki"*).
+- To change game specific Parameters, click on the General tab.
+- To attribute game specific Power Profiles, click on the Power Profiles tab and check those that you wish to turn on/off automatically on application start/exit.
 
 **Application List**
 
@@ -49,7 +55,9 @@ From where you can quickly:
 
 **Power Profile**
 
-Power Profiles contains configurable Power Information and are stored are xml files inside the /profiles/ folder. Power Profiles can be triggered through User-defined Triggers or be bounds to a specific Game to finely adapt your device power, CPU and GPU capacities based on your usage scenario. (*Use the default.xml template to create as many Power Profiles as you want*).
+![Visual](assets/trayicon.png)
+
+Power Profiles contains configurable Power Information and are stored are xml files inside the /profiles/ folder. Power Profiles can be enabled through User-defined Triggers (ApplyMask), be bounds to a specific Game to finely adapt your device power, CPU and GPU capacities based on your usage scenario or forced applied by right clicking on the taskbar icon. (*Use the default.xml template to create as many Power Profiles as you want, do not delete it*).
 
 Power Information:
 - Turbo Boost Long Power Max
