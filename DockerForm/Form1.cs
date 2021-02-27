@@ -3,8 +3,10 @@ using Microsoft.Win32.TaskScheduler;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -58,7 +60,8 @@ namespace DockerForm
         public static string path_rw;
 
         // Form vars
-        private static Form1 _instance;
+        private static Form1 CurrentForm;
+        private static CultureInfo CurrentCulture;
 
         // Threading vars
         private static Thread ThreadGPU, ThreadProfile;
@@ -70,7 +73,7 @@ namespace DockerForm
         public static PowerProfile CurrentProfile = new PowerProfile();
 
         // TaskManager vars
-        private static TaskService ts;
+        private static TaskService CurrentTask;
         private const string taskName = "ThunderboltSwitch";
 
         [DllImport("user32.dll")]
@@ -211,8 +214,8 @@ namespace DockerForm
 
             if (pushToast && ToastNotifications)
             {
-                _instance.notifyIcon1.BalloonTipText = input;
-                _instance.notifyIcon1.ShowBalloonTip(1000);
+                CurrentForm.notifyIcon1.BalloonTipText = input;
+                CurrentForm.notifyIcon1.ShowBalloonTip(1000);
             }
         }
 
@@ -474,18 +477,18 @@ namespace DockerForm
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
 
                 // drawing
-                _instance.BeginInvoke((MethodInvoker)delegate ()
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
-                    _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
-                    _instance.notifyIcon1.Icon = myIcon;
-                    _instance.Icon = myIcon;
+                    CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
+                    CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
+                    CurrentForm.notifyIcon1.Icon = myIcon;
+                    CurrentForm.Icon = myIcon;
                 });
 
                 // profiles
-                _instance.BeginInvoke((MethodInvoker)delegate ()
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.toolStripMenuItem2.DropDownItems.Clear();
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Clear();
 
                     ToolStripMenuItem currentItem = new ToolStripMenuItem()
                     {
@@ -493,8 +496,8 @@ namespace DockerForm
                         ToolTipText = CurrentProfile.ToString(),
                         Enabled = false
                     };
-                    _instance.toolStripMenuItem2.DropDownItems.Add(currentItem);
-                    _instance.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(currentItem);
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
 
                     // do not display the default profile
                     foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
@@ -506,7 +509,7 @@ namespace DockerForm
                             ToolTipText = profile.ToString()
                         };
                         newItem.Click += new EventHandler(PowerMenuClickHandler);
-                        _instance.toolStripMenuItem2.DropDownItems.Add(newItem);
+                        CurrentForm.toolStripMenuItem2.DropDownItems.Add(newItem);
                     }
                 });
             }
@@ -515,7 +518,7 @@ namespace DockerForm
 
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
-            ListViewItem newgame = new ListViewItem(new string[] { game.Name, game.Company, game.Version }, game.GUID);
+            ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 // upate imageList
@@ -595,7 +598,7 @@ namespace DockerForm
             GameListView.BeginUpdate();
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
-                ListViewItem newgame = new ListViewItem(new string[] { game.Name, game.Company, game.Version }, game.GUID);
+                ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
                 GameListView.Items.Add(newgame);
                 // item.Enabled = game.Enabled;
             }
@@ -700,8 +703,9 @@ namespace DockerForm
             InitializeComponent();
 
             // initialize vars
-            _instance = this;
-            ts = new TaskService();
+            CurrentForm = this;
+            CurrentCulture = CultureInfo.CurrentCulture;
+            CurrentTask = new TaskService();
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
@@ -723,7 +727,10 @@ namespace DockerForm
                 Directory.CreateDirectory(path_profiles);
 
             // configurable settings
-            imageList1.ImageSize = new Size(Properties.Settings.Default.ImageWidth, Properties.Settings.Default.ImageHeight);
+            settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            settingsToolStripMenuItem.AutoToolTip = true;
+
+            columnImage.Width = Properties.Settings.Default.ImageWidth;
             MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
             MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
@@ -735,13 +742,23 @@ namespace DockerForm
             MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
             MonitorProfiles = Properties.Settings.Default.MonitorProfiles;
 
+            // position and size settings
+            imageList1.ImageSize = new Size(Properties.Settings.Default.ImageWidth, Properties.Settings.Default.ImageHeight);
+            Location = new Point(Properties.Settings.Default.MainWindowX, Properties.Settings.Default.MainWindowY);
+            Size = new Size(Properties.Settings.Default.MainWindowWidth, Properties.Settings.Default.MainWindowHeight);
+            columnName.Width = Properties.Settings.Default.ColumnNameWidth;
+            columnDev.Width = Properties.Settings.Default.ColumnDevWidth;
+            columnVersion.Width = Properties.Settings.Default.ColumnVersionWidth;
+            columnPlayed.Width = Properties.Settings.Default.ColumnPlayedWidth;
+            columnSettings.Width = Properties.Settings.Default.ColumnSettingsWidth;
+
             if (MinimizeOnStartup)
             {
-                this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
+                WindowState = FormWindowState.Minimized;
+                ShowInTaskbar = false;
             }
 
-            Task myTask = ts.FindTask(taskName);
+            Task myTask = CurrentTask.FindTask(taskName);
             if (myTask == null)
             {
                 TaskDefinition td = TaskService.Instance.NewTask();
@@ -841,6 +858,22 @@ namespace DockerForm
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
         {
+            // position and size settings
+            if (CurrentForm.WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.MainWindowX = CurrentForm.Location.X;
+                Properties.Settings.Default.MainWindowY = CurrentForm.Location.Y;
+                Properties.Settings.Default.MainWindowWidth = CurrentForm.Size.Width;
+                Properties.Settings.Default.MainWindowHeight = CurrentForm.Size.Height;
+            }
+
+            Properties.Settings.Default.ColumnNameWidth = columnName.Width;
+            Properties.Settings.Default.ColumnDevWidth = columnDev.Width;
+            Properties.Settings.Default.ColumnVersionWidth = columnVersion.Width;
+            Properties.Settings.Default.ColumnPlayedWidth = columnPlayed.Width;
+            Properties.Settings.Default.ColumnSettingsWidth = columnSettings.Width;
+            Properties.Settings.Default.Save();
+
             if (MinimizeOnClosing && e.CloseReason == CloseReason.UserClosing && !ForceClose)
             {
                 e.Cancel = true;
@@ -906,6 +939,9 @@ namespace DockerForm
 
         private void OpenGameFolder(object sender, EventArgs e)
         {
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
             ListViewItem item = GameListView.SelectedItems[0];
             DockerGame game = DatabaseManager.GameDB[item.ImageKey];
 
@@ -924,6 +960,9 @@ namespace DockerForm
 
         private void navigateToIGDBEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
             ListViewItem item = GameListView.SelectedItems[0];
             DockerGame game = DatabaseManager.GameDB[item.ImageKey];
             Process.Start(game.IGDB_Url);
@@ -1010,39 +1049,37 @@ namespace DockerForm
 
         private void GameListView_Clicked(object sender, MouseEventArgs e)
         {
-            if (GameListView.SelectedItems.Count != 0)
-            {
-                ListViewItem item = GameListView.SelectedItems[0];
-                DockerGame game = DatabaseManager.GameDB[item.ImageKey];
-
-                // disable all modifications on running app
-                contextMenuStrip1.Enabled = !game.IsRunning;
-
-                // disable options based on app properties
-                openToolStripMenuItem.Enabled = game.HasReachableFolder();
-                toolStripStartItem.Enabled = game.HasReachableExe();
-                toolStripMenuItem1.Enabled = game.HasFileSettings();
-                navigateToIGDBEntryToolStripMenuItem.Enabled = game.HasIGDB();
-
-                toolStripMenuItem1.DropDownItems.Clear();
-                foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
-                {
-                    string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                    FileInfo fileinfo = new FileInfo(filename);
-
-                    ToolStripMenuItem newItem = new ToolStripMenuItem();
-                    newItem.Text = fileinfo.Name;
-                    newItem.ToolTipText = fileinfo.DirectoryName;
-                    newItem.Click += new EventHandler(MenuItemClickHandler);
-                    toolStripMenuItem1.DropDownItems.Add(newItem);
-                }
-            }
-        }
-
-        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
             if (GameListView.SelectedItems.Count == 0)
-                contextMenuStrip1.Enabled = false;
+                return;
+
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            contextMenuStrip1.Show(Cursor.Position);
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+
+            // disable all modifications on running app
+            contextMenuStrip1.Enabled = !game.IsRunning;
+
+            // disable options based on app properties
+            openToolStripMenuItem.Enabled = game.HasReachableFolder();
+            toolStripStartItem.Enabled = game.HasReachableExe();
+            toolStripMenuItem1.Enabled = game.HasFileSettings();
+            navigateToIGDBEntryToolStripMenuItem.Enabled = game.HasIGDB();
+
+            toolStripMenuItem1.DropDownItems.Clear();
+            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
+            {
+                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                FileInfo fileinfo = new FileInfo(filename);
+
+                ToolStripMenuItem newItem = new ToolStripMenuItem();
+                newItem.Text = fileinfo.Name;
+                newItem.ToolTipText = fileinfo.DirectoryName;
+                newItem.Click += new EventHandler(MenuItemClickHandler);
+                toolStripMenuItem1.DropDownItems.Add(newItem);
+            }
         }
 
         private void AutomaticDetection(List<DockerGame> DetectedGames)
@@ -1059,9 +1096,11 @@ namespace DockerForm
 
         private void toolStripStartItem_Click(object sender, EventArgs e)
         {
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
             ListViewItem item = GameListView.SelectedItems[0];
             DockerGame game = DatabaseManager.GameDB[item.ImageKey];
-            string filename = Path.Combine(game.Uri, game.Executable);
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -1075,27 +1114,27 @@ namespace DockerForm
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (GameListView.SelectedItems.Count != 0)
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+
+            if (game == null)
+                return;
+
+            DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
             {
-                ListViewItem item = GameListView.SelectedItems[0];
-                DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+                string filename = Path.Combine(path_database, game.GUID + ".dat");
 
-                if (game == null)
-                    return;
+                if (File.Exists(filename))
+                    File.Delete(filename);
 
-                DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    string filename = Path.Combine(path_database, game.GUID + ".dat");
-
-                    if (File.Exists(filename))
-                        File.Delete(filename);
-
-                    DatabaseManager.GameDB.TryRemove(game.GUID, out game);
-                    GameListView.Items.Remove(item);
-                    imageList1.Images.RemoveByKey(item.ImageKey);
-                    LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
-                }
+                DatabaseManager.GameDB.TryRemove(game.GUID, out game);
+                GameListView.Items.Remove(item);
+                imageList1.Images.RemoveByKey(item.ImageKey);
+                LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
             }
         }
 
@@ -1116,12 +1155,12 @@ namespace DockerForm
 
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (GameListView.SelectedItems.Count != 0)
-            {
-                ListViewItem item = GameListView.SelectedItems[0];
-                Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.ImageKey]);
-                currentSettings.ShowDialog();
-            }
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+            
+            ListViewItem item = GameListView.SelectedItems[0];
+            Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.ImageKey]);
+            currentSettings.ShowDialog();
         }
     }
 

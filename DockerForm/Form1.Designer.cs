@@ -60,9 +60,12 @@ namespace DockerForm
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GameListView = new System.Windows.Forms.ListView();
+            this.columnImage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnDev = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnPlayed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnSettings = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -78,7 +81,7 @@ namespace DockerForm
             this.settingsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(925, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(924, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -152,9 +155,9 @@ namespace DockerForm
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undockedToolStripMenuItem});
-            this.menuStrip2.Location = new System.Drawing.Point(0, 558);
+            this.menuStrip2.Location = new System.Drawing.Point(0, 559);
             this.menuStrip2.Name = "menuStrip2";
-            this.menuStrip2.Size = new System.Drawing.Size(925, 32);
+            this.menuStrip2.Size = new System.Drawing.Size(924, 32);
             this.menuStrip2.TabIndex = 2;
             this.menuStrip2.Text = "menuStrip2";
             // 
@@ -180,7 +183,6 @@ namespace DockerForm
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(198, 154);
-            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // toolStripStartItem
             // 
@@ -283,10 +285,12 @@ namespace DockerForm
             // GameListView
             // 
             this.GameListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnImage,
             this.columnName,
             this.columnDev,
-            this.columnVersion});
-            this.GameListView.ContextMenuStrip = this.contextMenuStrip1;
+            this.columnVersion,
+            this.columnPlayed,
+            this.columnSettings});
             this.GameListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GameListView.FullRowSelect = true;
             this.GameListView.HideSelection = false;
@@ -295,7 +299,7 @@ namespace DockerForm
             this.GameListView.Margin = new System.Windows.Forms.Padding(2);
             this.GameListView.MultiSelect = false;
             this.GameListView.Name = "GameListView";
-            this.GameListView.Size = new System.Drawing.Size(925, 534);
+            this.GameListView.Size = new System.Drawing.Size(924, 535);
             this.GameListView.SmallImageList = this.imageList1;
             this.GameListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.GameListView.TabIndex = 9;
@@ -304,24 +308,39 @@ namespace DockerForm
             this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
             this.GameListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
             // 
+            // columnImage
+            // 
+            this.columnImage.Text = "";
+            this.columnImage.Width = 100;
+            // 
             // columnName
             // 
             this.columnName.Text = "Name";
-            this.columnName.Width = 360;
+            this.columnName.Width = 300;
             // 
             // columnDev
             // 
             this.columnDev.Text = "Developer";
-            this.columnDev.Width = 250;
+            this.columnDev.Width = 200;
             // 
             // columnVersion
             // 
             this.columnVersion.Text = "Version";
-            this.columnVersion.Width = 150;
+            this.columnVersion.Width = 100;
+            // 
+            // columnPlayed
+            // 
+            this.columnPlayed.Text = "Last played";
+            this.columnPlayed.Width = 140;
+            // 
+            // columnSettings
+            // 
+            this.columnSettings.Text = "Settings";
+            this.columnSettings.Width = 150;
             // 
             // Form1
             // 
-            this.ClientSize = new System.Drawing.Size(925, 590);
+            this.ClientSize = new System.Drawing.Size(924, 591);
             this.Controls.Add(this.GameListView);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.menuStrip2);
@@ -332,6 +351,7 @@ namespace DockerForm
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Thunderbolt Switch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Shown += new System.EventHandler(this.Form1_Shown);
@@ -379,6 +399,9 @@ namespace DockerForm
         private System.Windows.Forms.ColumnHeader columnName;
         private System.Windows.Forms.ColumnHeader columnDev;
         private System.Windows.Forms.ColumnHeader columnVersion;
+        private System.Windows.Forms.ColumnHeader columnImage;
+        private System.Windows.Forms.ColumnHeader columnPlayed;
+        private System.Windows.Forms.ColumnHeader columnSettings;
     }
 }
 

@@ -102,6 +102,19 @@ namespace DockerForm
             Enabled = ErrorCode == ErrorCode.None;
         }
 
+        public string GetNameAndGUID()
+        {
+            return Name + "\n    " + GUID;
+        }
+
+        public string GetSettingsList()
+        {
+            string Profiles = "";
+            foreach(GameSettings settings in Settings.Values)
+                Profiles += settings.FileName + "\n";
+            return Profiles.TrimEnd('\n');
+        }
+
         public string GetCrc()
         {
             return crc_value;
