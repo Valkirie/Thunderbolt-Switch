@@ -516,9 +516,19 @@ namespace DockerForm
             catch (Exception ex) { LogManager.UpdateLog("UpdateForm: " + ex.Message, true); }
         }
 
+        public int GetListViewIndex(string GUID)
+        {
+            foreach (ListViewItem item in GameListView.Items)
+                if (item.Tag == GUID)
+                    return GameListView.Items.IndexOf(item);
+            return -1;
+        }
+
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
             ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+            newgame.Tag = newgame.ImageKey;
+            
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 // upate imageList
@@ -537,7 +547,7 @@ namespace DockerForm
                     imageList1.Images.Add(game.GUID, game.Image);
                 }
 
-                int idx = GameListView.Items.IndexOfKey(game.GUID);
+                int idx = GetListViewIndex(game.GUID);
                 if (idx == -1)
                     return;
 
@@ -599,6 +609,7 @@ namespace DockerForm
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+                newgame.Tag = newgame.ImageKey;
                 GameListView.Items.Add(newgame);
                 // item.Enabled = game.Enabled;
             }
