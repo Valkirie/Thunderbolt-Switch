@@ -308,7 +308,14 @@ namespace DockerForm
                     if (myFile.Name.Equals("AppxManifest.xml"))
                     {
                         XmlDocument doc = new XmlDocument();
-                        doc.Load(file);
+                        // prevent crash if file is being read/write by Microsoft Store
+                        try
+                        {
+                            doc.Load(file);
+                        }catch(System.IO.IOException e)
+                        {
+                            continue;
+                        }
 
                         string IdentityName = "";
                         string IdentityVersion = "";

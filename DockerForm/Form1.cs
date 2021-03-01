@@ -519,7 +519,7 @@ namespace DockerForm
         public int GetListViewIndex(string GUID)
         {
             foreach (ListViewItem item in GameListView.Items)
-                if (item.Tag == GUID)
+                if ((string)item.Tag == GUID)
                     return GameListView.Items.IndexOf(item);
             return -1;
         }
@@ -987,6 +987,13 @@ namespace DockerForm
 
         private void microsoftStoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // check if Microsoft Store is running
+            if (Process.GetProcessesByName("WinStore.App").Length > 0)
+            {
+                MessageBox.Show("Please close the Microsoft Store before starting the automatic detection.", "Automatic Detection");
+                return;
+            }
+
             List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
             AutomaticDetection(DetectedGames);
@@ -1097,7 +1104,7 @@ namespace DockerForm
         {
             foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
             {
-                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
+                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "Automatic Detection", MessageBoxButtons.YesNoCancel);
                 if (dialogResult == DialogResult.Yes)
                     InsertOrUpdateGameItem(game, true);
                 else if (dialogResult == DialogResult.Cancel)
