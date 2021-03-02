@@ -91,6 +91,10 @@ namespace DockerForm
             foreach (GameSettings setting in thisGame.Settings.Values)
             {
                 string FileName = System.IO.Path.GetFileName(setting.Uri);
+
+                if (setting.Type == SettingsType.Registry)
+                    FileName = setting.Uri;
+
                 ListViewItem newSetting = new ListViewItem(new string[] { FileName, setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.FileName);
                 newSetting.Checked = setting.IsEnabled;
                 newSetting.Tag = setting.IsRelative;
@@ -297,17 +301,23 @@ namespace DockerForm
                 return;
 
             ListViewItem listViewItem1 = new ListViewItem(new string[] { FileName, FileName, "Registry" }, -1);
-            listViewItem1.Checked = true;
             listViewItem1.Tag = false;
-            SettingsList.Items.Add(listViewItem1);
+
+            GameSettings newSetting = new GameSettings(FileName, SettingsType.Registry, FileName, false, false);
 
             string FileTemp = System.IO.Path.Combine(Form1.path_application, "temp.reg");
             RegistryManager.ExportKey(FileName, FileTemp);
 
-            byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
-            GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FileName, true, false);
-            newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+            if (System.IO.File.Exists(FileTemp))
+            {
+                byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
+                newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+                newSetting.IsEnabled = true;
+                listViewItem1.Checked = true;
+            }
+
             thisGame.Settings[FileName] = newSetting;
+            SettingsList.Items.Add(listViewItem1);
         }
 
         public static string Between(ref string src, string start, string ended, bool del = false)
