@@ -498,6 +498,32 @@ namespace DockerForm
             string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
             RegistryKey key = Registry.LocalMachine.OpenSubKey(regkey);
 
+            string steamPath = null;
+
+            foreach (string ksubKey in key.GetSubKeyNames().Where(a => a.Contains("Steam")))
+            {
+                using (RegistryKey subKey = key.OpenSubKey(ksubKey))
+                {
+                    Dictionary<string, string> subKeys = new Dictionary<string, string>();
+
+                    foreach (string subkeyname in subKey.GetValueNames())
+                        subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
+
+                    if (subKeys.ContainsKey("DisplayIcon"))
+                    {
+                        string DisplayIcon = subKeys["DisplayIcon"];
+                        steamPath = Path.GetDirectoryName(DisplayIcon);
+                    }
+                }
+            }
+
+            if (steamPath == null)
+                return listofGames;
+
+            // HKEY_CURRENT_USER\System\GameConfigStore\Children
+            regkey = "System\\GameConfigStore\\Children";
+            key = Registry.CurrentUser.OpenSubKey(regkey);
+
             foreach (string ksubKey in key.GetSubKeyNames())
             {
                 using (RegistryKey subKey = key.OpenSubKey(ksubKey))
@@ -507,20 +533,58 @@ namespace DockerForm
                     foreach (string subkeyname in subKey.GetValueNames())
                         subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
 
-                    if (subKeys.ContainsKey("UninstallString"))
+                    if (subKeys.ContainsKey("MatchedExeFullPath"))
                     {
-                        string UninstallString = subKeys["UninstallString"];
+                        string filePath = subKeys["MatchedExeFullPath"];
 
-                        if (UninstallString.Contains("steam.exe"))
+                        if (filePath.Contains(steamPath))
                         {
-                            string filePath = subKeys["DisplayIcon"];
                             if (File.Exists(filePath))
                             {
                                 DockerGame thisGame = new DockerGame(filePath);
-                                thisGame.Platform = PlatformCode.Steam;
+                                thisGame.Platform = PlatformCode.Default;
                                 thisGame.SanityCheck();
                                 listofGames.Add(thisGame);
                             }
+                        }
+                    }
+                }
+            }
+            
+            return listofGames;
+        }
+
+        public static List<DockerGame> SearchUniversal()
+        {
+            List<DockerGame> listofGames = new List<DockerGame>();
+
+            // HKEY_CURRENT_USER\System\GameConfigStore\Children
+            string regkey = "System\\GameConfigStore\\Children";
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(regkey);
+
+            // HKEY_CURRENT_USER\System\GameConfigStore\Children
+            regkey = "System\\GameConfigStore\\Children";
+            key = Registry.CurrentUser.OpenSubKey(regkey);
+
+            foreach (string ksubKey in key.GetSubKeyNames())
+            {
+                using (RegistryKey subKey = key.OpenSubKey(ksubKey))
+                {
+                    Dictionary<string, string> subKeys = new Dictionary<string, string>();
+
+                    foreach (string subkeyname in subKey.GetValueNames())
+                        subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
+
+                    if (subKeys.ContainsKey("MatchedExeFullPath"))
+                    {
+                        string filePath = subKeys["MatchedExeFullPath"];
+
+                        if (File.Exists(filePath))
+                        {
+                            DockerGame thisGame = new DockerGame(filePath);
+                            thisGame.Platform = PlatformCode.Steam;
+                            thisGame.SanityCheck();
+                            listofGames.Add(thisGame);
                         }
                     }
                 }

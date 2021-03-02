@@ -40,6 +40,7 @@ namespace DockerForm
             this.automaticDetectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.microsoftStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.battleNetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.steamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.undockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,6 +67,8 @@ namespace DockerForm
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPlayed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSettings = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.UniversalMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -120,8 +123,11 @@ namespace DockerForm
             // automaticDetectionToolStripMenuItem
             // 
             this.automaticDetectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.UniversalMenuItem3,
+            this.toolStripSeparator5,
             this.microsoftStoreToolStripMenuItem,
-            this.battleNetToolStripMenuItem});
+            this.battleNetToolStripMenuItem,
+            this.steamToolStripMenuItem});
             this.automaticDetectionToolStripMenuItem.Name = "automaticDetectionToolStripMenuItem";
             this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.automaticDetectionToolStripMenuItem.Text = "Automatic Detection";
@@ -131,16 +137,23 @@ namespace DockerForm
             // microsoftStoreToolStripMenuItem
             // 
             this.microsoftStoreToolStripMenuItem.Name = "microsoftStoreToolStripMenuItem";
-            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.microsoftStoreToolStripMenuItem.Text = "Microsoft Store";
             this.microsoftStoreToolStripMenuItem.Click += new System.EventHandler(this.microsoftStoreToolStripMenuItem_Click);
             // 
             // battleNetToolStripMenuItem
             // 
             this.battleNetToolStripMenuItem.Name = "battleNetToolStripMenuItem";
-            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.battleNetToolStripMenuItem.Text = "Battle.net";
             this.battleNetToolStripMenuItem.Click += new System.EventHandler(this.battleNetToolStripMenuItem_Click);
+            // 
+            // steamToolStripMenuItem
+            // 
+            this.steamToolStripMenuItem.Name = "steamToolStripMenuItem";
+            this.steamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.steamToolStripMenuItem.Text = "Steam";
+            this.steamToolStripMenuItem.Click += new System.EventHandler(this.steamToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -338,6 +351,18 @@ namespace DockerForm
             this.columnSettings.Text = "Settings";
             this.columnSettings.Width = 150;
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
+            // 
+            // UniversalMenuItem3
+            // 
+            this.UniversalMenuItem3.Name = "UniversalMenuItem3";
+            this.UniversalMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.UniversalMenuItem3.Text = "Universal";
+            this.UniversalMenuItem3.Click += new System.EventHandler(this.UniversalMenuItem3_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(924, 591);
@@ -402,6 +427,9 @@ namespace DockerForm
         private System.Windows.Forms.ColumnHeader columnImage;
         private System.Windows.Forms.ColumnHeader columnPlayed;
         private System.Windows.Forms.ColumnHeader columnSettings;
+        private System.Windows.Forms.ToolStripMenuItem steamToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UniversalMenuItem3;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
     }
 }
 

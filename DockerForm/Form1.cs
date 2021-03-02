@@ -991,22 +991,41 @@ namespace DockerForm
         private void microsoftStoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // check if Microsoft Store is running
-            if (Process.GetProcessesByName("WinStore.App").Length > 0)
+            List<Process> procList = Process.GetProcessesByName("WinStore.App").ToList();
+            if (procList.Count != 0)
             {
-                MessageBox.Show("Please close the Microsoft Store before starting the automatic detection.", "Automatic Detection");
-                return;
+                Process WinStore = procList[0];
+                if (WinStore.Responding)
+                {
+                    MessageBox.Show("Please close the Microsoft Store before starting the automatic detection.", "Automatic Detection");
+                    return;
+                }
             }
 
             List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
-            AutomaticDetection(DetectedGames);
+            AutomaticDetection(DetectedGames, "Microsoft Store");
         }
 
         private void battleNetToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
-            AutomaticDetection(DetectedGames);
+            AutomaticDetection(DetectedGames, "Battle.net");
+        }
+
+        private void steamToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchSteam());
+            AutomaticDetection(DetectedGames, "Steam");
+        }
+
+        private void UniversalMenuItem3_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchUniversal());
+            AutomaticDetection(DetectedGames, "Universal");
         }
 
         // The column we are currently using for sorting.
@@ -1103,11 +1122,11 @@ namespace DockerForm
             }
         }
 
-        private void AutomaticDetection(List<DockerGame> DetectedGames)
+        private void AutomaticDetection(List<DockerGame> DetectedGames, string Platform)
         {
             foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
             {
-                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "Automatic Detection", MessageBoxButtons.YesNoCancel);
+                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", Platform + " Automatic Detection", MessageBoxButtons.YesNoCancel);
                 if (dialogResult == DialogResult.Yes)
                     InsertOrUpdateGameItem(game, true);
                 else if (dialogResult == DialogResult.Cancel)
