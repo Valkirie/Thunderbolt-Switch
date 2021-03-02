@@ -686,6 +686,9 @@ namespace DockerForm
                         game.Profiles[profile.ProfileName] = profile;
             }
 
+            // re-apply values
+            ApplyPowerProfiles();
+
             // update form
             UpdateForm();
 
