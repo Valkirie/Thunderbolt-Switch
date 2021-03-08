@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DockerForm
+﻿namespace DockerForm
 {
     public class MyPanel : System.Windows.Forms.Panel
     {

@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Management;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Globalization;
-using System.Threading.Tasks;
-using System.Collections.Specialized;
-using Microsoft.Win32;
 using System.Xml.Serialization;
-using Microsoft.Win32.TaskScheduler;
 using Task = Microsoft.Win32.TaskScheduler.Task;
-using System.Runtime.InteropServices;
 
 namespace DockerForm
 {
@@ -60,7 +60,8 @@ namespace DockerForm
         public static string path_rw;
 
         // Form vars
-        private static Form1 _instance;
+        private static Form1 CurrentForm;
+        private static CultureInfo CurrentCulture;
 
         // Threading vars
         private static Thread ThreadGPU, ThreadProfile;
@@ -72,7 +73,7 @@ namespace DockerForm
         public static PowerProfile CurrentProfile = new PowerProfile();
 
         // TaskManager vars
-        private static TaskService ts;
+        private static TaskService CurrentTask;
         private const string taskName = "ThunderboltSwitch";
 
         [DllImport("user32.dll")]
@@ -86,7 +87,7 @@ namespace DockerForm
             const int WM_DISPLAYCHANGE = 0x007e;
             const int WM_DEVICECHANGE = 0x0219;
 
-            switch(m.Msg)
+            switch (m.Msg)
             {
                 case WM_DEVICECHANGE:
                     IsHardwarePending = true;
@@ -129,9 +130,9 @@ namespace DockerForm
                 return true;
             else if (!PowerStatus && isOnBattery)
                 return true;
-            else if(DockStatus && isExtGPU)
+            else if (DockStatus && isExtGPU)
                 return true;
-            else if(ScreenCount > 1 && isOnScreen)
+            else if (ScreenCount > 1 && isOnScreen)
                 return true;
 
             return false;
@@ -155,8 +156,12 @@ namespace DockerForm
             if (MCHBAR == null)
                 return;
 
-            // skip if call isn't needed
-            if (profile.ProfileName == CurrentProfile.ProfileName || profile.ProfileName == "")
+            // skip check on empty profile
+            if (profile.ProfileName == "")
+                return;
+
+            // skip update on similar profiles
+            if (CurrentProfile.Equals(profile))
                 return;
 
             string command = "/Min /Nologo /Stdout /command=\"";
@@ -213,8 +218,8 @@ namespace DockerForm
 
             if (pushToast && ToastNotifications)
             {
-                _instance.notifyIcon1.BalloonTipText = input;
-                _instance.notifyIcon1.ShowBalloonTip(1000);
+                CurrentForm.notifyIcon1.BalloonTipText = input;
+                CurrentForm.notifyIcon1.ShowBalloonTip(1000);
             }
         }
 
@@ -276,7 +281,8 @@ namespace DockerForm
                     ApplyPowerProfiles();
                 }
 
-            }catch(Exception ex) { }
+            }
+            catch (Exception ex) { }
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -346,7 +352,7 @@ namespace DockerForm
 
         public static void MonitorThread(object data)
         {
-            while(IsRunning)
+            while (IsRunning)
             {
                 bool IsGameRunning = GameProcesses.Count != 0;
                 if (IsHardwarePending && !IsGameRunning)
@@ -438,7 +444,7 @@ namespace DockerForm
                 {
                     foreach (PowerProfile profile in ProfileDB.Values)
                         ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, IsFirstBoot);
-                    
+
                     ApplyPowerProfiles();
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
@@ -450,7 +456,7 @@ namespace DockerForm
                     DatabaseManager.SanityCheck();
                     IsFirstBoot = false;
                 }
-                
+
                 Thread.Sleep(MonitorThreadRefresh);
             }
         }
@@ -475,18 +481,18 @@ namespace DockerForm
                 Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
 
                 // drawing
-                _instance.BeginInvoke((MethodInvoker)delegate ()
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
-                    _instance.undockedToolStripMenuItem.Image = ConstructorLogo;
-                    _instance.notifyIcon1.Icon = myIcon;
-                    _instance.Icon = myIcon;
+                    CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
+                    CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
+                    CurrentForm.notifyIcon1.Icon = myIcon;
+                    CurrentForm.Icon = myIcon;
                 });
 
                 // profiles
-                _instance.BeginInvoke((MethodInvoker)delegate ()
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _instance.toolStripMenuItem2.DropDownItems.Clear();
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Clear();
 
                     ToolStripMenuItem currentItem = new ToolStripMenuItem()
                     {
@@ -494,8 +500,8 @@ namespace DockerForm
                         ToolTipText = CurrentProfile.ToString(),
                         Enabled = false
                     };
-                    _instance.toolStripMenuItem2.DropDownItems.Add(currentItem);
-                    _instance.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(currentItem);
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
 
                     // do not display the default profile
                     foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
@@ -507,25 +513,45 @@ namespace DockerForm
                             ToolTipText = profile.ToString()
                         };
                         newItem.Click += new EventHandler(PowerMenuClickHandler);
-                        _instance.toolStripMenuItem2.DropDownItems.Add(newItem);
+                        CurrentForm.toolStripMenuItem2.DropDownItems.Add(newItem);
                     }
                 });
             }
             catch (Exception ex) { LogManager.UpdateLog("UpdateForm: " + ex.Message, true); }
         }
 
+        public int GetListViewIndex(string GUID)
+        {
+            foreach (ListViewItem item in GameListView.Items)
+                if ((string)item.Tag == GUID)
+                    return GameListView.Items.IndexOf(item);
+            return -1;
+        }
+
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
-            exListBoxItem newitem = new exListBoxItem(game);
+            ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+            newgame.Tag = newgame.ImageKey;
+            
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
-                GameList.Items.Add(newitem);
+                // upate imageList
+                imageList1.Images.Add(game.GUID, game.Image);
+
+                GameListView.Items.Add(newgame);
                 DatabaseManager.GameDB[game.GUID] = game;
                 LogManager.UpdateLog("[" + game.Name + "] profile has been added to the database");
             }
             else
             {
-                int idx = GameList.GetIndexFromGuid(game.GUID);
+                // upate imageList
+                if (imageList1.Images.ContainsKey(game.GUID))
+                {
+                    imageList1.Images.RemoveByKey(game.GUID);
+                    imageList1.Images.Add(game.GUID, game.Image);
+                }
+
+                int idx = GetListViewIndex(game.GUID);
                 if (idx == -1)
                     return;
 
@@ -540,12 +566,12 @@ namespace DockerForm
                 {
                     // manually updated game
                     DatabaseManager.GameDB[game.GUID] = new DockerGame(game);
-                    GameList.Items[idx] = newitem;
+                    GameListView.Items[idx] = newgame;
                 }
 
                 // update the current database
                 DockerGame list_game = DatabaseManager.GameDB[game.GUID];
-                ((exListBoxItem)GameList.Items[idx]).Enabled = list_game.Enabled;
+                // ((exListBoxItem)GameList.Items[idx]).Enabled = list_game.Enabled;
                 LogManager.UpdateLog("[" + list_game.Name + "] profile has been updated");
             }
 
@@ -554,8 +580,6 @@ namespace DockerForm
             string path_db = GetCurrentState(game);
             DatabaseManager.UpdateFilesAndRegistries(DatabaseManager.GameDB[game.GUID], path_db, path_db, false, true, true, path_db);
             DatabaseManager.UpdateFilesAndRegistries(DatabaseManager.GameDB[game.GUID], path_db, path_db, true, false, true, path_db);
-
-            GameList.Sort();
         }
 
         public void UpdateGameList()
@@ -573,7 +597,10 @@ namespace DockerForm
                         thisGame.SanityCheck();
 
                         if (!DatabaseManager.GameDB.ContainsKey(thisGame.GUID))
+                        {
                             DatabaseManager.GameDB.AddOrUpdate(thisGame.GUID, thisGame, (key, value) => thisGame);
+                            imageList1.Images.Add(thisGame.GUID, thisGame.Image);
+                        }
 
                         reader.Dispose();
                     }
@@ -582,16 +609,15 @@ namespace DockerForm
             }
 
             // Update the DockerGame database
-            GameList.BeginUpdate();
+            GameListView.BeginUpdate();
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
-                exListBoxItem item = new exListBoxItem(game);
-                GameList.Items.Add(item);
-                item.Enabled = game.Enabled;
+                ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+                newgame.Tag = newgame.ImageKey;
+                GameListView.Items.Add(newgame);
+                // item.Enabled = game.Enabled;
             }
-            GameList.EndUpdate();
-
-            GameList.Sort();
+            GameListView.EndUpdate();
         }
 
         public static Dictionary<string, DateTime> prevFileInfos = new Dictionary<string, DateTime>();
@@ -664,6 +690,9 @@ namespace DockerForm
                         game.Profiles[profile.ProfileName] = profile;
             }
 
+            // re-apply values
+            ApplyPowerProfiles();
+
             // update form
             UpdateForm();
 
@@ -692,8 +721,9 @@ namespace DockerForm
             InitializeComponent();
 
             // initialize vars
-            _instance = this;
-            ts = new TaskService();
+            CurrentForm = this;
+            CurrentCulture = CultureInfo.CurrentCulture;
+            CurrentTask = new TaskService();
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
@@ -715,7 +745,10 @@ namespace DockerForm
                 Directory.CreateDirectory(path_profiles);
 
             // configurable settings
-            GameList.SetSize(Math.Max(32, Properties.Settings.Default.ImageHeight), Math.Max(32, Properties.Settings.Default.ImageWidth));
+            settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            settingsToolStripMenuItem.AutoToolTip = true;
+
+            columnImage.Width = Properties.Settings.Default.ImageWidth;
             MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
             MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
             BootOnStartup = Properties.Settings.Default.BootOnStartup;
@@ -727,13 +760,23 @@ namespace DockerForm
             MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
             MonitorProfiles = Properties.Settings.Default.MonitorProfiles;
 
+            // position and size settings
+            imageList1.ImageSize = new Size(Properties.Settings.Default.ImageWidth, Properties.Settings.Default.ImageHeight);
+            Location = new Point(Properties.Settings.Default.MainWindowX, Properties.Settings.Default.MainWindowY);
+            Size = new Size(Properties.Settings.Default.MainWindowWidth, Properties.Settings.Default.MainWindowHeight);
+            columnName.Width = Properties.Settings.Default.ColumnNameWidth;
+            columnDev.Width = Properties.Settings.Default.ColumnDevWidth;
+            columnVersion.Width = Properties.Settings.Default.ColumnVersionWidth;
+            columnPlayed.Width = Properties.Settings.Default.ColumnPlayedWidth;
+            columnSettings.Width = Properties.Settings.Default.ColumnSettingsWidth;
+
             if (MinimizeOnStartup)
             {
-                this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
+                WindowState = FormWindowState.Minimized;
+                ShowInTaskbar = false;
             }
 
-            Task myTask = ts.FindTask(taskName);
+            Task myTask = CurrentTask.FindTask(taskName);
             if (myTask == null)
             {
                 TaskDefinition td = TaskService.Instance.NewTask();
@@ -765,7 +808,7 @@ namespace DockerForm
 
             // update MCHBAR
             string ProcessorID = GetProcessorID();
-            switch(ProcessorID.Substring(ProcessorID.Length-5))
+            switch (ProcessorID.Substring(ProcessorID.Length - 5))
             {
                 case "206A7": // SandyBridge
                 case "306A9": // IvyBridge
@@ -833,6 +876,22 @@ namespace DockerForm
 
         private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
         {
+            // position and size settings
+            if (CurrentForm.WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.MainWindowX = CurrentForm.Location.X;
+                Properties.Settings.Default.MainWindowY = CurrentForm.Location.Y;
+                Properties.Settings.Default.MainWindowWidth = CurrentForm.Size.Width;
+                Properties.Settings.Default.MainWindowHeight = CurrentForm.Size.Height;
+            }
+
+            Properties.Settings.Default.ColumnNameWidth = columnName.Width;
+            Properties.Settings.Default.ColumnDevWidth = columnDev.Width;
+            Properties.Settings.Default.ColumnVersionWidth = columnVersion.Width;
+            Properties.Settings.Default.ColumnPlayedWidth = columnPlayed.Width;
+            Properties.Settings.Default.ColumnSettingsWidth = columnSettings.Width;
+            Properties.Settings.Default.Save();
+
             if (MinimizeOnClosing && e.CloseReason == CloseReason.UserClosing && !ForceClose)
             {
                 e.Cancel = true;
@@ -840,7 +899,7 @@ namespace DockerForm
             }
             else
             {
-                if(SaveOnExit)
+                if (SaveOnExit)
                     DatabaseManager.UpdateFilesAndRegistries(false, true);
 
                 notifyIcon1.Dispose();
@@ -864,54 +923,6 @@ namespace DockerForm
                 Hide();
                 notifyIcon1.Visible = true;
                 SendNotification(Text + " is running in the background.", !IsFirstBoot);
-            }
-        }
-
-        private void GameList_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (GameList.Items.Count == 0)
-            {
-                contextMenuStrip1.Enabled = false;
-            }
-            else
-            {
-                contextMenuStrip1.Enabled = true;
-
-                Point pt = new Point(e.X, e.Y);
-                int index = GameList.IndexFromPoint(pt);
-                switch (e.Button)
-                {
-                    case MouseButtons.Right:
-                        GameList.SelectedIndex = index;
-                        if (GameList.SelectedItem != null)
-                        {
-                            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                            DockerGame game = DatabaseManager.GameDB[item.Guid];
-
-                            // disable all modifications on running app
-                            contextMenuStrip1.Enabled = !game.IsRunning;
-
-                            // disable options based on app properties
-                            openToolStripMenuItem.Enabled = game.HasReachableFolder();
-                            toolStripStartItem.Enabled = game.HasReachableExe();
-                            toolStripMenuItem1.Enabled = game.HasFileSettings();
-                            navigateToIGDBEntryToolStripMenuItem.Enabled = game.HasIGDB();
-
-                            toolStripMenuItem1.DropDownItems.Clear();
-                            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
-                            {
-                                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                                FileInfo fileinfo = new FileInfo(filename);
-
-                                ToolStripMenuItem newItem = new ToolStripMenuItem();
-                                newItem.Text = fileinfo.Name;
-                                newItem.ToolTipText = fileinfo.DirectoryName;
-                                newItem.Click += new EventHandler(MenuItemClickHandler);
-                                toolStripMenuItem1.DropDownItems.Add(newItem);
-                            }
-                        }
-                        break;
-                }
             }
         }
 
@@ -946,8 +957,11 @@ namespace DockerForm
 
         private void OpenGameFolder(object sender, EventArgs e)
         {
-            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = DatabaseManager.GameDB[item.Guid];
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
 
             string folderPath = game.Uri;
             if (Directory.Exists(folderPath))
@@ -964,8 +978,11 @@ namespace DockerForm
 
         private void navigateToIGDBEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = DatabaseManager.GameDB[item.Guid];
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
             Process.Start(game.IGDB_Url);
         }
 
@@ -977,23 +994,143 @@ namespace DockerForm
 
         private void microsoftStoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // check if Microsoft Store is running
+            List<Process> procList = Process.GetProcessesByName("WinStore.App").ToList();
+            if (procList.Count != 0)
+            {
+                Process WinStore = procList[0];
+                if (WinStore.Responding)
+                {
+                    MessageBox.Show("Please close the Microsoft Store before starting the automatic detection.", "Automatic Detection");
+                    return;
+                }
+            }
+
             List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchMicrosoftStore());
-            AutomaticDetection(DetectedGames);
+            AutomaticDetection(DetectedGames, "Microsoft Store");
         }
 
         private void battleNetToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<DockerGame> DetectedGames = new List<DockerGame>();
             DetectedGames.AddRange(DatabaseManager.SearchBattleNet());
-            AutomaticDetection(DetectedGames);
+            AutomaticDetection(DetectedGames, "Battle.net");
         }
 
-        private void AutomaticDetection(List<DockerGame> DetectedGames)
+        private void steamToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchSteam());
+            AutomaticDetection(DetectedGames, "Steam");
+        }
+
+        private void UniversalMenuItem3_Click(object sender, EventArgs e)
+        {
+            List<DockerGame> DetectedGames = new List<DockerGame>();
+            DetectedGames.AddRange(DatabaseManager.SearchUniversal());
+            AutomaticDetection(DetectedGames, "Universal");
+        }
+
+        // The column we are currently using for sorting.
+        private ColumnHeader SortingColumn = null;
+        // Sort on this column.
+
+        private void GameListView_HeaderClicked(object sender, ColumnClickEventArgs e)
+        {
+            // Get the new sorting column.
+            ColumnHeader new_sorting_column = GameListView.Columns[e.Column];
+
+            // Figure out the new sorting order.
+            System.Windows.Forms.SortOrder sort_order;
+            if (SortingColumn == null)
+            {
+                // New column. Sort ascending.
+                sort_order = SortOrder.Ascending;
+            }
+            else
+            {
+                // See if this is the same column.
+                if (new_sorting_column == SortingColumn)
+                {
+                    // Same column. Switch the sort order.
+                    if (SortingColumn.Text.StartsWith("> "))
+                    {
+                        sort_order = SortOrder.Descending;
+                    }
+                    else
+                    {
+                        sort_order = SortOrder.Ascending;
+                    }
+                }
+                else
+                {
+                    // New column. Sort ascending.
+                    sort_order = SortOrder.Ascending;
+                }
+
+                // Remove the old sort indicator.
+                SortingColumn.Text = SortingColumn.Text.Substring(2);
+            }
+
+            // Display the new sort order.
+            SortingColumn = new_sorting_column;
+            if (sort_order == SortOrder.Ascending)
+            {
+                SortingColumn.Text = "> " + SortingColumn.Text;
+            }
+            else
+            {
+                SortingColumn.Text = "< " + SortingColumn.Text;
+            }
+
+            // Create a comparer.
+            GameListView.ListViewItemSorter = new ListViewComparer(e.Column, sort_order);
+
+            // Sort.
+            GameListView.Sort();
+        }
+
+        private void GameListView_Clicked(object sender, MouseEventArgs e)
+        {
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            contextMenuStrip1.Show(Cursor.Position);
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+
+            // disable all modifications on running app
+            contextMenuStrip1.Enabled = !game.IsRunning;
+
+            // disable options based on app properties
+            openToolStripMenuItem.Enabled = game.HasReachableFolder();
+            toolStripStartItem.Enabled = game.HasReachableExe();
+            toolStripMenuItem1.Enabled = game.HasFileSettings();
+            navigateToIGDBEntryToolStripMenuItem.Enabled = game.HasIGDB();
+
+            toolStripMenuItem1.DropDownItems.Clear();
+            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsFile()))
+            {
+                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                FileInfo fileinfo = new FileInfo(filename);
+
+                ToolStripMenuItem newItem = new ToolStripMenuItem();
+                newItem.Text = fileinfo.Name;
+                newItem.ToolTipText = fileinfo.DirectoryName;
+                newItem.Click += new EventHandler(MenuItemClickHandler);
+                toolStripMenuItem1.DropDownItems.Add(newItem);
+            }
+        }
+
+        private void AutomaticDetection(List<DockerGame> DetectedGames, string Platform)
         {
             foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
             {
-                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", "(Beta) Automatic Detection", MessageBoxButtons.YesNoCancel);
+                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", Platform + " Automatic Detection", MessageBoxButtons.YesNoCancel);
                 if (dialogResult == DialogResult.Yes)
                     InsertOrUpdateGameItem(game, true);
                 else if (dialogResult == DialogResult.Cancel)
@@ -1003,9 +1140,11 @@ namespace DockerForm
 
         private void toolStripStartItem_Click(object sender, EventArgs e)
         {
-            exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-            DockerGame game = DatabaseManager.GameDB[item.Guid];
-            string filename = Path.Combine(game.Uri, game.Executable);
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -1019,23 +1158,27 @@ namespace DockerForm
 
         private void removeTheGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (GameList.SelectedItem != null)
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = GameListView.SelectedItems[0];
+            DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+
+            if (game == null)
+                return;
+
+            DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
             {
-                exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                DockerGame game = DatabaseManager.GameDB[item.Guid];
+                string filename = Path.Combine(path_database, game.GUID + ".dat");
 
-                DialogResult dialogResult = MessageBox.Show("This will remove " + game.Name + " from this database.", "Remove Title ?", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    string filename = Path.Combine(path_database, game.GUID + ".dat");
+                if (File.Exists(filename))
+                    File.Delete(filename);
 
-                    if (File.Exists(filename))
-                        File.Delete(filename);
-
-                    DatabaseManager.GameDB.TryRemove(item.Guid, out game);
-                    GameList.Items.Remove(item);
-                    LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
-                }
+                DatabaseManager.GameDB.TryRemove(game.GUID, out game);
+                GameListView.Items.Remove(item);
+                imageList1.Images.RemoveByKey(item.ImageKey);
+                LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
             }
         }
 
@@ -1056,12 +1199,12 @@ namespace DockerForm
 
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (GameList.SelectedItem != null)
-            {
-                exListBoxItem item = (exListBoxItem)GameList.SelectedItem;
-                Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.Guid]);
-                currentSettings.ShowDialog();
-            }
+            if (GameListView.SelectedItems.Count == 0)
+                return;
+            
+            ListViewItem item = GameListView.SelectedItems[0];
+            Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.ImageKey]);
+            currentSettings.ShowDialog();
         }
     }
 

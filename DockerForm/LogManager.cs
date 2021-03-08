@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace DockerForm
 {
@@ -34,7 +30,7 @@ namespace DockerForm
                 string str = DateTime.Now.ToString("u", culture) + "\t" + type + "\t\t" + input + "\n";
                 File.AppendAllText(filename, str);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Thread.Sleep(1000);
                 UpdateLog(input, IsError);

@@ -190,5 +190,113 @@ namespace DockerForm.Properties {
                 this["MonitorProfiles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("940")]
+        public int MainWindowWidth {
+            get {
+                return ((int)(this["MainWindowWidth"]));
+            }
+            set {
+                this["MainWindowWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("630")]
+        public int MainWindowHeight {
+            get {
+                return ((int)(this["MainWindowHeight"]));
+            }
+            set {
+                this["MainWindowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        public int ColumnNameWidth {
+            get {
+                return ((int)(this["ColumnNameWidth"]));
+            }
+            set {
+                this["ColumnNameWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int ColumnDevWidth {
+            get {
+                return ((int)(this["ColumnDevWidth"]));
+            }
+            set {
+                this["ColumnDevWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int ColumnVersionWidth {
+            get {
+                return ((int)(this["ColumnVersionWidth"]));
+            }
+            set {
+                this["ColumnVersionWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("140")]
+        public int ColumnPlayedWidth {
+            get {
+                return ((int)(this["ColumnPlayedWidth"]));
+            }
+            set {
+                this["ColumnPlayedWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowX {
+            get {
+                return ((int)(this["MainWindowX"]));
+            }
+            set {
+                this["MainWindowX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowY {
+            get {
+                return ((int)(this["MainWindowY"]));
+            }
+            set {
+                this["MainWindowY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150")]
+        public int ColumnSettingsWidth {
+            get {
+                return ((int)(this["ColumnSettingsWidth"]));
+            }
+            set {
+                this["ColumnSettingsWidth"] = value;
+            }
+        }
     }
 }

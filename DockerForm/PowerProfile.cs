@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace DockerForm
@@ -14,9 +11,9 @@ namespace DockerForm
     {
         OnBattery = 0x01, // 0000 0000 0000 0001
         PluggedIn = 0x02, // 0000 0000 0000 0010
-        ExternalGPU    = 0x04, // 0000 0000 0000 0100
-        OnStartup    = 0x08, // 0000 0000 0000 1000
-        ExternalScreen  = 0x16, // 0000 0000 0001 0000
+        ExternalGPU = 0x04, // 0000 0000 0000 0100
+        OnStartup = 0x08, // 0000 0000 0000 1000
+        ExternalScreen = 0x16, // 0000 0000 0001 0000
     }
 
     public static class StringExtension
@@ -177,7 +174,7 @@ namespace DockerForm
                 IntelGPUHex = VoltageToHex(int.Parse(IntelGPU));
             if (HasCPUCache())
                 CPUCacheHex = VoltageToHex(int.Parse(CPUCache));
-            if(HasSystemAgent())
+            if (HasSystemAgent())
                 SystemAgentHex = VoltageToHex(int.Parse(SystemAgent));
 
             if (HasPowerBalanceCPU())
@@ -225,6 +222,18 @@ namespace DockerForm
             }
 
             ComputeHex();
+        }
+
+        public bool Equals(PowerProfile compare)
+        {
+            if (TurboBoostLongPowerMax != compare.TurboBoostLongPowerMax ||
+                TurboBoostShortPowerMax != compare.TurboBoostShortPowerMax ||
+                CPUCore != compare.CPUCore || CPUCache != compare.CPUCache ||
+                IntelGPU != compare.IntelGPU || SystemAgent != compare.SystemAgent ||
+                PowerBalanceCPU != compare.PowerBalanceCPU || PowerBalanceGPU != compare.PowerBalanceGPU)
+                return false;
+
+            return true;
         }
 
         public override string ToString()

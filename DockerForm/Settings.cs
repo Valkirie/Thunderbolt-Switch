@@ -1,22 +1,16 @@
-﻿using System;
+﻿using Be.Windows.Forms;
+using Microsoft.VisualBasic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-using Microsoft.VisualBasic;
-using System.Windows.Input;
-using System.ComponentModel.Design;
-using System.Text;
-using Be.Windows.Forms;
 
 namespace DockerForm
 {
@@ -79,17 +73,17 @@ namespace DockerForm
             InitializeForm();
 
             // instances
-            thisGame                = new DockerGame(game);
-            thisForm                = form;
-            thisSetting             = this;
+            thisGame = new DockerGame(game);
+            thisForm = form;
+            thisSetting = this;
             SetStartPos();
 
-            field_Name.Text         = thisGame.Name;
-            field_GUID.Text         = thisGame.GUID;
-            field_Filename.Text     = thisGame.Executable;
-            field_Version.Text      = thisGame.Version;
-            field_Developer.Text    = thisGame.Company;
-            field_Arguments.Text    = thisGame.Arguments;
+            field_Name.Text = thisGame.Name;
+            field_GUID.Text = thisGame.GUID;
+            field_Filename.Text = thisGame.Executable;
+            field_Version.Text = thisGame.Version;
+            field_Developer.Text = thisGame.Company;
+            field_Arguments.Text = thisGame.Arguments;
 
             GameIcon.BackgroundImage = thisGame.Image;
 
@@ -97,7 +91,11 @@ namespace DockerForm
             foreach (GameSettings setting in thisGame.Settings.Values)
             {
                 string FileName = System.IO.Path.GetFileName(setting.Uri);
-                ListViewItem newSetting = new ListViewItem(new string[] { FileName, setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.FileName );
+
+                if (setting.Type == SettingsType.Registry)
+                    FileName = setting.Uri;
+
+                ListViewItem newSetting = new ListViewItem(new string[] { FileName, setting.Uri, Enum.GetName(typeof(SettingsType), setting.Type) }, setting.FileName);
                 newSetting.Checked = setting.IsEnabled;
                 newSetting.Tag = setting.IsRelative;
                 SettingsList.Items.Add(newSetting);
@@ -209,7 +207,7 @@ namespace DockerForm
                 string FileName = item.SubItems[0].Text;
 
                 SettingsList.Items.Remove(item);
-                if(thisGame.Settings.ContainsKey(FileName))
+                if (thisGame.Settings.ContainsKey(FileName))
                     thisGame.Settings.Remove(FileName);
             }
         }
@@ -303,17 +301,23 @@ namespace DockerForm
                 return;
 
             ListViewItem listViewItem1 = new ListViewItem(new string[] { FileName, FileName, "Registry" }, -1);
-            listViewItem1.Checked = true;
             listViewItem1.Tag = false;
-            SettingsList.Items.Add(listViewItem1);
+
+            GameSettings newSetting = new GameSettings(FileName, SettingsType.Registry, FileName, false, false);
 
             string FileTemp = System.IO.Path.Combine(Form1.path_application, "temp.reg");
             RegistryManager.ExportKey(FileName, FileTemp);
 
-            byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
-            GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FileName, true, false);
-            newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+            if (System.IO.File.Exists(FileTemp))
+            {
+                byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
+                newSetting.data[Form1.GetCurrentState(thisGame)] = s_file;
+                newSetting.IsEnabled = true;
+                listViewItem1.Checked = true;
+            }
+
             thisGame.Settings[FileName] = newSetting;
+            SettingsList.Items.Add(listViewItem1);
         }
 
         public static string Between(ref string src, string start, string ended, bool del = false)
@@ -371,7 +375,8 @@ namespace DockerForm
                     item.Click += new EventHandler(MenuItemClickHandler);
                     IGDBList.DropDownItems.Add(item);
                 }
-            }catch(Exception) { }
+            }
+            catch (Exception) { }
 
             if (IGDBList.DropDownItems.Count == 0)
                 MessageBox.Show("No result from IGDB. Please try another game name.");
@@ -394,7 +399,7 @@ namespace DockerForm
 
                 // gather datas
                 Dictionary<string, string> IGDB = (Dictionary<string, string>)item.Tag;
-                string hidden_url       = IGDB["url"];
+                string hidden_url = IGDB["url"];
 
                 WebClient client = new WebClient();
                 string igdb_name = Regex.Replace(thisGame.Name, "[^a-zA-Z0-9]", "-").ToLower();
@@ -481,7 +486,7 @@ namespace DockerForm
         private string GetLanguage(string FileName)
         {
             string FileExtension = System.IO.Path.GetExtension(FileName);
-            switch(FileExtension)
+            switch (FileExtension)
             {
                 case ".ini":
                 case ".txt":
@@ -591,8 +596,8 @@ namespace DockerForm
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach(Control ctrl in groupBoxFIVR.Controls)
-                if(ctrl.GetType() == typeof(TextBox))
+            foreach (Control ctrl in groupBoxFIVR.Controls)
+                if (ctrl.GetType() == typeof(TextBox))
                     ctrl.Text = "";
 
             foreach (Control ctrl in groupBoxPowerProfile.Controls)
@@ -605,7 +610,7 @@ namespace DockerForm
                 PowerProfile profile = Form1.ProfileDB[ProfileName];
 
                 // Misc
-                if(profile.HasLongPowerMax())
+                if (profile.HasLongPowerMax())
                     textBox1.Text = profile.TurboBoostLongPowerMax + "W";
                 if (profile.HasShortPowerMax())
                     textBox2.Text = profile.TurboBoostShortPowerMax + "W";
