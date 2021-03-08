@@ -156,8 +156,12 @@ namespace DockerForm
             if (MCHBAR == null)
                 return;
 
-            // skip if call isn't needed
-            if (profile.ProfileName == CurrentProfile.ProfileName || profile.ProfileName == "")
+            // skip check on empty profile
+            if (profile.ProfileName == "")
+                return;
+
+            // skip update on similar profiles
+            if (CurrentProfile.Equals(profile))
                 return;
 
             string command = "/Min /Nologo /Stdout /command=\"";

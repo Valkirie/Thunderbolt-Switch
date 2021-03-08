@@ -224,6 +224,18 @@ namespace DockerForm
             ComputeHex();
         }
 
+        public bool Equals(PowerProfile compare)
+        {
+            if (TurboBoostLongPowerMax != compare.TurboBoostLongPowerMax ||
+                TurboBoostShortPowerMax != compare.TurboBoostShortPowerMax ||
+                CPUCore != compare.CPUCore || CPUCache != compare.CPUCache ||
+                IntelGPU != compare.IntelGPU || SystemAgent != compare.SystemAgent ||
+                PowerBalanceCPU != compare.PowerBalanceCPU || PowerBalanceGPU != compare.PowerBalanceGPU)
+                return false;
+
+            return true;
+        }
+
         public override string ToString()
         {
             List<string> output = new List<string>();
