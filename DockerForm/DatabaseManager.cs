@@ -73,94 +73,86 @@ namespace DockerForm
             return pathToExe;
         }
 
-        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
+        public static void UpdateFileAndRegistry(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value, GameSettings setting)
         {
-            string path_crc = game.GUID + ".crc";
-            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
+            string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+            string file = Path.GetFileName(filename);
+
+            if (setting.Type == SettingsType.File)
             {
-                string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                string file = Path.GetFileName(filename);
-
-                // check if we have opposite plugged status
-                if (updateFILE && !setting.data.ContainsKey(path_dest))
-                    path_dest = path_dest.Replace(":False", "");
-
-                if (setting.Type == SettingsType.File)
+                if (!File.Exists(filename))
                 {
-                    if (!File.Exists(filename))
-                    {
-                        setting.IsEnabled = false;
-                        LogManager.UpdateLog("[" + game.Name + "] settings disabled for file [" + file + "] [" + path_dest + "]");
-                        continue;
-                    }
-
-                    // We store the data
-                    byte[] s_file = File.ReadAllBytes(filename);
-
-                    // 1. Save current settings
-                    if (updateDB)
-                    {
-                        setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "] database updated for file [" + file + "] [" + path_game + "]");
-                    }
-
-                    // 2. Restore proper settings
-                    if (updateFILE)
-                    {
-                        if (setting.data.ContainsKey(path_dest))
-                        {
-                            File.WriteAllBytes(filename, setting.data[path_dest]);
-                            File.SetLastWriteTime(filename, game.LastCheck);
-                            LogManager.UpdateLog("[" + game.Name + "] settings updated for file [" + file + "] [" + path_dest + "]");
-                        }
-                        else
-                        {
-                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for file [" + file + "] [" + path_dest + "]");
-                        }
-                    }
+                    setting.IsEnabled = false;
+                    LogManager.UpdateLog("[" + game.Name + "] settings disabled for file [" + file + "] [" + path_dest + "]");
+                    return;
                 }
-                else if (setting.Type == SettingsType.Registry)
+
+                // 1. Save current settings
+                if (updateDB)
                 {
-                    // We generate a temporary reg file
-                    string tempfile = Path.Combine(Form1.path_application, "temp.reg");
-                    RegistryManager.ExportKey(filename, tempfile);
+                    setting.data[path_game] = File.ReadAllBytes(filename);
+                    LogManager.UpdateLog("[" + game.Name + "] database updated for file [" + file + "] [" + path_game + "]");
+                }
 
-                    if (!File.Exists(tempfile))
+                // 2. Restore proper settings
+                if (updateFILE)
+                {
+                    if (setting.data.ContainsKey(path_dest))
                     {
-                        setting.IsEnabled = false;
-                        LogManager.UpdateLog("[" + game.Name + "] settings disabled registry entry " + filename + " [" + path_dest + "]");
-                        continue;
+                        File.WriteAllBytes(filename, setting.data[path_dest]);
+                        File.SetLastWriteTime(filename, game.LastCheck);
+                        LogManager.UpdateLog("[" + game.Name + "] settings updated for file [" + file + "] [" + path_dest + "]");
                     }
-
-                    // We store the data
-                    byte[] s_file = File.ReadAllBytes(tempfile);
-
-                    // 1. Save current settings
-                    if (updateDB)
+                    else
                     {
-                        setting.data[path_game] = s_file;
-                        LogManager.UpdateLog("[" + game.Name + "] database updated for registry entry " + filename + " [" + path_game + "]");
+                        LogManager.UpdateLog("[" + game.Name + "] settings update skipped for file [" + file + "] [" + path_dest + "]");
                     }
-
-                    // 2. Restore proper settings
-                    if (updateFILE)
-                    {
-                        if (setting.data.ContainsKey(path_dest))
-                        {
-                            File.WriteAllBytes(tempfile, setting.data[path_dest]);
-                            RegistryManager.RestoreKey(tempfile);
-                            LogManager.UpdateLog("[" + game.Name + "] settings updated for registry entry " + filename + " [" + path_dest + "]");
-                        }
-                        else
-                        {
-                            LogManager.UpdateLog("[" + game.Name + "] settings update skipped for registry entry " + filename + " [" + path_dest + "]");
-                        }
-                    }
-
-                    // Delete the temporary reg file
-                    File.Delete(tempfile);
                 }
             }
+            else if (setting.Type == SettingsType.Registry)
+            {
+                // We generate a temporary reg file
+                string tempfile = Path.Combine(Form1.path_application, "temp.reg");
+                RegistryManager.ExportKey(filename, tempfile);
+
+                if (!File.Exists(tempfile))
+                {
+                    setting.IsEnabled = false;
+                    LogManager.UpdateLog("[" + game.Name + "] settings disabled registry entry " + filename + " [" + path_dest + "]");
+                    return;
+                }
+
+                // 1. Save current settings
+                if (updateDB)
+                {
+                    setting.data[path_game] = File.ReadAllBytes(tempfile);
+                    LogManager.UpdateLog("[" + game.Name + "] database updated for registry entry " + filename + " [" + path_game + "]");
+                }
+
+                // 2. Restore proper settings
+                if (updateFILE)
+                {
+                    if (setting.data.ContainsKey(path_dest))
+                    {
+                        File.WriteAllBytes(tempfile, setting.data[path_dest]);
+                        RegistryManager.RestoreKey(tempfile);
+                        LogManager.UpdateLog("[" + game.Name + "] settings updated for registry entry " + filename + " [" + path_dest + "]");
+                    }
+                    else
+                    {
+                        LogManager.UpdateLog("[" + game.Name + "] settings update skipped for registry entry " + filename + " [" + path_dest + "]");
+                    }
+                }
+
+                // Delete the temporary reg file
+                File.Delete(tempfile);
+            }
+        }
+
+        public static void UpdateFilesAndRegistries(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value)
+        {
+            foreach (GameSettings setting in game.Settings.Values.Where(a => a.IsEnabled))
+                UpdateFileAndRegistry(game, path_dest, path_game, updateDB, updateFILE, pushToast, crc_value, setting);
 
             game.SetCrc(crc_value);
             game.Serialize();
@@ -269,27 +261,24 @@ namespace DockerForm
 
                     if (path_db != crc_value)
                     {
-                        Form1.SendNotification("CRC missmatch detected for " + game.Name + ". Settings will be restored. (CRC: " + crc_value + ", Current: " + path_db + ")", true, true, true);
-
-                        // Overwrite current database and restore last known settings
-                        UpdateFilesAndRegistries(game, crc_value, path_db, true, true, false, path_db);
-
-                        continue;
+                        Form1.SendNotification("[" + game.Name + "] CRC missmatch detected for [" + file.Name + "]", true, true, true);
+                        UpdateFileAndRegistry(game, path_db, crc_value, true, true, false, path_db, setting);
                     }
                     else if (!Equality(fileBytes, fileDBBytes))
                     {
-                        Form1.SendNotification("Database sync conflict detected for " + game.Name, true, true, true);
+                        Form1.SendNotification("[" + game.Name + "] database sync conflict detected for [" + file.Name + "]", true, true, true);
 
                         DialogBox dialogBox = new DialogBox();
-                        dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file.LastWriteTime);
+                        dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file);
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
                         bool result = (dialogResult == DialogResult.Yes);
-                        UpdateFilesAndRegistries(game, path_db, path_db, !result, result, true, path_db);
-
-                        continue;
+                        UpdateFileAndRegistry(game, path_db, path_db, !result, result, true, path_db, setting);
                     }
                 }
+
+                game.SetCrc(path_db);
+                game.Serialize();
             }
 
             return true;

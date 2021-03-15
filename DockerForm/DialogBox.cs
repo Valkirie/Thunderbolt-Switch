@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace DockerForm
@@ -15,11 +16,11 @@ namespace DockerForm
             InitializeComponent();
         }
 
-        public void UpdateDialogBox(string Title, string Name, DateTime LastCheck, DateTime LastWriteTime)
+        public void UpdateDialogBox(string Title, string Name, DateTime LastCheck, FileInfo file)
         {
-            warningStr = "The database settings data for " + Name + " does not match the data stored on this computer.";
+            warningStr = "The database settings data for " + Name + " [" + file.Name + "] does not match the data stored on this computer.";
             modifiedDB = LastCheck;
-            modifiedLOCAL = LastWriteTime;
+            modifiedLOCAL = file.LastWriteTime;
 
             label_WARNING.Text = warningStr;
             label_WARNING.Select(label_WARNING.Text.IndexOf(Name, 0), Name.Length);
