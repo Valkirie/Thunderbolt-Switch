@@ -1,6 +1,6 @@
 # Thunderbolt Switch
 
-![Visual](assets/visual.png)
+![image](https://user-images.githubusercontent.com/934757/111270519-417a0500-8630-11eb-9312-65d095e1a180.png)
 
 Thunderbolt Switch, a software that switches your game settings depending on whether you are connected to an external GPU or not.
 
