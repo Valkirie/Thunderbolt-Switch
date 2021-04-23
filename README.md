@@ -68,5 +68,5 @@ Power Information:
 User-defined Triggers (*ApplyMask value. Can be added together. ApplyMask 3 would trigger the Power Profile on both Battery/Plugged In Power Status*).
 - When device power status has changed (*1: On Battery, 2: Plugged In*)
 - When device docking status has changed (*4: External GPU Detected*)
-- When device starts (*8: On Startup)
+- When device starts (*8: On Startup*)
 - When device video output status has changed (*22: Plugged In*)
