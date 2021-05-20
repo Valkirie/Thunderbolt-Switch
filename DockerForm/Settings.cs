@@ -112,11 +112,11 @@ namespace DockerForm
                 bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
                 bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
                 bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
-                bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
                 bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
-                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnBoot.ToString(), isOnScreen.ToString() }, profile.ProfileName);
+                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnScreen.ToString() }, profile.ProfileName);
 
-                if (isOnBoot || profile.ApplyPriority == -1)
+                // skip default
+                if (profile.ApplyPriority == -1)
                     continue;
 
                 if (thisGame.Profiles.ContainsKey(profile.ProfileName))

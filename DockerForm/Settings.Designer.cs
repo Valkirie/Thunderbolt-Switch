@@ -83,7 +83,6 @@ namespace DockerForm
             this.PowerProfileHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.PowerProfileHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PowerProfileHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBoxPowerProfile = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -539,7 +538,6 @@ namespace DockerForm
             this.PowerProfileHeader2,
             this.PowerProfileHeader3,
             this.PowerProfileHeader4,
-            this.PowerProfileHeader5,
             this.PowerProfileHeader6});
             this.ProfilesList.Dock = System.Windows.Forms.DockStyle.Top;
             this.ProfilesList.FullRowSelect = true;
@@ -558,7 +556,7 @@ namespace DockerForm
             // PowerProfileHeader1
             // 
             this.PowerProfileHeader1.Text = "Name";
-            this.PowerProfileHeader1.Width = 139;
+            this.PowerProfileHeader1.Width = 214;
             // 
             // PowerProfileHeader2
             // 
@@ -574,11 +572,6 @@ namespace DockerForm
             // 
             this.PowerProfileHeader4.Text = "OnExtGPU";
             this.PowerProfileHeader4.Width = 75;
-            // 
-            // PowerProfileHeader5
-            // 
-            this.PowerProfileHeader5.Text = "OnStartup";
-            this.PowerProfileHeader5.Width = 75;
             // 
             // PowerProfileHeader6
             // 
@@ -777,7 +770,6 @@ namespace DockerForm
         private ColumnHeader PowerProfileHeader2;
         private ColumnHeader PowerProfileHeader3;
         private ColumnHeader PowerProfileHeader4;
-        private ColumnHeader PowerProfileHeader5;
         private Label label2;
         private Label label1;
         private TextBox textBox1;

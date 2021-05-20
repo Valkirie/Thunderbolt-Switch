@@ -119,13 +119,14 @@ namespace DockerForm
             bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
             bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
             bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
+            bool isOnStatusChange = (profile.ApplyMask & (byte)ProfileMask.OnStatusChange) == (byte)ProfileMask.OnStatusChange;
             bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
 
-            // exclusive conditions ...
             if (IsFirstBoot && !isOnBoot)
                 return false;
+            else if (isOnStatusChange && isOnBoot)
+                return false;
 
-            // inclusive conditions ...
             if (PowerStatus && isPluggedIn)
                 return true;
             else if (!PowerStatus && isOnBattery)

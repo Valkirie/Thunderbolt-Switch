@@ -14,6 +14,7 @@ namespace DockerForm
         ExternalGPU = 0x04, // 0000 0000 0000 0100
         OnStartup = 0x08, // 0000 0000 0000 1000
         ExternalScreen = 0x16, // 0000 0000 0001 0000
+        OnStatusChange = 0x32, // 0000 0000 0010 0000
     }
 
     public static class StringExtension
