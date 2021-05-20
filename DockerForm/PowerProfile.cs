@@ -185,7 +185,7 @@ namespace DockerForm
             }
             if (HasPowerBalanceGPU())
             {
-                string hex = int.Parse(PowerBalanceCPU).ToString("X").GetLast(2);
+                string hex = int.Parse(PowerBalanceGPU).ToString("X").GetLast(2);
                 hex = hex.Length < 2 ? "0" + hex : hex;
                 PowerBalanceGPUHex = hex;
             }
