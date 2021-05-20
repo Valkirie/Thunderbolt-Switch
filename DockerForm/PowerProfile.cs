@@ -79,12 +79,12 @@ namespace DockerForm
 
         public string GetLongPowerMax()
         {
-            return TurboBoostLongPowerMaxHex;
+            return TurboBoostLongPowerMaxHex.GetLast(3);
         }
 
         public string GetShortPowerMax()
         {
-            return TurboBoostShortPowerMaxHex;
+            return TurboBoostShortPowerMaxHex.GetLast(3);
         }
 
         public string GetVoltageCPU()
