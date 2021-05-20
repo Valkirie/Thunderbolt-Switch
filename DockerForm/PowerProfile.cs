@@ -123,42 +123,42 @@ namespace DockerForm
 
         public bool HasLongPowerMax()
         {
-            return TurboBoostLongPowerMax != null;
+            return (TurboBoostLongPowerMax != null && TurboBoostLongPowerMax != "0");
         }
 
         public bool HasShortPowerMax()
         {
-            return TurboBoostShortPowerMax != null;
+            return (TurboBoostShortPowerMax != null && TurboBoostShortPowerMax != "0");
         }
 
         public bool HasSystemAgent()
         {
-            return SystemAgent != null;
+            return (SystemAgent != null && SystemAgent != "0");
         }
 
         public bool HasCPUCore()
         {
-            return CPUCore != null;
+            return (CPUCore != null && CPUCore != "0");
         }
 
         public bool HasIntelGPU()
         {
-            return IntelGPU != null;
+            return (IntelGPU != null && IntelGPU != "0");
         }
 
         public bool HasCPUCache()
         {
-            return CPUCache != null;
+            return (CPUCache != null && CPUCache != "0");
         }
 
         public bool HasPowerBalanceCPU()
         {
-            return PowerBalanceCPU != null;
+            return (PowerBalanceCPU != null && PowerBalanceCPU != "0");
         }
 
         public bool HasPowerBalanceGPU()
         {
-            return PowerBalanceGPU != null;
+            return (PowerBalanceGPU != null && PowerBalanceGPU != "0");
         }
 
         public void ComputeHex()
