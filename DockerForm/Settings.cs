@@ -109,10 +109,13 @@ namespace DockerForm
 
             foreach (PowerProfile profile in Form1.ProfileDB.Values)
             {
-                bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
-                bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
-                bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
-                bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
+				bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
+				bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
+				bool isExtGPU = profile._ApplyMask.HasFlag(ProfileMask.ExternalGPU);
+				bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
+				bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
+				bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
+
                 ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnScreen.ToString() }, profile.ProfileName);
 
                 // skip default

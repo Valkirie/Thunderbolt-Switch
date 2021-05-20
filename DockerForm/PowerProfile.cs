@@ -9,12 +9,14 @@ namespace DockerForm
     [Flags]
     public enum ProfileMask
     {
-        OnBattery = 0x01, // 0000 0000 0000 0001
-        PluggedIn = 0x02, // 0000 0000 0000 0010
-        ExternalGPU = 0x04, // 0000 0000 0000 0100
-        OnStartup = 0x08, // 0000 0000 0000 1000
-        ExternalScreen = 0x16, // 0000 0000 0001 0000
-        OnStatusChange = 0x32, // 0000 0000 0010 0000
+        None = 0,
+        OnBattery = 1,
+        PluggedIn = 2,
+        ExternalGPU = 4,
+        OnStartup = 8,
+        ExternalScreen = 16,
+        OnStatusChange = 32,
+        All = OnBattery | PluggedIn | ExternalGPU | OnStartup | ExternalScreen | OnStatusChange
     }
 
     public static class StringExtension
@@ -40,7 +42,13 @@ namespace DockerForm
         public string CPUCore, IntelGPU, CPUCache, SystemAgent;
         public string PowerBalanceCPU, PowerBalanceGPU;
         public string ProfileName = "";
-        public byte ApplyMask = 0;
+        [XmlIgnore]
+        public ProfileMask _ApplyMask = ProfileMask.None;
+        public int ApplyMask
+        {
+            get { return (int)_ApplyMask; }
+            set { _ApplyMask = (ProfileMask)value; }
+        }
         public int ApplyPriority = 0;
 
         [NonSerialized()] public bool RunMe;

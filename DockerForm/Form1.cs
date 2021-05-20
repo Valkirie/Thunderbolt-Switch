@@ -115,12 +115,12 @@ namespace DockerForm
 
         private static bool CanRunProfile(PowerProfile profile, bool IsFirstBoot)
         {
-            bool isOnBattery = (profile.ApplyMask & (byte)ProfileMask.OnBattery) == (byte)ProfileMask.OnBattery;
-            bool isPluggedIn = (profile.ApplyMask & (byte)ProfileMask.PluggedIn) == (byte)ProfileMask.PluggedIn;
-            bool isExtGPU = (profile.ApplyMask & (byte)ProfileMask.ExternalGPU) == (byte)ProfileMask.ExternalGPU;
-            bool isOnBoot = (profile.ApplyMask & (byte)ProfileMask.OnStartup) == (byte)ProfileMask.OnStartup;
-            bool isOnStatusChange = (profile.ApplyMask & (byte)ProfileMask.OnStatusChange) == (byte)ProfileMask.OnStatusChange;
-            bool isOnScreen = (profile.ApplyMask & (byte)ProfileMask.ExternalScreen) == (byte)ProfileMask.ExternalScreen;
+            bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
+            bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
+            bool isExtGPU = profile._ApplyMask.HasFlag(ProfileMask.ExternalGPU);
+            bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
+            bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
+            bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
 
             if (IsFirstBoot && !isOnBoot)
                 return false;
@@ -586,7 +586,7 @@ namespace DockerForm
 
         public void UpdateGameList()
         {
-            // Read all the game files (xml)
+            // Read all the game files (dat)
             string[] fileEntries = Directory.GetFiles(path_database, "*.dat");
             foreach (string filename in fileEntries)
             {
@@ -809,7 +809,7 @@ namespace DockerForm
             }
 
             // update MCHBAR
-            string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;rwexit\"";
+            string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;Delay 1000;rwexit\"";
             var proc = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -834,6 +834,7 @@ namespace DockerForm
                 MCHBAR = MCHBAR.Substring(0, 6) + "59";
                 break;
             }
+            proc.Dispose();
 
             /* string ProcessorID = GetProcessorID();
             switch (ProcessorID.Substring(ProcessorID.Length - 5))
