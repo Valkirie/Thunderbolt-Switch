@@ -164,7 +164,7 @@ namespace DockerForm
             if (CurrentProfile.Equals(profile))
                 return;
 
-            string command = "/Min /Nologo /Stdout /command=\"";
+            string command = "/Min /Nologo /Stdout /command=\"Delay 100;";
 
             if (profile.HasLongPowerMax())
             {
@@ -192,7 +192,8 @@ namespace DockerForm
             if (profile.HasPowerBalanceGPU())
                 command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
 
-            command += "rwexit\"";
+            // command += "w " + MCHBAR + "94 0xFF;";
+            command += "Delay 100;rwexit\"";
 
             ProcessStartInfo RWInfo = new ProcessStartInfo
             {
