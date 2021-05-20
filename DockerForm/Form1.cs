@@ -807,7 +807,30 @@ namespace DockerForm
             }
 
             // update MCHBAR
-            string ProcessorID = GetProcessorID();
+            string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;rwexit\"";
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = path_rw,
+                    Arguments = command,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string line = proc.StandardOutput.ReadLine();
+                MCHBAR = line.GetLast(10);
+                MCHBAR = MCHBAR.Substring(0, 6) + "59";
+                break;
+                // do something with line
+            }
+
+            /* string ProcessorID = GetProcessorID();
             switch (ProcessorID.Substring(ProcessorID.Length - 5))
             {
                 case "206A7": // SandyBridge
@@ -823,7 +846,7 @@ namespace DockerForm
                 case "806C1": // TigerLake
                     MCHBAR = "0xFEDC59";
                     break;
-            }
+            } */
 
             // update Database
             UpdateGameList();
