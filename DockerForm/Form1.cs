@@ -154,7 +154,7 @@ namespace DockerForm
         private static void SetPowerProfile(PowerProfile profile)
         {
             // skip if unsupported platform
-            if (MCHBAR == null)
+            if (MCHBAR == null || !MCHBAR.Contains("0x"))
                 return;
 
             // skip check on empty profile
@@ -826,10 +826,13 @@ namespace DockerForm
             while (!proc.StandardOutput.EndOfStream)
             {
                 string line = proc.StandardOutput.ReadLine();
+
+                if (!line.Contains("0x"))
+                    continue;
+
                 MCHBAR = line.GetLast(10);
                 MCHBAR = MCHBAR.Substring(0, 6) + "59";
                 break;
-                // do something with line
             }
 
             /* string ProcessorID = GetProcessorID();
