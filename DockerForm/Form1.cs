@@ -124,7 +124,7 @@ namespace DockerForm
 
             if (IsFirstBoot && !isOnBoot)
                 return false;
-            else if (isOnStatusChange && isOnBoot)
+            if (!IsFirstBoot && !isOnStatusChange)
                 return false;
 
             if (PowerStatus && isPluggedIn)
