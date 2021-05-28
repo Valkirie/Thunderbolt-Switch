@@ -68,7 +68,10 @@ namespace DockerForm
                     }
                 }
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                LogManager.UpdateLog(e.Message, true);
+            }
 
             return pathToExe;
         }
@@ -301,9 +304,10 @@ namespace DockerForm
                         try
                         {
                             doc.Load(file);
-                        }catch(System.IO.IOException e)
+                        }
+                        catch (Exception e)
                         {
-                            continue;
+                            LogManager.UpdateLog(e.Message, true);
                         }
 
                         string IdentityName = "";
