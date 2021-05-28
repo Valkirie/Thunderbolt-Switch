@@ -297,7 +297,7 @@ namespace DockerForm
                 foreach (string file in Directory.GetFiles(folder))
                 {
                     FileInfo myFile = new FileInfo(file);
-                    if (myFile.Name.Equals("AppxManifest.xml"))
+                    if (myFile.Name.Equals("AppxManifest.xml", StringComparison.OrdinalIgnoreCase))
                     {
                         XmlDocument doc = new XmlDocument();
                         // prevent crash if file is being read/write by Microsoft Store
