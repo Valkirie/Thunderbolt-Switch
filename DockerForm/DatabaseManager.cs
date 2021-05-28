@@ -483,35 +483,9 @@ namespace DockerForm
         {
             List<DockerGame> listofGames = new List<DockerGame>();
 
-            // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
-            string regkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
-            RegistryKey key = Registry.LocalMachine.OpenSubKey(regkey);
-
-            string steamPath = null;
-
-            foreach (string ksubKey in key.GetSubKeyNames().Where(a => a.Contains("Steam")))
-            {
-                using (RegistryKey subKey = key.OpenSubKey(ksubKey))
-                {
-                    Dictionary<string, string> subKeys = new Dictionary<string, string>();
-
-                    foreach (string subkeyname in subKey.GetValueNames())
-                        subKeys.Add(subkeyname, subKey.GetValue(subkeyname).ToString());
-
-                    if (subKeys.ContainsKey("DisplayIcon"))
-                    {
-                        string DisplayIcon = subKeys["DisplayIcon"];
-                        steamPath = Path.GetDirectoryName(DisplayIcon);
-                    }
-                }
-            }
-
-            if (steamPath == null)
-                return listofGames;
-
             // HKEY_CURRENT_USER\System\GameConfigStore\Children
-            regkey = "System\\GameConfigStore\\Children";
-            key = Registry.CurrentUser.OpenSubKey(regkey);
+            string regkey = "System\\GameConfigStore\\Children";
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(regkey);
 
             foreach (string ksubKey in key.GetSubKeyNames())
             {
@@ -526,7 +500,7 @@ namespace DockerForm
                     {
                         string filePath = subKeys["MatchedExeFullPath"];
 
-                        if (filePath.Contains(steamPath))
+                        if (filePath.Contains("steamapps"))
                         {
                             if (File.Exists(filePath))
                             {
