@@ -1159,7 +1159,7 @@ namespace DockerForm
         {
             foreach (DockerGame game in DetectedGames.Where(a => !Blacklist.Contains(a.Name)))
             {
-                DialogResult dialogResult = MessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", Platform + " Automatic Detection", MessageBoxButtons.YesNoCancel);
+                DialogResult dialogResult = CustomMessageBox.Show("Do you want to add [" + game.Name + "] to your Database ? ", Platform + " Automatic Detection", CustomMessageBox.eDialogButtons.YesNoCancel, game.Image);
                 if (dialogResult == DialogResult.Yes)
                     InsertOrUpdateGameItem(game, true);
                 else if (dialogResult == DialogResult.Cancel)

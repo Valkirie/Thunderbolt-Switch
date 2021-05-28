@@ -109,6 +109,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomMessageBox.cs" />
     <Compile Include="DatabaseManager.cs" />
     <Compile Include="DialogBox.cs">
       <SubType>Form</SubType>
