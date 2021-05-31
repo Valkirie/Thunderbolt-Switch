@@ -224,6 +224,16 @@
     <None Include="Resources\1200px-Microsoft_Store_logo.svg.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dependencies\x64\DevManView.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="dependencies\x86\DevManView.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="dependencies\Rw.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

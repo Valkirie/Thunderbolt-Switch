@@ -57,7 +57,7 @@ namespace DockerForm
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
-        public static string path_rw;
+        public static string path_rw, path_devcon;
 
         // Form vars
         private static Form1 CurrentForm;
@@ -90,8 +90,6 @@ namespace DockerForm
             switch (m.Msg)
             {
                 case WM_DEVICECHANGE:
-                    IsHardwarePending = true;
-                    break;
                 case WM_DISPLAYCHANGE:
                     IsHardwarePending = true;
                     break;
@@ -352,95 +350,105 @@ namespace DockerForm
             }
         }
 
+        public static void UpdateMonitorHardware()
+        {
+            VideoControllers.Clear();
+
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+            foreach (ManagementObject mo in searcher.Get())
+            {
+                VideoController vc = new VideoController
+                {
+                    DeviceID = (string)mo.Properties["DeviceID"].Value,
+                    PNPDeviceID = (string)mo.Properties["PNPDeviceID"].Value,
+                    Name = (string)mo.Properties["Name"].Value,
+                    Description = (string)mo.Properties["Description"].Value,
+                    ErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value
+                };
+
+                // initialize VideoController
+                vc.Initialize();
+                VideoControllers[vc.Type] = vc;
+            }
+
+            // update all status
+            if (VideoControllers.ContainsKey(Type.Discrete) && VideoControllers[Type.Discrete].IsEnabled())
+            {
+                CurrentController = VideoControllers[Type.Discrete];
+                DockStatus = true;
+            }
+            else
+            {
+                CurrentController = VideoControllers[Type.Internal];
+                DockStatus = false;
+            }
+
+            // monitor hardware changes
+            IsHardwareNew = prevDockStatus != DockStatus;
+
+            // temp: disable igpu if egpu is available
+            if (prevDockStatus == false && DockStatus == true)
+                VideoControllers[Type.Internal].DisableDevice(path_devcon);
+            else if (prevDockStatus == true && DockStatus == false)
+                VideoControllers[Type.Internal].EnableDevice(path_devcon);
+
+            // hardware has changed
+            if (IsHardwareNew && !IsFirstBoot)
+            {
+                if (VideoControllers.ContainsKey(Type.Discrete))
+                    SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
+                else if (VideoControllers.ContainsKey(Type.Internal))
+                    SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
+
+                DatabaseManager.UpdateFilesAndRegistries(false, true);
+                DatabaseManager.UpdateFilesAndRegistries(true, false);
+            }
+
+            // update status
+            prevDockStatus = DockStatus;
+            IsHardwarePending = false;
+        }
+
+        public static void UpdateMonitorPower()
+        {
+            PowerStatus = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
+            IsPowerNew = prevPowerStatus != PowerStatus;
+
+            // Power Status has changed
+            if (IsPowerNew && !IsFirstBoot)
+            {
+                LogManager.UpdateLog("Power Status: " + GetCurrentPower());
+                SendNotification("Device is " + GetCurrentPower() + ".", true);
+            }
+
+            // update status
+            prevPowerStatus = PowerStatus;
+            IsPowerPending = false;
+        }
+
+        public static void UpdateMonitorScreen()
+        {
+            ScreenCount = Screen.AllScreens.Length;
+            IsScreenNew = prevScreenCount != ScreenCount;
+
+            // update status
+            prevScreenCount = ScreenCount;
+            IsScreenPending = false;
+        }
+
         public static void MonitorThread(object data)
         {
             while (IsRunning)
             {
                 bool IsGameRunning = GameProcesses.Count != 0;
                 if (IsHardwarePending && !IsGameRunning)
-                {
-                    DateTime currentCheck = DateTime.Now;
-                    VideoControllers.Clear();
-
-                    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
-                    foreach (ManagementObject mo in searcher.Get())
-                    {
-                        VideoController vc = new VideoController
-                        {
-                            DeviceID = (string)mo.Properties["DeviceID"].Value,
-                            Name = (string)mo.Properties["Name"].Value,
-                            Description = (string)mo.Properties["Description"].Value,
-                            ConfigManagerErrorCode = (uint)mo.Properties["ConfigManagerErrorCode"].Value,
-                            lastCheck = currentCheck
-                        };
-
-                        // skip if not enabled
-                        if (vc.ConfigManagerErrorCode != 0)
-                            continue;
-
-                        // initialize VideoController
-                        vc.Initialize();
-
-                        // update VideoController
-                        VideoControllers[vc.Type] = vc;
-                    }
-
-                    // update all status
-                    DockStatus = VideoControllers.ContainsKey(Type.Discrete);
-                    CurrentController = DockStatus ? VideoControllers[Type.Discrete] : VideoControllers[Type.Internal];
-
-                    // monitor hardware changes
-                    IsHardwareNew = IsFirstBoot ? false : (prevDockStatus != DockStatus);
-
-                    // hardware has changed
-                    if (IsHardwareNew)
-                    {
-                        if (VideoControllers.ContainsKey(Type.Discrete))
-                            SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
-                        else if (VideoControllers.ContainsKey(Type.Internal))
-                            SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
-
-                        DatabaseManager.UpdateFilesAndRegistries(false, true);
-                        DatabaseManager.UpdateFilesAndRegistries(true, false);
-                    }
-
-                    // update status
-                    prevDockStatus = DockStatus;
-
-                    // update form
-                    UpdateForm();
-                    IsHardwarePending = false;
-                }
+                    UpdateMonitorHardware();
 
                 if (IsPowerPending)
-                {
-                    PowerStatus = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
-                    IsPowerNew = IsFirstBoot ? false : (prevPowerStatus != PowerStatus);
-
-                    // Power Status has changed
-                    if (IsPowerNew)
-                    {
-                        LogManager.UpdateLog("Power Status: " + GetCurrentPower());
-                        SendNotification("Device is " + GetCurrentPower() + ".", true);
-                    }
-
-                    // update status
-                    prevPowerStatus = PowerStatus;
-
-                    // update form
-                    UpdateForm();
-                    IsPowerPending = false;
-                }
+                    UpdateMonitorPower();
 
                 if (IsScreenPending)
-                {
-                    ScreenCount = Screen.AllScreens.Length;
-                    IsScreenNew = prevScreenCount != ScreenCount;
-
-                    // update status
-                    prevScreenCount = ScreenCount;
-                    IsScreenPending = false;
-                }
+                    UpdateMonitorScreen();
 
                 if (IsFirstBoot || IsPowerNew || IsHardwareNew || IsScreenNew)
                 {
@@ -451,6 +459,9 @@ namespace DockerForm
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
                     if (IsScreenNew) IsScreenNew = false;
+
+                    // update form
+                    UpdateForm();
                 }
 
                 if (IsFirstBoot)
@@ -736,6 +747,7 @@ namespace DockerForm
             path_dependencies = Path.Combine(path_application, "dependencies");
             path_profiles = Path.Combine(path_application, "profiles");
             path_rw = Path.Combine(path_dependencies, "Rw.exe");
+            path_devcon = Path.Combine(path_dependencies, Environment.Is64BitOperatingSystem ? "x64" : "x86", "DevManView.exe");
 
             if (!Directory.Exists(path_database))
                 Directory.CreateDirectory(path_database);
@@ -810,49 +822,26 @@ namespace DockerForm
 
             // update MCHBAR
             string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;Delay 1000;rwexit\"";
-            var proc = new Process
+            using (var ProcessOutput = Process.Start(new ProcessStartInfo(path_rw, command)
             {
-                StartInfo = new ProcessStartInfo
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                Verb = "runas"
+            }))
+            {
+                while (!ProcessOutput.StandardOutput.EndOfStream)
                 {
-                    FileName = path_rw,
-                    Arguments = command,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                    string line = ProcessOutput.StandardOutput.ReadLine();
+
+                    if (!line.Contains("0x"))
+                        continue;
+
+                    MCHBAR = line.GetLast(10);
+                    MCHBAR = MCHBAR.Substring(0, 6) + "59";
+                    break;
                 }
             };
-
-            proc.Start();
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-
-                if (!line.Contains("0x"))
-                    continue;
-
-                MCHBAR = line.GetLast(10);
-                MCHBAR = MCHBAR.Substring(0, 6) + "59";
-                break;
-            }
-            proc.Dispose();
-
-            /* string ProcessorID = GetProcessorID();
-            switch (ProcessorID.Substring(ProcessorID.Length - 5))
-            {
-                case "206A7": // SandyBridge
-                case "306A9": // IvyBridge
-                case "40651": // Haswell
-                case "306D4": // Broadwell
-                case "406E3": // Skylake
-                case "906ED": // CoffeeLake
-                case "806E9": // AmberLake
-                case "706E5": // IceLake
-                    MCHBAR = "0xFED159";
-                    break;
-                case "806C1": // TigerLake
-                    MCHBAR = "0xFEDC59";
-                    break;
-            } */
 
             // update Database
             UpdateGameList();

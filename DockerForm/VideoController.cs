@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace DockerForm
 {
@@ -18,10 +20,10 @@ namespace DockerForm
     public class VideoController
     {
         public string DeviceID;
+        public string PNPDeviceID;
         public string Name;
         public string Description;
-        public uint ConfigManagerErrorCode;
-        public DateTime lastCheck;
+        public uint ErrorCode;
         public Constructor Constructor;
         public Type Type;
 
@@ -31,10 +33,35 @@ namespace DockerForm
                 Constructor = Constructor.Nvidia;
             else if (Name.ToLower().Contains("amd"))
                 Constructor = Constructor.AMD;
-            else
+            else if (Name.ToLower().Contains("intel"))
                 Constructor = Constructor.Intel;
 
-            Type = Constructor == Constructor.Intel ? Type.Internal : Type.Discrete;
+            Type = DeviceID == "VideoController1" ? Type.Internal : Type.Discrete;
+        }
+
+        public bool IsDisabled()
+        {
+            return ErrorCode == 22;
+        }
+
+        public bool IsEnabled()
+        {
+            return ErrorCode == 0;
+        }
+
+        public bool EnableDevice(string devconPath)
+        {
+            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /enable \"{this.Name}\"") { CreateNoWindow = true, RedirectStandardOutput = true, UseShellExecute = false, Verb = "runas" }))
+                return true;
+        }
+
+        public bool DisableDevice(string devconPath)
+        {
+            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /disable \"{this.Name}\"") { CreateNoWindow = true, RedirectStandardOutput = true, UseShellExecute = false, Verb = "runas" }))
+            {
+                ErrorCode = 22;
+                return true;
+            }
         }
     }
 }
