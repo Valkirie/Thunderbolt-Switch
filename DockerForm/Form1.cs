@@ -352,8 +352,6 @@ namespace DockerForm
 
         public static void UpdateMonitorHardware()
         {
-            VideoControllers.Clear();
-
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
             foreach (ManagementObject mo in searcher.Get())
             {
@@ -372,25 +370,32 @@ namespace DockerForm
             }
 
             // update all status
-            if (VideoControllers.ContainsKey(Type.Discrete) && VideoControllers[Type.Discrete].IsEnabled())
+            if (VideoControllers.ContainsKey(Type.Discrete))
             {
-                CurrentController = VideoControllers[Type.Discrete];
-                DockStatus = true;
+                if (VideoControllers[Type.Discrete].IsEnabled())
+                {
+                    CurrentController = VideoControllers[Type.Discrete];
+                    DockStatus = true;
+                }
+
+                // disable iGPU when dGPU is available
+                if (VideoControllers.ContainsKey(Type.Internal))
+                    VideoControllers[Type.Internal].DisableDevice(path_devcon);
             }
-            else
+            else if (VideoControllers.ContainsKey(Type.Internal))
             {
-                CurrentController = VideoControllers[Type.Internal];
-                DockStatus = false;
+                if (VideoControllers[Type.Internal].IsEnabled())
+                {
+                    CurrentController = VideoControllers[Type.Internal];
+                    DockStatus = false;
+                }
+
+                // enable iGPU when no dGPU is available
+                VideoControllers[Type.Internal].EnableDevice(path_devcon);
             }
 
             // monitor hardware changes
             IsHardwareNew = prevDockStatus != DockStatus;
-
-            // temp: disable igpu if egpu is available
-            if (prevDockStatus == false && DockStatus == true)
-                VideoControllers[Type.Internal].DisableDevice(path_devcon);
-            else if (prevDockStatus == true && DockStatus == false)
-                VideoControllers[Type.Internal].EnableDevice(path_devcon);
 
             // hardware has changed
             if (IsHardwareNew && !IsFirstBoot)

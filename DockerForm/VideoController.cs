@@ -51,14 +51,36 @@ namespace DockerForm
 
         public bool EnableDevice(string devconPath)
         {
-            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /enable \"{this.Name}\"") { CreateNoWindow = true, RedirectStandardOutput = true, UseShellExecute = false, Verb = "runas" }))
+            if (IsEnabled())
+                return false;
+
+            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /enable \"{Name}\"")
+            {
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                Verb = "runas"
+            }))
+            {
+                LogManager.UpdateLog($"Device [{Name}] has been enabled.");
                 return true;
+            }
         }
 
         public bool DisableDevice(string devconPath)
         {
-            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /disable \"{this.Name}\"") { CreateNoWindow = true, RedirectStandardOutput = true, UseShellExecute = false, Verb = "runas" }))
+            if (IsDisabled())
+                return false;
+
+            using (var EnableProcess = Process.Start(new ProcessStartInfo(devconPath, $" /disable \"{Name}\"")
+            { 
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                Verb = "runas"
+            }))
             {
+                LogManager.UpdateLog($"Device [{Name}] has been disabled.");
                 ErrorCode = 22;
                 return true;
             }
