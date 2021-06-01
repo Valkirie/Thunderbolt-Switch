@@ -614,9 +614,9 @@ namespace DockerForm
 
                 // Misc
                 if (profile.HasLongPowerMax())
-                    textBox1.Text = profile.TurboBoostLongPowerMax + "W";
+                    textBox1.Text = profile.TurboBoostLongPowerMax;
                 if (profile.HasShortPowerMax())
-                    textBox2.Text = profile.TurboBoostShortPowerMax + "W";
+                    textBox2.Text = profile.TurboBoostShortPowerMax;
                 if (profile.HasPowerBalanceCPU())
                     textBox3.Text = profile.PowerBalanceCPU;
                 if (profile.HasPowerBalanceGPU())
@@ -624,13 +624,13 @@ namespace DockerForm
 
                 // FIVR
                 if (profile.HasCPUCore())
-                    textBox5.Text = profile.CPUCore + "mV";
+                    textBox5.Text = profile.CPUCore;
                 if (profile.HasCPUCache())
-                    textBox6.Text = profile.CPUCache + "mV";
+                    textBox6.Text = profile.CPUCache;
                 if (profile.HasSystemAgent())
-                    textBox7.Text = profile.SystemAgent + "mV";
+                    textBox7.Text = profile.SystemAgent;
                 if (profile.HasIntelGPU())
-                    textBox8.Text = profile.IntelGPU + "mV";
+                    textBox8.Text = profile.IntelGPU;
             }
         }
     }

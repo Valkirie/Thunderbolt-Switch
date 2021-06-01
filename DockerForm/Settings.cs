@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -89,6 +90,16 @@ namespace DockerForm
             Form1.UpdateSettings();
         }
 
+        private void Settings_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
+        {
+            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            {
+                string ProfileName = item.SubItems[0].Text;
+                if (Form1.ProfileDB.ContainsKey(ProfileName))
+                    Form1.ProfileDB[ProfileName].Serialize();
+            }
+        }
+
         private void Settings_Load(object sender, EventArgs e)
         {
             foreach (CheckBox ctrl in groupBoxGeneral.Controls.Cast<Control>().Concat(groupBox1.Controls.Cast<Control>()).Concat(groupBox2.Controls.Cast<Control>()).Where(a => a.GetType() == typeof(CheckBox)))
@@ -106,7 +117,7 @@ namespace DockerForm
                 bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
                 bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
 
-                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnScreen.ToString() }, profile.ProfileName);
+                ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName }, profile.ProfileName);
 
                 // skip default
                 if (profile.ApplyPriority == -1)
@@ -136,12 +147,17 @@ namespace DockerForm
                 profile._ApplyMask |= ProfileMask.OnStartup;
             if (listBoxTriggers.GetSelected(5))
                 profile._ApplyMask |= ProfileMask.OnStatusChange;
-
-            profile.Serialize();
         }
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            {
+                string ProfileName = item.SubItems[0].Text;
+                if (Form1.ProfileDB.ContainsKey(ProfileName))
+                    MenuItemRemoveSetting.Enabled = true;
+            }
+
             foreach (Control ctrl in groupBoxFIVR.Controls)
                 if (ctrl.GetType() == typeof(TextBox))
                     ctrl.Text = "";
@@ -149,8 +165,6 @@ namespace DockerForm
             foreach (Control ctrl in groupBoxPowerProfile.Controls)
                 if (ctrl.GetType() == typeof(TextBox))
                     ctrl.Text = "";
-
-            listBoxTriggers.SelectedIndex = -1;
 
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
@@ -165,25 +179,19 @@ namespace DockerForm
                 bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
 
                 // Misc
-                if (profile.HasLongPowerMax())
-                    numericUpDown1.Value = decimal.Parse(profile.TurboBoostLongPowerMax);
-                if (profile.HasShortPowerMax())
-                    numericUpDown2.Value = decimal.Parse(profile.TurboBoostShortPowerMax);
-                if (profile.HasPowerBalanceCPU())
-                    numericUpDown3.Value = decimal.Parse(profile.PowerBalanceCPU);
-                if (profile.HasPowerBalanceGPU())
-                    numericUpDown4.Value = decimal.Parse(profile.PowerBalanceGPU);
+                numericUpDown1.Value = profile.HasLongPowerMax() ? decimal.Parse(profile.TurboBoostLongPowerMax) : 0;
+                numericUpDown2.Value = profile.HasShortPowerMax() ? decimal.Parse(profile.TurboBoostShortPowerMax) : 0;
+                numericUpDown3.Value = profile.HasPowerBalanceCPU() ? decimal.Parse(profile.PowerBalanceCPU) : 9;
+                numericUpDown4.Value = profile.HasPowerBalanceGPU() ? decimal.Parse(profile.PowerBalanceGPU) : 13;
 
                 // FIVR
-                if (profile.HasCPUCore())
-                    numericUpDown5.Value = decimal.Parse(profile.CPUCore);
-                if (profile.HasCPUCache())
-                    numericUpDown6.Value = decimal.Parse(profile.CPUCache);
-                if (profile.HasSystemAgent())
-                    numericUpDown7.Value = decimal.Parse(profile.SystemAgent);
-                if (profile.HasIntelGPU())
-                    numericUpDown8.Value = decimal.Parse(profile.IntelGPU);
+                numericUpDown5.Value = profile.HasCPUCore() ? decimal.Parse(profile.CPUCore) : 0;
+                numericUpDown6.Value = profile.HasCPUCache() ? decimal.Parse(profile.CPUCache) : 0;
+                numericUpDown7.Value = profile.HasSystemAgent() ? decimal.Parse(profile.SystemAgent) : 0;
+                numericUpDown8.Value = profile.HasIntelGPU() ? decimal.Parse(profile.IntelGPU) : 0;
 
+                // Triggers
+                listBoxTriggers.ClearSelected();
                 if (isOnBattery)
                     listBoxTriggers.SetSelected(0, true);
                 if (isPluggedIn)
@@ -196,7 +204,13 @@ namespace DockerForm
                     listBoxTriggers.SetSelected(4, true);
                 if (isOnStatusChange)
                     listBoxTriggers.SetSelected(5, true);
+                UpdateProfile();
             }
+        }
+
+        private void UpdateProfile()
+        {
+            Form1.ProfileDB[profile.ProfileName] = profile;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -205,7 +219,7 @@ namespace DockerForm
                 return;
 
             profile.TurboBoostLongPowerMax = numericUpDown1.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown2_ValueChanged(object sender, EventArgs e)
@@ -214,7 +228,7 @@ namespace DockerForm
                 return;
 
             profile.TurboBoostShortPowerMax = numericUpDown2.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
@@ -223,7 +237,7 @@ namespace DockerForm
                 return;
 
             profile.PowerBalanceCPU = numericUpDown3.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown4_ValueChanged(object sender, EventArgs e)
@@ -232,7 +246,7 @@ namespace DockerForm
                 return;
 
             profile.PowerBalanceGPU = numericUpDown4.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown5_ValueChanged(object sender, EventArgs e)
@@ -241,7 +255,7 @@ namespace DockerForm
                 return;
 
             profile.CPUCore = numericUpDown5.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown6_ValueChanged(object sender, EventArgs e)
@@ -250,7 +264,7 @@ namespace DockerForm
                 return;
 
             profile.CPUCache = numericUpDown6.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown7_ValueChanged(object sender, EventArgs e)
@@ -259,7 +273,7 @@ namespace DockerForm
                 return;
 
             profile.SystemAgent = numericUpDown7.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
         }
 
         private void numericUpDown8_ValueChanged(object sender, EventArgs e)
@@ -268,7 +282,47 @@ namespace DockerForm
                 return;
 
             profile.IntelGPU = numericUpDown8.Value.ToString();
-            profile.Serialize();
+            UpdateProfile();
+        }
+
+        private void MenuItemRemoveSetting_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            {
+                string ProfileName = item.SubItems[0].Text;
+
+                ProfilesList.Items.Remove(item);
+                if (Form1.ProfileDB.ContainsKey(ProfileName))
+                {
+                    PowerProfile profile = Form1.ProfileDB[ProfileName];
+                    profile.Remove();
+                }
+            }
+        }
+
+        private void MenuItemCreateSetting_Click(object sender, EventArgs e)
+        {
+            string ProfileName = Interaction.InputBox("Please make sure profile name is not already used.", "New Power Profile");
+
+            if (ProfileName == "")
+            {
+                MessageBox.Show("Profile name can't be empty.");
+                return;
+            }
+            else if (Form1.ProfileDB.ContainsKey(ProfileName))
+            {
+                MessageBox.Show("Profile name has to be unique.");
+                return;
+            }
+
+            PowerProfile pP = new PowerProfile()
+            {
+                ProfileName = ProfileName
+            };
+            pP.Serialize();
+
+            ListViewItem newProfile = new ListViewItem(new string[] { pP.ProfileName }, pP.ProfileName);
+            ProfilesList.Items.Add(newProfile);
         }
     }
 }

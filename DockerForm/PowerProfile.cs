@@ -54,7 +54,7 @@ namespace DockerForm
         [XmlIgnore] public bool RunMe;
         [XmlIgnore] public string GameBounds;
 
-        public string Serialize()
+        public void Serialize()
         {
             // update values
             ComputeHex();
@@ -68,8 +68,15 @@ namespace DockerForm
             }
 
             Form1.UpdateProfiles();
+        }
 
-            return "";
+        public void Remove()
+        {
+            string filename = Path.Combine(Form1.path_profiles, ProfileName) + ".xml";
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            Form1.UpdateProfiles();
         }
 
         private string TDPToHex(int decValue)

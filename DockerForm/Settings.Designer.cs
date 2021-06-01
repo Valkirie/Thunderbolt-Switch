@@ -34,6 +34,8 @@ namespace DockerForm
             this.tabControlSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBoxMonitorPowerProfiles = new System.Windows.Forms.CheckBox();
+            this.checkBoxMonitorHardware = new System.Windows.Forms.CheckBox();
             this.checkBoxSaveOnExit = new System.Windows.Forms.CheckBox();
             this.checkBoxMonitorProcesses = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -43,6 +45,8 @@ namespace DockerForm
             this.checkBoxMinimizeOnClosing = new System.Windows.Forms.CheckBox();
             this.checkBoxMinimizeOnStartup = new System.Windows.Forms.CheckBox();
             this.tabPowerProfiles = new System.Windows.Forms.TabPage();
+            this.groupBoxTriggers = new System.Windows.Forms.GroupBox();
+            this.listBoxTriggers = new System.Windows.Forms.ListBox();
             this.groupBoxFIVR = new System.Windows.Forms.GroupBox();
             this.numericUpDown8 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown7 = new System.Windows.Forms.NumericUpDown();
@@ -64,16 +68,16 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBoxMonitorHardware = new System.Windows.Forms.CheckBox();
-            this.groupBoxTriggers = new System.Windows.Forms.GroupBox();
-            this.listBoxTriggers = new System.Windows.Forms.ListBox();
-            this.checkBoxMonitorPowerProfiles = new System.Windows.Forms.CheckBox();
+            this.SettingMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.MenuItemRemoveSetting = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuItemCreateSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxGeneral.SuspendLayout();
             this.tabPowerProfiles.SuspendLayout();
+            this.groupBoxTriggers.SuspendLayout();
             this.groupBoxFIVR.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
@@ -84,7 +88,7 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            this.groupBoxTriggers.SuspendLayout();
+            this.SettingMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlSettings
@@ -123,6 +127,32 @@ namespace DockerForm
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Environment";
+            // 
+            // checkBoxMonitorPowerProfiles
+            // 
+            this.checkBoxMonitorPowerProfiles.AutoSize = true;
+            this.checkBoxMonitorPowerProfiles.Location = new System.Drawing.Point(6, 45);
+            this.checkBoxMonitorPowerProfiles.Name = "checkBoxMonitorPowerProfiles";
+            this.checkBoxMonitorPowerProfiles.Size = new System.Drawing.Size(129, 17);
+            this.checkBoxMonitorPowerProfiles.TabIndex = 3;
+            this.checkBoxMonitorPowerProfiles.Text = "Monitor power profiles";
+            this.toolTip1.SetToolTip(this.checkBoxMonitorPowerProfiles, "Monitor if a power profile has been altered and automatically update and apply ne" +
+        "w values");
+            this.checkBoxMonitorPowerProfiles.UseVisualStyleBackColor = true;
+            this.checkBoxMonitorPowerProfiles.CheckedChanged += new System.EventHandler(this.checkBoxMonitorPowerProfiles_CheckedChanged);
+            // 
+            // checkBoxMonitorHardware
+            // 
+            this.checkBoxMonitorHardware.AutoSize = true;
+            this.checkBoxMonitorHardware.Location = new System.Drawing.Point(6, 68);
+            this.checkBoxMonitorHardware.Name = "checkBoxMonitorHardware";
+            this.checkBoxMonitorHardware.Size = new System.Drawing.Size(215, 17);
+            this.checkBoxMonitorHardware.TabIndex = 2;
+            this.checkBoxMonitorHardware.Text = "Automatically switch internal GPU status";
+            this.toolTip1.SetToolTip(this.checkBoxMonitorHardware, "Automatically enable or disable internal GPU when a discrete GPU is enabled or di" +
+        "sabled");
+            this.checkBoxMonitorHardware.UseVisualStyleBackColor = true;
+            this.checkBoxMonitorHardware.CheckedChanged += new System.EventHandler(this.checkBoxMonitorHardware_CheckedChanged);
             // 
             // checkBoxSaveOnExit
             // 
@@ -229,6 +259,34 @@ namespace DockerForm
             this.tabPowerProfiles.TabIndex = 1;
             this.tabPowerProfiles.Text = "Power Profiles";
             this.tabPowerProfiles.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxTriggers
+            // 
+            this.groupBoxTriggers.Controls.Add(this.listBoxTriggers);
+            this.groupBoxTriggers.Location = new System.Drawing.Point(530, 323);
+            this.groupBoxTriggers.Name = "groupBoxTriggers";
+            this.groupBoxTriggers.Size = new System.Drawing.Size(215, 146);
+            this.groupBoxTriggers.TabIndex = 11;
+            this.groupBoxTriggers.TabStop = false;
+            this.groupBoxTriggers.Text = "Triggers";
+            // 
+            // listBoxTriggers
+            // 
+            this.listBoxTriggers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBoxTriggers.FormattingEnabled = true;
+            this.listBoxTriggers.Items.AddRange(new object[] {
+            "When running on battery",
+            "When running on current",
+            "When running on external GPU",
+            "When running on external screen",
+            "When application starts",
+            "When device status changes"});
+            this.listBoxTriggers.Location = new System.Drawing.Point(3, 16);
+            this.listBoxTriggers.Name = "listBoxTriggers";
+            this.listBoxTriggers.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.listBoxTriggers.Size = new System.Drawing.Size(209, 127);
+            this.listBoxTriggers.TabIndex = 0;
+            this.listBoxTriggers.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // groupBoxFIVR
             // 
@@ -359,6 +417,7 @@ namespace DockerForm
             // 
             this.ProfilesList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.PowerProfileHeader1});
+            this.ProfilesList.ContextMenuStrip = this.SettingMenuStrip;
             this.ProfilesList.Dock = System.Windows.Forms.DockStyle.Top;
             this.ProfilesList.FullRowSelect = true;
             this.ProfilesList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -523,59 +582,30 @@ namespace DockerForm
             this.label1.TabIndex = 0;
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             // 
-            // checkBoxMonitorHardware
+            // SettingMenuStrip
             // 
-            this.checkBoxMonitorHardware.AutoSize = true;
-            this.checkBoxMonitorHardware.Location = new System.Drawing.Point(6, 68);
-            this.checkBoxMonitorHardware.Name = "checkBoxMonitorHardware";
-            this.checkBoxMonitorHardware.Size = new System.Drawing.Size(215, 17);
-            this.checkBoxMonitorHardware.TabIndex = 2;
-            this.checkBoxMonitorHardware.Text = "Automatically switch internal GPU status";
-            this.toolTip1.SetToolTip(this.checkBoxMonitorHardware, "Automatically enable or disable internal GPU when a discrete GPU is enabled or di" +
-        "sabled");
-            this.checkBoxMonitorHardware.UseVisualStyleBackColor = true;
-            this.checkBoxMonitorHardware.CheckedChanged += new System.EventHandler(this.checkBoxMonitorHardware_CheckedChanged);
+            this.SettingMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuItemRemoveSetting,
+            this.MenuItemCreateSetting});
+            this.SettingMenuStrip.Name = "contextMenuStrip1";
+            this.SettingMenuStrip.Size = new System.Drawing.Size(168, 48);
             // 
-            // groupBoxTriggers
+            // MenuItemRemoveSetting
             // 
-            this.groupBoxTriggers.Controls.Add(this.listBoxTriggers);
-            this.groupBoxTriggers.Location = new System.Drawing.Point(530, 323);
-            this.groupBoxTriggers.Name = "groupBoxTriggers";
-            this.groupBoxTriggers.Size = new System.Drawing.Size(215, 146);
-            this.groupBoxTriggers.TabIndex = 11;
-            this.groupBoxTriggers.TabStop = false;
-            this.groupBoxTriggers.Text = "Triggers";
+            this.MenuItemRemoveSetting.Enabled = false;
+            this.MenuItemRemoveSetting.Name = "MenuItemRemoveSetting";
+            this.MenuItemRemoveSetting.Size = new System.Drawing.Size(167, 22);
+            this.MenuItemRemoveSetting.Text = "Remove profile(s)";
+            this.MenuItemRemoveSetting.ToolTipText = "Remove the targeted setting.";
+            this.MenuItemRemoveSetting.Click += new System.EventHandler(this.MenuItemRemoveSetting_Click);
             // 
-            // listBoxTriggers
+            // MenuItemCreateSetting
             // 
-            this.listBoxTriggers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBoxTriggers.FormattingEnabled = true;
-            this.listBoxTriggers.Items.AddRange(new object[] {
-            "When running on battery",
-            "When running on current",
-            "When running on external GPU",
-            "When running on external screen",
-            "When application starts",
-            "When device status changes"});
-            this.listBoxTriggers.Location = new System.Drawing.Point(3, 16);
-            this.listBoxTriggers.Name = "listBoxTriggers";
-            this.listBoxTriggers.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.listBoxTriggers.Size = new System.Drawing.Size(209, 127);
-            this.listBoxTriggers.TabIndex = 0;
-            this.listBoxTriggers.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
-            // 
-            // checkBoxMonitorPowerProfiles
-            // 
-            this.checkBoxMonitorPowerProfiles.AutoSize = true;
-            this.checkBoxMonitorPowerProfiles.Location = new System.Drawing.Point(6, 45);
-            this.checkBoxMonitorPowerProfiles.Name = "checkBoxMonitorPowerProfiles";
-            this.checkBoxMonitorPowerProfiles.Size = new System.Drawing.Size(129, 17);
-            this.checkBoxMonitorPowerProfiles.TabIndex = 3;
-            this.checkBoxMonitorPowerProfiles.Text = "Monitor power profiles";
-            this.toolTip1.SetToolTip(this.checkBoxMonitorPowerProfiles, "Monitor if a power profile has been altered and automatically update and apply ne" +
-        "w values");
-            this.checkBoxMonitorPowerProfiles.UseVisualStyleBackColor = true;
-            this.checkBoxMonitorPowerProfiles.CheckedChanged += new System.EventHandler(this.checkBoxMonitorPowerProfiles_CheckedChanged);
+            this.MenuItemCreateSetting.Name = "MenuItemCreateSetting";
+            this.MenuItemCreateSetting.Size = new System.Drawing.Size(167, 22);
+            this.MenuItemCreateSetting.Text = "Create profile";
+            this.MenuItemCreateSetting.ToolTipText = "Create a new setting.";
+            this.MenuItemCreateSetting.Click += new System.EventHandler(this.MenuItemCreateSetting_Click);
             // 
             // Settings
             // 
@@ -593,6 +623,7 @@ namespace DockerForm
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
+            this.FormClosed += Settings_FormClosed;
             this.tabControlSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -602,6 +633,7 @@ namespace DockerForm
             this.groupBoxGeneral.ResumeLayout(false);
             this.groupBoxGeneral.PerformLayout();
             this.tabPowerProfiles.ResumeLayout(false);
+            this.groupBoxTriggers.ResumeLayout(false);
             this.groupBoxFIVR.ResumeLayout(false);
             this.groupBoxFIVR.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).EndInit();
@@ -614,7 +646,7 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            this.groupBoxTriggers.ResumeLayout(false);
+            this.SettingMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -658,5 +690,8 @@ namespace DockerForm
         private System.Windows.Forms.GroupBox groupBoxTriggers;
         private System.Windows.Forms.ListBox listBoxTriggers;
         private System.Windows.Forms.CheckBox checkBoxMonitorPowerProfiles;
+        private System.Windows.Forms.ContextMenuStrip SettingMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem MenuItemRemoveSetting;
+        private System.Windows.Forms.ToolStripMenuItem MenuItemCreateSetting;
     }
 }
