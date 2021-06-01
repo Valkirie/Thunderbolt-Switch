@@ -12,7 +12,7 @@ namespace DockerForm.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.6.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -157,7 +157,12 @@ namespace DockerForm.Properties {
             "indowsMaps</string>\r\n  <string>Microsoft.WindowsSoundRecorder</string>\r\n  <strin" +
             "g>Xbox TCUI</string>\r\n  <string>Xbox Game Bar Plugin</string>\r\n  <string>Xbox Ga" +
             "me Bar</string>\r\n  <string>Microsoft.ZuneMusic</string>\r\n  <string>Microsoft.Zun" +
-            "eVideo</string>\r\n</ArrayOfString>")]
+            "eVideo</string>\r\n  <string>AppUp.IntelGraphicsExperience</string>\r\n  <string>App" +
+            "Up.ThunderboltControlCenter</string>\r\n  <string>Cortana</string>\r\n  <string>Micr" +
+            "osoft.AV1VideoExtension</string>\r\n  <string>Microsoft.Office.Excel</string>\r\n  <" +
+            "string>Microsoft.Office.PowerPoint</string>\r\n  <string>Microsoft.Office.Word</st" +
+            "ring>\r\n  <string>Microsoft Whiteboard</string>\r\n  <string>NVIDIA Control Panel</" +
+            "string>\r\n  <string>Realtek Audio Control</string>\r\n</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection Blacklist {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Blacklist"]));
@@ -296,6 +301,18 @@ namespace DockerForm.Properties {
             }
             set {
                 this["ColumnSettingsWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MonitorHardware {
+            get {
+                return ((bool)(this["MonitorHardware"]));
+            }
+            set {
+                this["MonitorHardware"] = value;
             }
         }
     }

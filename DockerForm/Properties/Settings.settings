@@ -74,6 +74,16 @@
   &lt;string&gt;Xbox Game Bar&lt;/string&gt;
   &lt;string&gt;Microsoft.ZuneMusic&lt;/string&gt;
   &lt;string&gt;Microsoft.ZuneVideo&lt;/string&gt;
+  &lt;string&gt;AppUp.IntelGraphicsExperience&lt;/string&gt;
+  &lt;string&gt;AppUp.ThunderboltControlCenter&lt;/string&gt;
+  &lt;string&gt;Cortana&lt;/string&gt;
+  &lt;string&gt;Microsoft.AV1VideoExtension&lt;/string&gt;
+  &lt;string&gt;Microsoft.Office.Excel&lt;/string&gt;
+  &lt;string&gt;Microsoft.Office.PowerPoint&lt;/string&gt;
+  &lt;string&gt;Microsoft.Office.Word&lt;/string&gt;
+  &lt;string&gt;Microsoft Whiteboard&lt;/string&gt;
+  &lt;string&gt;NVIDIA Control Panel&lt;/string&gt;
+  &lt;string&gt;Realtek Audio Control&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="MonitorThreadRefresh" Type="System.Int32" Scope="User">
@@ -108,6 +118,9 @@
     </Setting>
     <Setting Name="ColumnSettingsWidth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">150</Value>
+    </Setting>
+    <Setting Name="MonitorHardware" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

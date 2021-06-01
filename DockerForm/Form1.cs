@@ -50,6 +50,7 @@ namespace DockerForm
         public static StringCollection Blacklist;
         public static int MonitorThreadRefresh;
         public static bool MonitorProfiles = false;
+        public static bool MonitorHardware = false;
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
@@ -379,7 +380,7 @@ namespace DockerForm
                 }
 
                 // disable iGPU when dGPU is available
-                if (VideoControllers.ContainsKey(Type.Internal))
+                if (VideoControllers.ContainsKey(Type.Internal) && MonitorHardware)
                     VideoControllers[Type.Internal].DisableDevice(path_devcon);
             }
             else if (VideoControllers.ContainsKey(Type.Internal))
@@ -391,7 +392,8 @@ namespace DockerForm
                 }
 
                 // enable iGPU when no dGPU is available
-                VideoControllers[Type.Internal].EnableDevice(path_devcon);
+                if (MonitorHardware)
+                    VideoControllers[Type.Internal].EnableDevice(path_devcon);
             }
 
             // monitor hardware changes
@@ -734,6 +736,21 @@ namespace DockerForm
             return IGDBListLength;
         }
 
+        public static void UpdateSettings()
+        {
+            MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
+            MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
+            BootOnStartup = Properties.Settings.Default.BootOnStartup;
+            MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
+            IGDBListLength = Properties.Settings.Default.IGDBListLength;
+            ToastNotifications = Properties.Settings.Default.ToastNotifications;
+            SaveOnExit = Properties.Settings.Default.SaveOnExit;
+            Blacklist = Properties.Settings.Default.Blacklist;
+            MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
+            MonitorProfiles = Properties.Settings.Default.MonitorProfiles;
+            MonitorHardware = Properties.Settings.Default.MonitorHardware;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -766,18 +783,7 @@ namespace DockerForm
             // configurable settings
             settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             settingsToolStripMenuItem.AutoToolTip = true;
-
-            columnImage.Width = Properties.Settings.Default.ImageWidth;
-            MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
-            MinimizeOnClosing = Properties.Settings.Default.MinimizeOnClosing;
-            BootOnStartup = Properties.Settings.Default.BootOnStartup;
-            MonitorProcesses = Properties.Settings.Default.MonitorProcesses;
-            IGDBListLength = Properties.Settings.Default.IGDBListLength;
-            ToastNotifications = Properties.Settings.Default.ToastNotifications;
-            SaveOnExit = Properties.Settings.Default.SaveOnExit;
-            Blacklist = Properties.Settings.Default.Blacklist;
-            MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
-            MonitorProfiles = Properties.Settings.Default.MonitorProfiles;
+            UpdateSettings();
 
             // position and size settings
             imageList1.ImageSize = new Size(Properties.Settings.Default.ImageWidth, Properties.Settings.Default.ImageHeight);
@@ -788,6 +794,7 @@ namespace DockerForm
             columnVersion.Width = Properties.Settings.Default.ColumnVersionWidth;
             columnPlayed.Width = Properties.Settings.Default.ColumnPlayedWidth;
             columnSettings.Width = Properties.Settings.Default.ColumnSettingsWidth;
+            columnImage.Width = Properties.Settings.Default.ImageWidth;
 
             if (MinimizeOnStartup)
             {
@@ -1114,6 +1121,12 @@ namespace DockerForm
             GameListView.Sort();
         }
 
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings mainSettings = new Settings();
+            mainSettings.ShowDialog();
+        }
+
         private void GameListView_Clicked(object sender, MouseEventArgs e)
         {
             if (GameListView.SelectedItems.Count == 0)
@@ -1207,7 +1220,7 @@ namespace DockerForm
 
         private void findAGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Settings currentSettings = new Settings(this);
+            GameProperties currentSettings = new GameProperties(this);
 
             // only display the settings window when an executable has been picked.
             if (currentSettings.GetIsReady())
@@ -1226,7 +1239,7 @@ namespace DockerForm
                 return;
             
             ListViewItem item = GameListView.SelectedItems[0];
-            Settings currentSettings = new Settings(this, DatabaseManager.GameDB[item.ImageKey]);
+            GameProperties currentSettings = new GameProperties(this, DatabaseManager.GameDB[item.ImageKey]);
             currentSettings.ShowDialog();
         }
     }

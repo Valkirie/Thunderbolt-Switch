@@ -51,11 +51,14 @@ namespace DockerForm
         }
         public int ApplyPriority = 0;
 
-        [NonSerialized()] public bool RunMe;
-        [NonSerialized()] public string GameBounds;
+        [XmlIgnore] public bool RunMe;
+        [XmlIgnore] public string GameBounds;
 
         public string Serialize()
         {
+            // update values
+            ComputeHex();
+
             string filename = Path.Combine(Form1.path_profiles, ProfileName) + ".xml";
             using (FileStream writer = new FileStream(filename, FileMode.Create))
             {
@@ -63,6 +66,8 @@ namespace DockerForm
                 serializer.Serialize(writer, this);
                 writer.Flush();
             }
+
+            Form1.UpdateProfiles();
 
             return "";
         }

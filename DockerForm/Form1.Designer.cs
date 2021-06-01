@@ -38,6 +38,8 @@ namespace DockerForm
             this.databaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findAGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.automaticDetectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UniversalMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.microsoftStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.battleNetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.steamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,8 +69,6 @@ namespace DockerForm
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPlayed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSettings = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.UniversalMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -134,33 +134,45 @@ namespace DockerForm
             this.automaticDetectionToolStripMenuItem.ToolTipText = "We will search all supported games and allow you to select two that you wish to a" +
     "dd.";
             // 
+            // UniversalMenuItem3
+            // 
+            this.UniversalMenuItem3.Name = "UniversalMenuItem3";
+            this.UniversalMenuItem3.Size = new System.Drawing.Size(155, 22);
+            this.UniversalMenuItem3.Text = "Universal";
+            this.UniversalMenuItem3.Click += new System.EventHandler(this.UniversalMenuItem3_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(152, 6);
+            // 
             // microsoftStoreToolStripMenuItem
             // 
             this.microsoftStoreToolStripMenuItem.Name = "microsoftStoreToolStripMenuItem";
-            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.microsoftStoreToolStripMenuItem.Text = "Microsoft Store";
             this.microsoftStoreToolStripMenuItem.Click += new System.EventHandler(this.microsoftStoreToolStripMenuItem_Click);
             // 
             // battleNetToolStripMenuItem
             // 
             this.battleNetToolStripMenuItem.Name = "battleNetToolStripMenuItem";
-            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.battleNetToolStripMenuItem.Text = "Battle.net";
             this.battleNetToolStripMenuItem.Click += new System.EventHandler(this.battleNetToolStripMenuItem_Click);
             // 
             // steamToolStripMenuItem
             // 
             this.steamToolStripMenuItem.Name = "steamToolStripMenuItem";
-            this.steamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.steamToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.steamToolStripMenuItem.Text = "Steam";
             this.steamToolStripMenuItem.Click += new System.EventHandler(this.steamToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
-            this.settingsToolStripMenuItem.Enabled = false;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // menuStrip2
             // 
@@ -350,18 +362,6 @@ namespace DockerForm
             // 
             this.columnSettings.Text = "Settings";
             this.columnSettings.Width = 150;
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
-            // 
-            // UniversalMenuItem3
-            // 
-            this.UniversalMenuItem3.Name = "UniversalMenuItem3";
-            this.UniversalMenuItem3.Size = new System.Drawing.Size(180, 22);
-            this.UniversalMenuItem3.Text = "Universal";
-            this.UniversalMenuItem3.Click += new System.EventHandler(this.UniversalMenuItem3_Click);
             // 
             // Form1
             // 
