@@ -353,12 +353,12 @@ namespace DockerForm
 
         public static void UpdateMonitorHardware()
         {
+            VideoControllers.Clear();
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
             foreach (ManagementObject mo in searcher.Get())
             {
                 VideoController vc = new VideoController
                 {
-                    DeviceID = (string)mo.Properties["DeviceID"].Value,
                     PNPDeviceID = (string)mo.Properties["PNPDeviceID"].Value,
                     Name = (string)mo.Properties["Name"].Value,
                     Description = (string)mo.Properties["Description"].Value,
