@@ -58,6 +58,9 @@ namespace DockerForm
             this.label5 = new System.Windows.Forms.Label();
             this.ProfilesList = new System.Windows.Forms.ListView();
             this.PowerProfileHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SettingMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.MenuItemRemoveSetting = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuItemCreateSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxPowerProfile = new System.Windows.Forms.GroupBox();
             this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
@@ -68,9 +71,6 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.SettingMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.MenuItemRemoveSetting = new System.Windows.Forms.ToolStripMenuItem();
-            this.MenuItemCreateSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -83,12 +83,12 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
+            this.SettingMenuStrip.SuspendLayout();
             this.groupBoxPowerProfile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            this.SettingMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlSettings
@@ -437,6 +437,31 @@ namespace DockerForm
             this.PowerProfileHeader1.Text = "Name";
             this.PowerProfileHeader1.Width = 600;
             // 
+            // SettingMenuStrip
+            // 
+            this.SettingMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuItemRemoveSetting,
+            this.MenuItemCreateSetting});
+            this.SettingMenuStrip.Name = "contextMenuStrip1";
+            this.SettingMenuStrip.Size = new System.Drawing.Size(168, 48);
+            // 
+            // MenuItemRemoveSetting
+            // 
+            this.MenuItemRemoveSetting.Enabled = false;
+            this.MenuItemRemoveSetting.Name = "MenuItemRemoveSetting";
+            this.MenuItemRemoveSetting.Size = new System.Drawing.Size(167, 22);
+            this.MenuItemRemoveSetting.Text = "Remove profile(s)";
+            this.MenuItemRemoveSetting.ToolTipText = "Remove the targeted setting.";
+            this.MenuItemRemoveSetting.Click += new System.EventHandler(this.MenuItemRemoveSetting_Click);
+            // 
+            // MenuItemCreateSetting
+            // 
+            this.MenuItemCreateSetting.Name = "MenuItemCreateSetting";
+            this.MenuItemCreateSetting.Size = new System.Drawing.Size(167, 22);
+            this.MenuItemCreateSetting.Text = "Create profile";
+            this.MenuItemCreateSetting.ToolTipText = "Create a new setting.";
+            this.MenuItemCreateSetting.Click += new System.EventHandler(this.MenuItemCreateSetting_Click);
+            // 
             // groupBoxPowerProfile
             // 
             this.groupBoxPowerProfile.Controls.Add(this.numericUpDown4);
@@ -462,11 +487,6 @@ namespace DockerForm
             0,
             0,
             0});
-            this.numericUpDown4.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.numericUpDown4.Name = "numericUpDown4";
             this.numericUpDown4.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown4.TabIndex = 4;
@@ -485,11 +505,6 @@ namespace DockerForm
             0,
             0,
             0});
-            this.numericUpDown3.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.numericUpDown3.Name = "numericUpDown3";
             this.numericUpDown3.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown3.TabIndex = 3;
@@ -503,16 +518,6 @@ namespace DockerForm
             // numericUpDown2
             // 
             this.numericUpDown2.Location = new System.Drawing.Point(167, 51);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Minimum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
             this.numericUpDown2.Name = "numericUpDown2";
             this.numericUpDown2.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown2.TabIndex = 2;
@@ -526,16 +531,6 @@ namespace DockerForm
             // numericUpDown1
             // 
             this.numericUpDown1.Location = new System.Drawing.Point(167, 22);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Minimum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown1.TabIndex = 1;
@@ -582,31 +577,6 @@ namespace DockerForm
             this.label1.TabIndex = 0;
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             // 
-            // SettingMenuStrip
-            // 
-            this.SettingMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MenuItemRemoveSetting,
-            this.MenuItemCreateSetting});
-            this.SettingMenuStrip.Name = "contextMenuStrip1";
-            this.SettingMenuStrip.Size = new System.Drawing.Size(168, 48);
-            // 
-            // MenuItemRemoveSetting
-            // 
-            this.MenuItemRemoveSetting.Enabled = false;
-            this.MenuItemRemoveSetting.Name = "MenuItemRemoveSetting";
-            this.MenuItemRemoveSetting.Size = new System.Drawing.Size(167, 22);
-            this.MenuItemRemoveSetting.Text = "Remove profile(s)";
-            this.MenuItemRemoveSetting.ToolTipText = "Remove the targeted setting.";
-            this.MenuItemRemoveSetting.Click += new System.EventHandler(this.MenuItemRemoveSetting_Click);
-            // 
-            // MenuItemCreateSetting
-            // 
-            this.MenuItemCreateSetting.Name = "MenuItemCreateSetting";
-            this.MenuItemCreateSetting.Size = new System.Drawing.Size(167, 22);
-            this.MenuItemCreateSetting.Text = "Create profile";
-            this.MenuItemCreateSetting.ToolTipText = "Create a new setting.";
-            this.MenuItemCreateSetting.Click += new System.EventHandler(this.MenuItemCreateSetting_Click);
-            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -640,13 +610,13 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
+            this.SettingMenuStrip.ResumeLayout(false);
             this.groupBoxPowerProfile.ResumeLayout(false);
             this.groupBoxPowerProfile.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            this.SettingMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

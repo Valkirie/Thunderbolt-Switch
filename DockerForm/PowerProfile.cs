@@ -174,12 +174,12 @@ namespace DockerForm
 
         public bool HasPowerBalanceCPU()
         {
-            return (PowerBalanceCPU != null && PowerBalanceCPU != "0");
+            return (PowerBalanceCPU != null);
         }
 
         public bool HasPowerBalanceGPU()
         {
-            return (PowerBalanceGPU != null && PowerBalanceGPU != "0");
+            return (PowerBalanceGPU != null);
         }
 
         public void ComputeHex()
