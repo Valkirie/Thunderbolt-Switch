@@ -623,7 +623,7 @@ namespace DockerForm
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
-            this.FormClosed += Settings_FormClosed;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_FormClosing);
             this.tabControlSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);

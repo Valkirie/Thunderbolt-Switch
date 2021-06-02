@@ -90,7 +90,7 @@ namespace DockerForm
             Form1.UpdateSettings();
         }
 
-        private void Settings_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
+        private void Settings_FormClosing(Object sender, FormClosingEventArgs e)
         {
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
