@@ -147,7 +147,7 @@ namespace DockerForm
             SetPowerProfile(sum_profile);
 
             // update form
-            UpdateForm();
+            UpdateFormProfiles();
         }
 
         private static void SetPowerProfile(PowerProfile profile)
@@ -327,10 +327,8 @@ namespace DockerForm
         {
             string state = CurrentController.Name;
 
-            /*            
-             *            Intel(R) Iris(R) Plus Graphics
-             *            Intel(R) Iris(R) Plus Graphics (on battery)
-            */
+            // Intel(R) Iris(R) Plus Graphics
+            // Intel(R) Iris(R) Plus Graphics (on battery)
             if (!DockStatus && !PowerStatus && game.PowerSpecific)
                 state += " (" + GetCurrentPower() + ")";
 
@@ -395,6 +393,16 @@ namespace DockerForm
                 if (MonitorHardware)
                     VideoControllers[Type.Internal].EnableDevice(path_devcon);
             }
+            else
+            {
+                // should not happen !
+                CurrentController = new VideoController()
+                {
+                    Name = "Unknown",
+                    Constructor = Constructor.Intel,
+                    Type = Type.Internal
+                };
+            }
 
             // monitor hardware changes
             IsHardwareNew = prevDockStatus != DockStatus;
@@ -414,6 +422,9 @@ namespace DockerForm
             // update status
             prevDockStatus = DockStatus;
             IsHardwarePending = false;
+
+            // update form
+            UpdateFormConstructor();
         }
 
         public static void UpdateMonitorPower()
@@ -431,6 +442,9 @@ namespace DockerForm
             // update status
             prevPowerStatus = PowerStatus;
             IsPowerPending = false;
+
+            // update form
+            UpdateFormConstructor();
         }
 
         public static void UpdateMonitorScreen()
@@ -466,9 +480,6 @@ namespace DockerForm
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
                     if (IsScreenNew) IsScreenNew = false;
-
-                    // update form
-                    UpdateForm();
                 }
 
                 if (IsFirstBoot)
@@ -481,63 +492,67 @@ namespace DockerForm
             }
         }
 
-        public static void UpdateForm()
+        public static void UpdateFormProfiles()
         {
-            try
+            // profiles
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
             {
-                // taskbar icon
-                Image ConstructorLogo = Properties.Resources.intel;
-                string ConstructorName = CurrentController != null ? CurrentController.Name : "Unknown";
-                if (CurrentController != null)
+                CurrentForm.toolStripMenuItem2.DropDownItems.Clear();
+
+                ToolStripMenuItem currentItem = new ToolStripMenuItem()
                 {
-                    switch (CurrentController.Constructor)
+                    Text = "Current profile",
+                    ToolTipText = CurrentProfile.ToString(),
+                    Enabled = false
+                };
+                CurrentForm.toolStripMenuItem2.DropDownItems.Add(currentItem);
+                CurrentForm.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
+
+                // do not display the default profile
+                foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
+                {
+                    ToolStripMenuItem newItem = new ToolStripMenuItem()
                     {
-                        case Constructor.AMD: ConstructorLogo = Properties.Resources.amd; break;
-                        case Constructor.Nvidia: ConstructorLogo = Properties.Resources.nvidia; break;
-                    }
-                }
-
-                // main application icon
-                Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
-
-                // drawing
-                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-                {
-                    CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
-                    CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
-                    CurrentForm.notifyIcon1.Icon = myIcon;
-                    CurrentForm.Icon = myIcon;
-                });
-
-                // profiles
-                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-                {
-                    CurrentForm.toolStripMenuItem2.DropDownItems.Clear();
-
-                    ToolStripMenuItem currentItem = new ToolStripMenuItem()
-                    {
-                        Text = "Current profile",
-                        ToolTipText = CurrentProfile.ToString(),
-                        Enabled = false
+                        Text = profile.ProfileName,
+                        Checked = profile.RunMe,
+                        ToolTipText = profile.ToString()
                     };
-                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(currentItem);
-                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
+                    newItem.Click += new EventHandler(PowerMenuClickHandler);
+                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(newItem);
+                }
+            });
+        }
 
-                    // do not display the default profile
-                    foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
-                    {
-                        ToolStripMenuItem newItem = new ToolStripMenuItem()
-                        {
-                            Text = profile.ProfileName,
-                            Checked = profile.RunMe,
-                            ToolTipText = profile.ToString()
-                        };
-                        newItem.Click += new EventHandler(PowerMenuClickHandler);
-                        CurrentForm.toolStripMenuItem2.DropDownItems.Add(newItem);
-                    }
-                });
+        public static void UpdateFormConstructor()
+        {
+            // taskbar icon
+            Image ConstructorLogo;
+            string ConstructorName = CurrentController.Name;
+            switch (CurrentController.Constructor)
+            {
+                case Constructor.AMD:
+                    ConstructorLogo = Properties.Resources.amd;
+                    break;
+                case Constructor.Nvidia:
+                    ConstructorLogo = Properties.Resources.nvidia;
+                    break;
+                case Constructor.Intel:
+                default:
+                    ConstructorLogo = Properties.Resources.intel;
+                    break;
             }
-            catch (Exception ex) { LogManager.UpdateLog("UpdateForm: " + ex.Message, true); }
+
+            // main application icon
+            Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
+
+            // drawing
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            {
+                CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
+                CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
+                CurrentForm.notifyIcon1.Icon = myIcon;
+                CurrentForm.Icon = myIcon;
+            });
         }
 
         public int GetListViewIndex(string GUID)
@@ -712,9 +727,6 @@ namespace DockerForm
 
             // re-apply values
             ApplyPowerProfiles();
-
-            // update form
-            UpdateForm();
 
             // update var
             prevFileInfos = fileInfos;
