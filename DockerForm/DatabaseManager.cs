@@ -16,6 +16,14 @@ namespace DockerForm
 {
     class DatabaseManager
     {
+        // DllImports
+        [DllImport("kernel32.dll")]
+        private static extern bool QueryFullProcessImageName(IntPtr hprocess, int dwFlags, StringBuilder lpExeName, out int size);
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr OpenProcess(Int32 dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr hHandle);
+
         // DockerGame vars
         public static ConcurrentDictionary<string, DockerGame> GameDB = new ConcurrentDictionary<string, DockerGame>();
 
@@ -41,39 +49,27 @@ namespace DockerForm
             return AppProperties;
         }
 
-        [DllImport("Kernel32.dll")]
-        static extern uint QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder text, out uint size);
-
         public static string GetPathToApp(Process proc)
         {
-            string pathToExe = string.Empty;
-
-            try
+            var buffer = new StringBuilder(1024);
+            IntPtr hprocess = OpenProcess(0x00001000,false, proc.Id);
+            if (hprocess != IntPtr.Zero)
             {
-                if (null != proc)
+                try
                 {
-                    uint nChars = 256;
-                    StringBuilder Buff = new StringBuilder((int)nChars);
-
-                    uint success = QueryFullProcessImageName(proc.Handle, 0, Buff, out nChars);
-
-                    if (0 != success)
+                    int size = buffer.Capacity;
+                    if (QueryFullProcessImageName(hprocess, 0, buffer, out size))
                     {
-                        pathToExe = Buff.ToString();
-                    }
-                    else
-                    {
-                        int error = Marshal.GetLastWin32Error();
-                        pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
+                        return buffer.ToString();
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                LogManager.UpdateLog(e.Message, true);
+                finally
+                {
+                    CloseHandle(hprocess);
+                }
             }
 
-            return pathToExe;
+            return String.Empty;
         }
 
         public static void UpdateFileAndRegistry(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value, GameSettings setting)
