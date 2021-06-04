@@ -111,7 +111,7 @@ namespace DockerForm
             IsPowerPending = true;
         }
 
-        private static bool CanRunProfile(PowerProfile profile, bool IsFirstBoot)
+        public static bool CanRunProfile(PowerProfile profile, bool IsFirstBoot)
         {
             bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
             bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
@@ -993,11 +993,6 @@ namespace DockerForm
             {
                 if (SaveOnExit)
                     DatabaseManager.UpdateFilesAndRegistries(false, true);
-
-                notifyIcon1.Dispose();
-                processStartWatcher.Dispose();
-                processStopWatcher.Dispose();
-
                 IsRunning = false;
             }
         }

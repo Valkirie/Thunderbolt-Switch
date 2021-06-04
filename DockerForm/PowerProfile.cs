@@ -53,6 +53,7 @@ namespace DockerForm
 
         [XmlIgnore] public bool RunMe;
         [XmlIgnore] public string GameBounds;
+        [XmlIgnore] public bool JustCreated;
 
         public void Serialize()
         {
@@ -136,6 +137,12 @@ namespace DockerForm
         public string GetPowerBalanceGPU()
         {
             return PowerBalanceGPUHex;
+        }
+
+        public PowerProfile(string profileName)
+        {
+            ProfileName = profileName;
+            JustCreated = true;
         }
 
         public PowerProfile()

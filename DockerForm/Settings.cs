@@ -96,7 +96,12 @@ namespace DockerForm
             {
                 string ProfileName = item.SubItems[0].Text;
                 if (Form1.ProfileDB.ContainsKey(ProfileName))
-                    Form1.ProfileDB[ProfileName].Serialize();
+                {
+                    PowerProfile profile = Form1.ProfileDB[ProfileName];
+                    if (profile.JustCreated)
+                        profile.RunMe = Form1.CanRunProfile(profile, false);
+                    profile.Serialize();
+                }
             }
         }
 
@@ -315,11 +320,8 @@ namespace DockerForm
                 return;
             }
 
-            PowerProfile pP = new PowerProfile()
-            {
-                ProfileName = ProfileName
-            };
-            pP.Serialize();
+            PowerProfile pP = new PowerProfile(ProfileName);
+            Form1.ProfileDB[ProfileName] = pP;
 
             ListViewItem newProfile = new ListViewItem(new string[] { pP.ProfileName }, pP.ProfileName);
             ProfilesList.Items.Add(newProfile);
