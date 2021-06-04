@@ -303,7 +303,7 @@ namespace DockerForm
                         }
                         catch (Exception e)
                         {
-                            LogManager.UpdateLog(e.Message, true);
+                            LogManager.UpdateLog($"SearchMicrosoftStore(): {e.Message}", true);
                         }
 
                         string IdentityName = "";

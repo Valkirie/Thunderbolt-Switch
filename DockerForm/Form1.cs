@@ -104,7 +104,6 @@ namespace DockerForm
             switch (e.Mode)
             {
                 case PowerModes.Resume:
-                    break;
                 case PowerModes.Suspend:
                     break;
             }
@@ -283,7 +282,22 @@ namespace DockerForm
                 }
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                LogManager.UpdateLog($"startWatch_EventArrived(): {ex.Message}", true);
+            }
+        }
+
+        static void startWatch_Stopped(object sender, StoppedEventArgs e)
+        {
+            LogManager.UpdateLog("The startWatcher has stopped. Disposing it.");
+            ((ManagementEventWatcher)sender).Dispose();
+        }
+
+        static void startWatch_Disposed(object sender, EventArgs e)
+        {
+            LogManager.UpdateLog("The startWatcher has been disposed. Restarting it.");
+            StartMonitoringProcessCreation();
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -320,7 +334,22 @@ namespace DockerForm
                     ApplyPowerProfiles();
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                LogManager.UpdateLog($"stopWatch_EventArrived(): {ex.Message}", true);
+            }
+        }
+
+        static void stopWatch_Stopped(object sender, StoppedEventArgs e)
+        {
+            LogManager.UpdateLog("The stopWatcher has stopped. Disposing it.");
+            ((ManagementEventWatcher)sender).Dispose();
+        }
+
+        static void stopWatch_Disposed(object sender, EventArgs e)
+        {
+            LogManager.UpdateLog("The stopWatcher has been disposed. Restarting it.");
+            StartMonitoringProcessTermination();
         }
 
         public static string GetCurrentState(DockerGame game)
@@ -640,7 +669,10 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { LogManager.UpdateLog("UpdateGameList: " + ex.Message, true); }
+                catch (Exception ex)
+                {
+                    LogManager.UpdateLog($"UpdateGameList(): {ex.Message}", true);
+                }
             }
 
             // Update the DockerGame database
@@ -686,7 +718,10 @@ namespace DockerForm
                         reader.Dispose();
                     }
                 }
-                catch (Exception ex) { LogManager.UpdateLog("UpdateProfiles: " + ex.Message, true); }
+                catch (Exception ex)
+                {
+                    LogManager.UpdateLog($"UpdateProfiles(): {ex.Message}", true);
+                }
             }
 
             // add or update profiles
@@ -882,20 +917,35 @@ namespace DockerForm
             return "";
         }
 
+        private static void StartMonitoringProcessCreation()
+        {
+            ManagementEventWatcher startWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStartTrace");
+            startWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
+            startWatcher.Stopped += new StoppedEventHandler(startWatch_Stopped);
+            startWatcher.Disposed += new EventHandler(startWatch_Disposed);
+            startWatcher.Start();
+
+            LogManager.UpdateLog("The startWatcher has been created.");
+        }
+
+        private static void StartMonitoringProcessTermination()
+        {
+            ManagementEventWatcher stopWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStopTrace");
+            stopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
+            stopWatcher.Stopped += new StoppedEventHandler(stopWatch_Stopped);
+            stopWatcher.Disposed += new EventHandler(stopWatch_Disposed);
+            stopWatcher.Start();
+
+            LogManager.UpdateLog("The stopWatcher has been created.");
+        }
+
         private void Form1_Shown(object sender, System.EventArgs e)
         {
             // Monitor processes
             if (MonitorProcesses)
             {
-                processStartWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
-                processStartWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
-                processStartWatcher.Start();
-
-                processStopWatcher = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
-                processStopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
-                processStopWatcher.Start();
-
-                LogManager.UpdateLog("Process Monitor: started");
+                StartMonitoringProcessCreation();
+                StartMonitoringProcessTermination();
             }
 
             // update ProfileDB
