@@ -162,6 +162,7 @@ namespace DockerForm
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            MenuItemRemoveSetting.Enabled = false;
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
                 string ProfileName = item.SubItems[0].Text;
