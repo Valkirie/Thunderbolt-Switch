@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -121,6 +124,7 @@ namespace DockerForm
                 bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
                 bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
                 bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
+                bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName }, profile.ProfileName);
 
@@ -152,6 +156,8 @@ namespace DockerForm
                 profile._ApplyMask |= ProfileMask.OnStartup;
             if (listBoxTriggers.GetSelected(5))
                 profile._ApplyMask |= ProfileMask.OnStatusChange;
+            if (listBoxTriggers.GetSelected(6))
+                profile._ApplyMask |= ProfileMask.GameBounds;
         }
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -182,6 +188,7 @@ namespace DockerForm
                 bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
                 bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
                 bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
+                bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 // Misc
                 numericUpDown1.Value = profile.HasLongPowerMax() ? decimal.Parse(profile.TurboBoostLongPowerMax) : 0;
@@ -209,6 +216,8 @@ namespace DockerForm
                     listBoxTriggers.SetSelected(4, true);
                 if (isOnStatusChange)
                     listBoxTriggers.SetSelected(5, true);
+                if (isGameBounds)
+                    listBoxTriggers.SetSelected(6, true);
                 UpdateProfile();
             }
         }

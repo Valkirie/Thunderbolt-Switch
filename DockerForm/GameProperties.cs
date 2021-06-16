@@ -115,11 +115,15 @@ namespace DockerForm
 				bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
 				bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
 				bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
+                bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnScreen.ToString() }, profile.ProfileName);
 
                 // skip default
                 if (profile.ApplyPriority == -1)
+                    continue;
+
+                if (!isGameBounds)
                     continue;
 
                 if (gGame.Profiles.ContainsKey(profile.ProfileName))

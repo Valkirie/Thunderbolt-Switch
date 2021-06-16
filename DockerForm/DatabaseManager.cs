@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Collections.Concurrent;
@@ -31,19 +32,22 @@ namespace DockerForm
         {
             Dictionary<string, string> AppProperties = new Dictionary<string, string>();
 
-            var shellFile = Microsoft.WindowsAPICodePack.Shell.ShellObject.FromParsingName(filePath1);
+            ShellObject shellFile = ShellObject.FromParsingName(filePath1);
             foreach (var property in typeof(ShellProperties.PropertySystem).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                var shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
+                IShellProperty shellProperty = property.GetValue(shellFile.Properties.System, null) as IShellProperty;
                 if (shellProperty?.ValueAsObject == null) continue;
-                var shellPropertyValues = shellProperty.ValueAsObject as object[];
+                if (AppProperties.ContainsKey(property.Name)) continue;
+
+                string[] shellPropertyValues = shellProperty.ValueAsObject as string[];
+
                 if (shellPropertyValues != null && shellPropertyValues.Length > 0)
                 {
-                    foreach (var shellPropertyValue in shellPropertyValues)
+                    foreach (string shellPropertyValue in shellPropertyValues)
                         AppProperties.Add(property.Name, "" + shellPropertyValue);
                 }
                 else
-                    AppProperties.Add(property.Name, "" + shellProperty.ValueAsObject);
+                    AppProperties.Add(property.Name, (string)shellProperty.ValueAsObject);
             }
 
             return AppProperties;

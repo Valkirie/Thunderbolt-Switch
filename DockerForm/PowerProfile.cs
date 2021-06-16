@@ -16,7 +16,8 @@ namespace DockerForm
         OnStartup = 8,
         ExternalScreen = 16,
         OnStatusChange = 32,
-        All = OnBattery | PluggedIn | ExternalGPU | OnStartup | ExternalScreen | OnStatusChange
+        GameBounds = 64,
+        All = OnBattery | PluggedIn | ExternalGPU | OnStartup | ExternalScreen | OnStatusChange | GameBounds
     }
 
     public static class StringExtension
@@ -52,7 +53,6 @@ namespace DockerForm
         public int ApplyPriority = 0;
 
         [XmlIgnore] public bool RunMe;
-        [XmlIgnore] public string GameBounds;
         [XmlIgnore] public bool JustCreated;
 
         public void Serialize()

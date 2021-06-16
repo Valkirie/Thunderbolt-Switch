@@ -119,6 +119,7 @@ namespace DockerForm
             bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
             bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
             bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
+            bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
             if (IsFirstBoot && !isOnBoot)
                 return false;
@@ -271,10 +272,7 @@ namespace DockerForm
                     GameProcesses[ProcessID] = PathToApp;
 
                     foreach (PowerProfile profile in game.Profiles.Values)
-                    {
                         ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, false);
-                        ProfileDB[profile.ProfileName].GameBounds = game.Name;
-                    }
 
                     game.IsRunning = true;
 
@@ -323,11 +321,8 @@ namespace DockerForm
                     string path_db = GetCurrentState(game);
                     DatabaseManager.UpdateFilesAndRegistries(game, path_db, path_db, true, false, true, path_db);
 
-                    foreach (PowerProfile profile in game.Profiles.Values.Where(a => a.GameBounds != null))
-                    {
-                        ProfileDB[profile.ProfileName].GameBounds = null;
+                    foreach (PowerProfile profile in game.Profiles.Values)
                         ProfileDB[profile.ProfileName].RunMe = false;
-                    }
 
                     game.IsRunning = false;
 
@@ -730,11 +725,9 @@ namespace DockerForm
                 string ProfileName = profile.ProfileName;
 
                 bool RunMe = ProfileDB.ContainsKey(ProfileName) ? ProfileDB[ProfileName].RunMe : false;
-                string GameBounds = ProfileDB.ContainsKey(ProfileName) ? ProfileDB[ProfileName].GameBounds : "";
 
                 ProfileDB[ProfileName] = profile;
                 ProfileDB[ProfileName].RunMe = RunMe;
-                ProfileDB[ProfileName].GameBounds = GameBounds;
 
                 ProfileDB[ProfileName].ComputeHex();
             }

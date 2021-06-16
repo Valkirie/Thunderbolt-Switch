@@ -280,7 +280,8 @@ namespace DockerForm
             "When running on external GPU",
             "When running on external screen",
             "When application starts",
-            "When device status changes"});
+            "When device status changes",
+            "When a game is executed"});
             this.listBoxTriggers.Location = new System.Drawing.Point(3, 16);
             this.listBoxTriggers.Name = "listBoxTriggers";
             this.listBoxTriggers.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
