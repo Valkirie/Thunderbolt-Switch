@@ -588,9 +588,12 @@ namespace DockerForm
 
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
-            ListViewItem newgame = new ListViewItem(new string[] { "", game.GetNameAndGUID(), game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+            ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
             newgame.Tag = newgame.ImageKey;
-            
+            newgame.Name = game.Name;
+            newgame.Text = game.Name;
+            newgame.ToolTipText = game.GetSettingsList();
+
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
                 // upate imageList
@@ -685,8 +688,9 @@ namespace DockerForm
             GameListView.BeginUpdate();
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
-                ListViewItem newgame = new ListViewItem(new string[] { "", game.Name, game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+                ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
                 newgame.Tag = newgame.ImageKey;
+                newgame.Name = game.Name;
                 newgame.Text = game.Name;
                 newgame.ToolTipText = game.GetSettingsList();
                 GameListView.Items.Add(newgame);
@@ -856,7 +860,6 @@ namespace DockerForm
             columnVersion.Width = Properties.Settings.Default.ColumnVersionWidth;
             columnPlayed.Width = Properties.Settings.Default.ColumnPlayedWidth;
             columnSettings.Width = Properties.Settings.Default.ColumnSettingsWidth;
-            columnImage.Width = Properties.Settings.Default.ImageWidth;
 
             switch(Properties.Settings.Default.GameListStyle)
             {

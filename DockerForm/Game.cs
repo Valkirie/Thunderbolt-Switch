@@ -102,11 +102,6 @@ namespace DockerForm
             Enabled = ErrorCode == ErrorCode.None;
         }
 
-        public string GetNameAndGUID()
-        {
-            return Name + "\n    " + GUID;
-        }
-
         public string GetSettingsList()
         {
             string Profiles = "";

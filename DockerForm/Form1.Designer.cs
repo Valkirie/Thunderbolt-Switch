@@ -63,7 +63,6 @@ namespace DockerForm
             this.exittoolStripStartItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GameListView = new System.Windows.Forms.ListView();
-            this.columnImage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnDev = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -73,9 +72,9 @@ namespace DockerForm
             this.styleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.syleIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.styleToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageList2 = new System.Windows.Forms.ImageList(this.components);
             this.styleDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.styleTileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList2 = new System.Windows.Forms.ImageList(this.components);
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -319,7 +318,6 @@ namespace DockerForm
             // 
             this.GameListView.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.GameListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnImage,
             this.columnName,
             this.columnDev,
             this.columnVersion,
@@ -343,15 +341,10 @@ namespace DockerForm
             this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
             this.GameListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
             // 
-            // columnImage
-            // 
-            this.columnImage.Text = "";
-            this.columnImage.Width = 100;
-            // 
             // columnName
             // 
-            this.columnName.Text = "Name";
-            this.columnName.Width = 300;
+            this.columnName.Text = "";
+            this.columnName.Width = 100;
             // 
             // columnDev
             // 
@@ -388,7 +381,7 @@ namespace DockerForm
             // styleToolStripMenuItem
             // 
             this.styleToolStripMenuItem.Name = "styleToolStripMenuItem";
-            this.styleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.styleToolStripMenuItem.Text = "Style: List";
             this.styleToolStripMenuItem.Click += new System.EventHandler(this.styleToolStripMenuItem_Click);
             // 
@@ -402,29 +395,29 @@ namespace DockerForm
             // styleToolStripMenuItem1
             // 
             this.styleToolStripMenuItem1.Name = "styleToolStripMenuItem1";
-            this.styleToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.styleToolStripMenuItem1.Size = new System.Drawing.Size(165, 22);
             this.styleToolStripMenuItem1.Text = "Style: Small Icons";
             this.styleToolStripMenuItem1.Click += new System.EventHandler(this.styleToolStripMenuItem1_Click);
-            // 
-            // imageList2
-            // 
-            this.imageList2.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
-            this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // styleDetailsToolStripMenuItem
             // 
             this.styleDetailsToolStripMenuItem.Name = "styleDetailsToolStripMenuItem";
-            this.styleDetailsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleDetailsToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.styleDetailsToolStripMenuItem.Text = "Style: Details";
             this.styleDetailsToolStripMenuItem.Click += new System.EventHandler(this.styleDetailsToolStripMenuItem_Click);
             // 
             // styleTileToolStripMenuItem
             // 
             this.styleTileToolStripMenuItem.Name = "styleTileToolStripMenuItem";
-            this.styleTileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleTileToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.styleTileToolStripMenuItem.Text = "Style: Tile";
             this.styleTileToolStripMenuItem.Click += new System.EventHandler(this.styleTileToolStripMenuItem_Click);
+            // 
+            // imageList2
+            // 
+            this.imageList2.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // Form1
             // 
@@ -485,10 +478,9 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem battleNetToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ListView GameListView;
-        private System.Windows.Forms.ColumnHeader columnName;
         private System.Windows.Forms.ColumnHeader columnDev;
         private System.Windows.Forms.ColumnHeader columnVersion;
-        private System.Windows.Forms.ColumnHeader columnImage;
+        private System.Windows.Forms.ColumnHeader columnName;
         private System.Windows.Forms.ColumnHeader columnPlayed;
         private System.Windows.Forms.ColumnHeader columnSettings;
         private System.Windows.Forms.ToolStripMenuItem steamToolStripMenuItem;
