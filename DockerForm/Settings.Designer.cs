@@ -71,6 +71,7 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -116,6 +117,7 @@ namespace DockerForm
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.checkBoxMonitorPowerProfiles);
             this.groupBox2.Controls.Add(this.checkBoxMonitorHardware);
             this.groupBox2.Controls.Add(this.checkBoxSaveOnExit);
@@ -578,6 +580,17 @@ namespace DockerForm
             this.label1.TabIndex = 0;
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Location = new System.Drawing.Point(667, 16);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 97);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "Open Settings Location";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -593,8 +606,8 @@ namespace DockerForm
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
-            this.Load += new System.EventHandler(this.Settings_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_FormClosing);
+            this.Load += new System.EventHandler(this.Settings_Load);
             this.tabControlSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -664,5 +677,6 @@ namespace DockerForm
         private System.Windows.Forms.ContextMenuStrip SettingMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem MenuItemRemoveSetting;
         private System.Windows.Forms.ToolStripMenuItem MenuItemCreateSetting;
+        private System.Windows.Forms.Button button1;
     }
 }

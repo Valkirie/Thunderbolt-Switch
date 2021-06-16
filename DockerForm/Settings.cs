@@ -335,5 +335,12 @@ namespace DockerForm
             ListViewItem newProfile = new ListViewItem(new string[] { pP.ProfileName }, pP.ProfileName);
             ProfilesList.Items.Add(newProfile);
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            FileInfo fileinfo = new FileInfo(path);
+            Process.Start(fileinfo.DirectoryName);
+        }
     }
 }
