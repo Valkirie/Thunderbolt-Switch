@@ -111,8 +111,8 @@ namespace DockerForm
         {
             string Profiles = "";
             foreach(GameSettings settings in Settings.Values)
-                Profiles += settings.FileName + "\n";
-            return Profiles.TrimEnd('\n');
+                Profiles += settings.FileName + ",";
+            return Profiles.TrimEnd(',');
         }
 
         public string GetCrc()
@@ -180,10 +180,18 @@ namespace DockerForm
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
                 FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
             }
-            catch (Exception)
-            { }
+            catch (Exception ex)
+            {
+                LogManager.UpdateLog($"DockerGame(): {ex.Message}", true);
+            }
 
-            try { Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48); } catch (Exception ex) { Console.WriteLine(ex.Message); }
+            try {
+                Image = ShellEx.GetBitmapFromFilePath(filePath, ShellEx.IconSizeEnum.LargeIcon48);
+            }
+            catch (Exception ex)
+            {
+                LogManager.UpdateLog($"DockerGame(): {ex.Message}", true);
+            }
         }
 
         public bool CanSerialize()

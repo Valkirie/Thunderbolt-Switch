@@ -122,5 +122,14 @@
     <Setting Name="MonitorHardware" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="GameListStyle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Tile</Value>
+    </Setting>
+    <Setting Name="SmallImageHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">32</Value>
+    </Setting>
+    <Setting Name="SmallImageWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">24</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

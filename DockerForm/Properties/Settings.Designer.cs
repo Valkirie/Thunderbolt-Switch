@@ -315,5 +315,41 @@ namespace DockerForm.Properties {
                 this["MonitorHardware"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Tile")]
+        public string GameListStyle {
+            get {
+                return ((string)(this["GameListStyle"]));
+            }
+            set {
+                this["GameListStyle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int SmallImageHeight {
+            get {
+                return ((int)(this["SmallImageHeight"]));
+            }
+            set {
+                this["SmallImageHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("24")]
+        public int SmallImageWidth {
+            get {
+                return ((int)(this["SmallImageWidth"]));
+            }
+            set {
+                this["SmallImageWidth"] = value;
+            }
+        }
     }
 }

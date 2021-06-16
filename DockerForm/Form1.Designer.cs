@@ -69,10 +69,18 @@ namespace DockerForm
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPlayed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSettings = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStrip3 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.styleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.syleIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.styleToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList2 = new System.Windows.Forms.ImageList(this.components);
+            this.styleDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.styleTileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.contextMenuStrip2.SuspendLayout();
+            this.contextMenuStrip3.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -309,6 +317,7 @@ namespace DockerForm
             // 
             // GameListView
             // 
+            this.GameListView.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.GameListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnImage,
             this.columnName,
@@ -316,6 +325,7 @@ namespace DockerForm
             this.columnVersion,
             this.columnPlayed,
             this.columnSettings});
+            this.GameListView.ContextMenuStrip = this.contextMenuStrip3;
             this.GameListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GameListView.FullRowSelect = true;
             this.GameListView.HideSelection = false;
@@ -325,13 +335,13 @@ namespace DockerForm
             this.GameListView.MultiSelect = false;
             this.GameListView.Name = "GameListView";
             this.GameListView.Size = new System.Drawing.Size(924, 535);
-            this.GameListView.SmallImageList = this.imageList1;
+            this.GameListView.SmallImageList = this.imageList2;
             this.GameListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.GameListView.TabIndex = 9;
             this.GameListView.UseCompatibleStateImageBehavior = false;
-            this.GameListView.View = System.Windows.Forms.View.Details;
+            this.GameListView.View = System.Windows.Forms.View.Tile;
             this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
-            this.GameListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
+            this.GameListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
             // 
             // columnImage
             // 
@@ -363,6 +373,59 @@ namespace DockerForm
             this.columnSettings.Text = "Settings";
             this.columnSettings.Width = 150;
             // 
+            // contextMenuStrip3
+            // 
+            this.contextMenuStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.styleToolStripMenuItem,
+            this.syleIconsToolStripMenuItem,
+            this.styleToolStripMenuItem1,
+            this.styleDetailsToolStripMenuItem,
+            this.styleTileToolStripMenuItem});
+            this.contextMenuStrip3.Name = "contextMenuStrip3";
+            this.contextMenuStrip3.Size = new System.Drawing.Size(166, 114);
+            this.contextMenuStrip3.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip3_Opening);
+            // 
+            // styleToolStripMenuItem
+            // 
+            this.styleToolStripMenuItem.Name = "styleToolStripMenuItem";
+            this.styleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleToolStripMenuItem.Text = "Style: List";
+            this.styleToolStripMenuItem.Click += new System.EventHandler(this.styleToolStripMenuItem_Click);
+            // 
+            // syleIconsToolStripMenuItem
+            // 
+            this.syleIconsToolStripMenuItem.Name = "syleIconsToolStripMenuItem";
+            this.syleIconsToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.syleIconsToolStripMenuItem.Text = "Style: Large Icons";
+            this.syleIconsToolStripMenuItem.Click += new System.EventHandler(this.syleIconsToolStripMenuItem_Click);
+            // 
+            // styleToolStripMenuItem1
+            // 
+            this.styleToolStripMenuItem1.Name = "styleToolStripMenuItem1";
+            this.styleToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.styleToolStripMenuItem1.Text = "Style: Small Icons";
+            this.styleToolStripMenuItem1.Click += new System.EventHandler(this.styleToolStripMenuItem1_Click);
+            // 
+            // imageList2
+            // 
+            this.imageList2.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // styleDetailsToolStripMenuItem
+            // 
+            this.styleDetailsToolStripMenuItem.Name = "styleDetailsToolStripMenuItem";
+            this.styleDetailsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleDetailsToolStripMenuItem.Text = "Style: Details";
+            this.styleDetailsToolStripMenuItem.Click += new System.EventHandler(this.styleDetailsToolStripMenuItem_Click);
+            // 
+            // styleTileToolStripMenuItem
+            // 
+            this.styleTileToolStripMenuItem.Name = "styleTileToolStripMenuItem";
+            this.styleTileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.styleTileToolStripMenuItem.Text = "Style: Tile";
+            this.styleTileToolStripMenuItem.Click += new System.EventHandler(this.styleTileToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(924, 591);
@@ -387,6 +450,7 @@ namespace DockerForm
             this.menuStrip2.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextMenuStrip2.ResumeLayout(false);
+            this.contextMenuStrip3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -430,6 +494,13 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem steamToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UniversalMenuItem3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ImageList imageList2;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip3;
+        private System.Windows.Forms.ToolStripMenuItem styleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem syleIconsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem styleToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem styleDetailsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem styleTileToolStripMenuItem;
     }
 }
 
