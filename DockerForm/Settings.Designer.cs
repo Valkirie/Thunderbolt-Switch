@@ -46,6 +46,11 @@ namespace DockerForm
             this.checkBoxMinimizeOnClosing = new System.Windows.Forms.CheckBox();
             this.checkBoxMinimizeOnStartup = new System.Windows.Forms.CheckBox();
             this.tabPowerProfiles = new System.Windows.Forms.TabPage();
+            this.groupBoxPowerBalance = new System.Windows.Forms.GroupBox();
+            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBoxTriggers = new System.Windows.Forms.GroupBox();
             this.listBoxTriggers = new System.Windows.Forms.ListBox();
             this.groupBoxFIVR = new System.Windows.Forms.GroupBox();
@@ -63,22 +68,20 @@ namespace DockerForm
             this.MenuItemRemoveSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItemCreateSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxPowerProfile = new System.Windows.Forms.GroupBox();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.groupBoxPowerBalance = new System.Windows.Forms.GroupBox();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxGeneral.SuspendLayout();
             this.tabPowerProfiles.SuspendLayout();
+            this.groupBoxPowerBalance.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.groupBoxTriggers.SuspendLayout();
             this.groupBoxFIVR.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).BeginInit();
@@ -87,11 +90,8 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
             this.SettingMenuStrip.SuspendLayout();
             this.groupBoxPowerProfile.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            this.groupBoxPowerBalance.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlSettings
@@ -276,6 +276,78 @@ namespace DockerForm
             this.tabPowerProfiles.TabIndex = 1;
             this.tabPowerProfiles.Text = "Power Profiles";
             this.tabPowerProfiles.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxPowerBalance
+            // 
+            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown4);
+            this.groupBoxPowerBalance.Controls.Add(this.label3);
+            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown3);
+            this.groupBoxPowerBalance.Controls.Add(this.label4);
+            this.groupBoxPowerBalance.Enabled = false;
+            this.groupBoxPowerBalance.Location = new System.Drawing.Point(6, 413);
+            this.groupBoxPowerBalance.Name = "groupBoxPowerBalance";
+            this.groupBoxPowerBalance.Size = new System.Drawing.Size(284, 83);
+            this.groupBoxPowerBalance.TabIndex = 12;
+            this.groupBoxPowerBalance.TabStop = false;
+            this.groupBoxPowerBalance.Text = "Power Balance";
+            // 
+            // numericUpDown4
+            // 
+            this.numericUpDown4.Location = new System.Drawing.Point(194, 45);
+            this.numericUpDown4.Maximum = new decimal(new int[] {
+            31,
+            0,
+            0,
+            0});
+            this.numericUpDown4.Name = "numericUpDown4";
+            this.numericUpDown4.Size = new System.Drawing.Size(84, 20);
+            this.numericUpDown4.TabIndex = 4;
+            this.numericUpDown4.Value = new decimal(new int[] {
+            13,
+            0,
+            0,
+            0});
+            this.numericUpDown4.ValueChanged += new System.EventHandler(this.numericUpDown4_ValueChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 22);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Power Balance CPU";
+            this.toolTip1.SetToolTip(this.label3, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
+        "et the biggest share of the TDP budget.");
+            // 
+            // numericUpDown3
+            // 
+            this.numericUpDown3.Location = new System.Drawing.Point(194, 19);
+            this.numericUpDown3.Maximum = new decimal(new int[] {
+            31,
+            0,
+            0,
+            0});
+            this.numericUpDown3.Name = "numericUpDown3";
+            this.numericUpDown3.Size = new System.Drawing.Size(84, 20);
+            this.numericUpDown3.TabIndex = 3;
+            this.numericUpDown3.Value = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numericUpDown3.ValueChanged += new System.EventHandler(this.numericUpDown3_ValueChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(7, 48);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(105, 13);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Power Balance GPU";
+            this.toolTip1.SetToolTip(this.label4, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
+        "et the biggest share of the TDP budget.");
             // 
             // groupBoxTriggers
             // 
@@ -504,45 +576,9 @@ namespace DockerForm
             this.groupBoxPowerProfile.TabStop = false;
             this.groupBoxPowerProfile.Text = "Power Profile";
             // 
-            // numericUpDown4
-            // 
-            this.numericUpDown4.Location = new System.Drawing.Point(194, 44);
-            this.numericUpDown4.Maximum = new decimal(new int[] {
-            31,
-            0,
-            0,
-            0});
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(84, 20);
-            this.numericUpDown4.TabIndex = 4;
-            this.numericUpDown4.Value = new decimal(new int[] {
-            13,
-            0,
-            0,
-            0});
-            this.numericUpDown4.ValueChanged += new System.EventHandler(this.numericUpDown4_ValueChanged);
-            // 
-            // numericUpDown3
-            // 
-            this.numericUpDown3.Location = new System.Drawing.Point(194, 15);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
-            31,
-            0,
-            0,
-            0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(84, 20);
-            this.numericUpDown3.TabIndex = 3;
-            this.numericUpDown3.Value = new decimal(new int[] {
-            9,
-            0,
-            0,
-            0});
-            this.numericUpDown3.ValueChanged += new System.EventHandler(this.numericUpDown3_ValueChanged);
-            // 
             // numericUpDown2
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(194, 51);
+            this.numericUpDown2.Location = new System.Drawing.Point(194, 48);
             this.numericUpDown2.Name = "numericUpDown2";
             this.numericUpDown2.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown2.TabIndex = 2;
@@ -566,32 +602,10 @@ namespace DockerForm
             0});
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 47);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(105, 13);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Power Balance GPU";
-            this.toolTip1.SetToolTip(this.label4, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
-        "et the biggest share of the TDP budget.");
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 18);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 13);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Power Balance CPU";
-            this.toolTip1.SetToolTip(this.label3, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
-        "et the biggest share of the TDP budget.");
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(7, 54);
+            this.label2.Location = new System.Drawing.Point(7, 51);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(157, 13);
             this.label2.TabIndex = 1;
@@ -607,20 +621,6 @@ namespace DockerForm
             this.label1.TabIndex = 0;
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             this.toolTip1.SetToolTip(this.label1, "Turbo Boost Long Power Max - for sustained turbo operation.");
-            // 
-            // groupBoxPowerBalance
-            // 
-            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown4);
-            this.groupBoxPowerBalance.Controls.Add(this.label3);
-            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown3);
-            this.groupBoxPowerBalance.Controls.Add(this.label4);
-            this.groupBoxPowerBalance.Enabled = false;
-            this.groupBoxPowerBalance.Location = new System.Drawing.Point(6, 413);
-            this.groupBoxPowerBalance.Name = "groupBoxPowerBalance";
-            this.groupBoxPowerBalance.Size = new System.Drawing.Size(284, 83);
-            this.groupBoxPowerBalance.TabIndex = 12;
-            this.groupBoxPowerBalance.TabStop = false;
-            this.groupBoxPowerBalance.Text = "Power Balance";
             // 
             // Settings
             // 
@@ -648,6 +648,10 @@ namespace DockerForm
             this.groupBoxGeneral.ResumeLayout(false);
             this.groupBoxGeneral.PerformLayout();
             this.tabPowerProfiles.ResumeLayout(false);
+            this.groupBoxPowerBalance.ResumeLayout(false);
+            this.groupBoxPowerBalance.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             this.groupBoxTriggers.ResumeLayout(false);
             this.groupBoxFIVR.ResumeLayout(false);
             this.groupBoxFIVR.PerformLayout();
@@ -658,12 +662,8 @@ namespace DockerForm
             this.SettingMenuStrip.ResumeLayout(false);
             this.groupBoxPowerProfile.ResumeLayout(false);
             this.groupBoxPowerProfile.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            this.groupBoxPowerBalance.ResumeLayout(false);
-            this.groupBoxPowerBalance.PerformLayout();
             this.ResumeLayout(false);
 
         }
