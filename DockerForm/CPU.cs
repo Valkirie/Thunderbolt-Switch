@@ -56,7 +56,7 @@ namespace DockerForm
             }
             else
             {
-                // AMD !?
+                // do something
             }
         }
 
@@ -70,62 +70,75 @@ namespace DockerForm
             if (Form1.CurrentProfile.Equals(profile))
                 return;
 
+            string command = null;
+            string tool = null;
+
             if (Manufacturer == "GenuineIntel")
             {
                 // skip if unsupported platform
                 if (MCHBAR == null || !MCHBAR.Contains("0x"))
                     return;
 
-                string command = "/Min /Nologo /Stdout /command=\"Delay 1000;";
+                tool = Form1.path_rw;
+                command = "/Min /Nologo /Stdout /command=\"Delay 1000;";
 
                 if (profile.HasLongPowerMax())
                 {
-                    command += "w16 " + MCHBAR + "a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
-                    command += "wrmsr 0x610 0x0 0x00dd8" + profile.GetLongPowerMax() + ";";
+                    command += $"w16 {MCHBAR}a0 0x8{profile.GetLongPowerMax().Substring(0, 1)}{profile.GetLongPowerMax().Substring(1)};";
+                    command += $"wrmsr 0x610 0x0 0x00dd8{profile.GetLongPowerMax()};";
                 }
 
                 if (profile.HasShortPowerMax())
                 {
-                    command += "w16 " + MCHBAR + "a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
-                    command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
+                    command += $"w16 {MCHBAR}a4 0x8{profile.GetShortPowerMax().Substring(0, 1)}{profile.GetShortPowerMax().Substring(1)};";
+                    command += $"wrmsr 0x610 0x0 0x00438{profile.GetShortPowerMax()};";
                 }
 
                 if (profile.HasCPUCore())
-                    command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + ";";
+                    command += $"wrmsr 0x150 0x80000011 0x{profile.GetVoltageCPU()};";
                 if (profile.HasIntelGPU())
-                    command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + ";";
+                    command += $"wrmsr 0x150 0x80000111 0x{profile.GetVoltageGPU()};";
                 if (profile.HasCPUCache())
-                    command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + ";";
+                    command += $"wrmsr 0x150 0x80000211 0x{profile.GetVoltageCache()};";
                 if (profile.HasSystemAgent())
-                    command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + ";";
+                    command += $"wrmsr 0x150 0x80000411 0x{profile.GetVoltageSA()};";
 
                 if (profile.HasPowerBalanceCPU())
-                    command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";
+                    command += $"wrmsr 0x642 0x00000000 0x000000{profile.GetPowerBalanceCPU()};";
                 if (profile.HasPowerBalanceGPU())
-                    command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
+                    command += $"wrmsr 0x63a 0x00000000 0x000000{profile.GetPowerBalanceGPU()};";
 
-                // command += "w " + MCHBAR + "94 0xFF;";
                 command += "Delay 1000;rwexit\"";
-
-                ProcessStartInfo RWInfo = new ProcessStartInfo
-                {
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    Arguments = command,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = Form1.path_rw,
-                    Verb = "runas"
-                };
-                Process.Start(RWInfo);
             }
             else
             {
-                // AMD !?
+                tool = Form1.path_ryz;
+                command = "";
+
+                if (profile.HasLongPowerMax())
+                    command += $"--slow-limit={profile.TurboBoostLongPowerMax}1000 --stapm-limit={profile.TurboBoostLongPowerMax}1000 ";
+                if (profile.HasShortPowerMax())
+                    command += $"--fast-limit={profile.TurboBoostLongPowerMax}1000 ";
             }
+
+            // execute command
+            if (command == null || tool == null)
+                return;
+
+            ProcessStartInfo PowerProcess = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                Arguments = command,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = tool,
+                Verb = "runas"
+            };
+            Process.Start(PowerProcess);
 
             // update current profile
             Form1.CurrentProfile = profile;
-            Form1.SendNotification("Power Profile [" + profile.GetName() + "] applied.", true, true);
+            Form1.SendNotification($"Power Profile [{profile.GetName()}] applied.", true, true);
         }
     }
 }

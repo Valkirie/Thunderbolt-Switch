@@ -854,7 +854,7 @@ namespace DockerForm
 
             // read processor details
             CurrentCPU.Initialise();
-            LogManager.UpdateLog($"CPU detected: {CurrentCPU.Name} ({CurrentCPU.MCHBAR})");
+            LogManager.UpdateLog($"CPU detected: {CurrentCPU.Name}");
 
             // update Database
             UpdateGameList();
