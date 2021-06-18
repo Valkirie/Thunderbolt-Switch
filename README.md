@@ -1,8 +1,8 @@
 # Thunderbolt Switch
 
-![image](https://user-images.githubusercontent.com/934757/111270519-417a0500-8630-11eb-9312-65d095e1a180.png)
+![image](https://user-images.githubusercontent.com/934757/122594143-eb6d9100-d066-11eb-9215-748ce08b005e.png)
 
-Thunderbolt Switch, a software that switches your game settings depending on whether you are connected to an external GPU or not.
+Thunderbolt Switch, a software that switches your game settings and device power profiles (TDP, Power Balance, Voltage) for all your games based on device current status (AC, DC, EGPU, External Screen). Now compatible with both Intel and AMD processors.
 
 ## Project Status
 
