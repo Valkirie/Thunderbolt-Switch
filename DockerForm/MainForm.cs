@@ -19,7 +19,7 @@ using Task = Microsoft.Win32.TaskScheduler.Task;
 
 namespace DockerForm
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         // Global vars
         public static bool prevDockStatus = false;
@@ -61,7 +61,7 @@ namespace DockerForm
         public static string path_rw, path_devcon, path_ryz;
 
         // Form vars
-        private static Form1 CurrentForm;
+        private static MainForm CurrentForm;
         private static CultureInfo CurrentCulture;
 
         // Threading vars
@@ -754,7 +754,7 @@ namespace DockerForm
             MonitorHardware = Properties.Settings.Default.MonitorHardware;
         }
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 

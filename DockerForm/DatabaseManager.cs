@@ -115,7 +115,7 @@ namespace DockerForm
             else if (setting.Type == SettingsType.Registry)
             {
                 // We generate a temporary reg file
-                string tempfile = Path.Combine(Form1.path_application, "temp.reg");
+                string tempfile = Path.Combine(MainForm.path_application, "temp.reg");
                 RegistryManager.ExportKey(filename, tempfile);
 
                 if (!File.Exists(tempfile))
@@ -160,14 +160,14 @@ namespace DockerForm
             game.SetCrc(crc_value);
             game.Serialize();
 
-            Form1.SendNotification(game.Name + " settings have been updated", pushToast);
+            MainForm.SendNotification(game.Name + " settings have been updated", pushToast);
         }
 
         public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
         {
             foreach (DockerGame game in GameDB.Values)
             {
-                string path_db = Form1.GetCurrentState(game);
+                string path_db = MainForm.GetCurrentState(game);
                 UpdateFilesAndRegistries(game, path_db, game.GetCrc(), updateDB, updateFILE, false, path_db);
             }
         }
@@ -206,7 +206,7 @@ namespace DockerForm
         {
             foreach (DockerGame game in GameDB.Values)
             {
-                string path_db = Form1.GetCurrentState(game);
+                string path_db = MainForm.GetCurrentState(game);
 
                 if (game.ErrorCode != ErrorCode.None)
                 {
@@ -247,7 +247,7 @@ namespace DockerForm
                     else if (setting.Type == SettingsType.Registry)
                     {
                         // We generate a temporary reg file
-                        string tempfile = Path.Combine(Form1.path_application, "temp.reg");
+                        string tempfile = Path.Combine(MainForm.path_application, "temp.reg");
 
                         RegistryManager.ExportKey(filename, tempfile);
                         file = new FileInfo(tempfile);
@@ -264,12 +264,12 @@ namespace DockerForm
 
                     if (path_db != crc_value)
                     {
-                        Form1.SendNotification("[" + game.Name + "] CRC missmatch detected for [" + file.Name + "]", true, true, true);
+                        MainForm.SendNotification("[" + game.Name + "] CRC missmatch detected for [" + file.Name + "]", true, true, true);
                         UpdateFileAndRegistry(game, path_db, crc_value, true, true, false, path_db, setting);
                     }
                     else if (!Equality(fileBytes, fileDBBytes))
                     {
-                        Form1.SendNotification("[" + game.Name + "] database sync conflict detected for [" + file.Name + "]", true, true, true);
+                        MainForm.SendNotification("[" + game.Name + "] database sync conflict detected for [" + file.Name + "]", true, true, true);
 
                         DialogBox dialogBox = new DialogBox();
                         dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file);

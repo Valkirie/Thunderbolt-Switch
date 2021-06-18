@@ -17,7 +17,7 @@ namespace DockerForm
     public partial class GameProperties : Form
     {
         // Form vars
-        static Form1 gForm;
+        static MainForm gForm;
         GameProperties gProperties;
         bool gIsReady;
 
@@ -54,7 +54,7 @@ namespace DockerForm
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
 
-        public GameProperties(Form1 form)
+        public GameProperties(MainForm form)
         {
             InitializeComponent();
             InitializeForm();
@@ -67,7 +67,7 @@ namespace DockerForm
             gIsReady = PickAGame();
         }
 
-        public GameProperties(Form1 form, DockerGame game)
+        public GameProperties(MainForm form, DockerGame game)
         {
             InitializeComponent();
             InitializeForm();
@@ -105,9 +105,9 @@ namespace DockerForm
             checkBoxPowerSpecific.Checked = gGame.PowerSpecific;
 
             // Power Profiles tab
-            groupBoxPowerProfile.Enabled = Form1.MonitorProcesses;
+            groupBoxPowerProfile.Enabled = MainForm.MonitorProcesses;
 
-            foreach (PowerProfile profile in Form1.ProfileDB.Values)
+            foreach (PowerProfile profile in MainForm.ProfileDB.Values)
             {
 				bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
 				bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
@@ -293,7 +293,7 @@ namespace DockerForm
 
                         byte[] s_file = System.IO.File.ReadAllBytes(file);
                         GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FilePath, true, IsRelative);
-                        newSetting.data[Form1.GetCurrentState(gGame)] = s_file;
+                        newSetting.data[MainForm.GetCurrentState(gGame)] = s_file;
                         gGame.Settings[FileName] = newSetting;
                     }
                 }
@@ -312,13 +312,13 @@ namespace DockerForm
 
             GameSettings newSetting = new GameSettings(FileName, SettingsType.Registry, FileName, false, false);
 
-            string FileTemp = System.IO.Path.Combine(Form1.path_application, "temp.reg");
+            string FileTemp = System.IO.Path.Combine(MainForm.path_application, "temp.reg");
             RegistryManager.ExportKey(FileName, FileTemp);
 
             if (System.IO.File.Exists(FileTemp))
             {
                 byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
-                newSetting.data[Form1.GetCurrentState(gGame)] = s_file;
+                newSetting.data[MainForm.GetCurrentState(gGame)] = s_file;
                 newSetting.IsEnabled = true;
                 listViewItem1.Checked = true;
             }
@@ -475,7 +475,7 @@ namespace DockerForm
             gGame.Profiles.Clear();
             foreach (ListViewItem item in ProfilesList.Items)
             {
-                PowerProfile profile = Form1.ProfileDB[item.Text];
+                PowerProfile profile = MainForm.ProfileDB[item.Text];
                 if (item.Checked)
                     gGame.Profiles.Add(profile.ProfileName, profile);
             }
@@ -614,7 +614,7 @@ namespace DockerForm
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
                 string ProfileName = item.SubItems[0].Text;
-                PowerProfile profile = Form1.ProfileDB[ProfileName];
+                PowerProfile profile = MainForm.ProfileDB[ProfileName];
 
                 // Misc
                 if (profile.HasLongPowerMax())

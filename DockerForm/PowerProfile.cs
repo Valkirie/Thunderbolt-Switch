@@ -60,7 +60,7 @@ namespace DockerForm
             // update values
             ComputeHex();
 
-            string filename = Path.Combine(Form1.path_profiles, ProfileName) + ".xml";
+            string filename = Path.Combine(MainForm.path_profiles, ProfileName) + ".xml";
             using (FileStream writer = new FileStream(filename, FileMode.Create))
             {
                 XmlSerializer serializer = new XmlSerializer(this.GetType());
@@ -68,16 +68,16 @@ namespace DockerForm
                 writer.Flush();
             }
 
-            Form1.UpdateProfiles();
+            MainForm.UpdateProfiles();
         }
 
         public void Remove()
         {
-            string filename = Path.Combine(Form1.path_profiles, ProfileName) + ".xml";
+            string filename = Path.Combine(MainForm.path_profiles, ProfileName) + ".xml";
             if (File.Exists(filename))
                 File.Delete(filename);
 
-            Form1.UpdateProfiles();
+            MainForm.UpdateProfiles();
         }
 
         private string TDPToHex(int decValue)

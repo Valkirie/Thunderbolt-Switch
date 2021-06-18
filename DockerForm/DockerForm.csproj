@@ -118,11 +118,11 @@
       <DependentUpon>DialogBox.cs</DependentUpon>
     </Compile>
     <Compile Include="FileManager.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="ListViewComparer.cs" />
@@ -159,11 +159,12 @@
     <Compile Include="Shell\IMAGEINFO.cs" />
     <Compile Include="Shell\IImageList.cs" />
     <Compile Include="VideoController.cs" />
+    <Compile Include="CPU.cs" />
     <EmbeddedResource Include="DialogBox.resx">
       <DependentUpon>DialogBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GameProperties.resx">
       <DependentUpon>GameProperties.cs</DependentUpon>
