@@ -54,11 +54,11 @@ namespace DockerForm
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
-        public static string MCHBAR;
+        public static CPU CurrentCPU;
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
-        public static string path_rw, path_devcon;
+        public static string path_rw, path_devcon, path_ryz;
 
         // Form vars
         private static Form1 CurrentForm;
@@ -143,72 +143,10 @@ namespace DockerForm
             foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.RunMe).OrderBy(a => a.ApplyPriority))
                 sum_profile.DigestProfile(profile, true);
 
-            SetPowerProfile(sum_profile);
+            CurrentCPU.SetPowerProfile(sum_profile);
 
             // update form
             UpdateFormProfiles();
-        }
-
-        private static void SetPowerProfile(PowerProfile profile)
-        {
-            // skip if unsupported platform
-            if (MCHBAR == null || !MCHBAR.Contains("0x"))
-                return;
-
-            // skip check on empty profile
-            if (profile.ProfileName == "")
-                return;
-
-            // skip update on similar profiles
-            if (CurrentProfile.Equals(profile))
-                return;
-
-            string command = "/Min /Nologo /Stdout /command=\"Delay 1000;";
-
-            if (profile.HasLongPowerMax())
-            {
-                command += "w16 " + MCHBAR + "a0 0x8" + profile.GetLongPowerMax().Substring(0, 1) + profile.GetLongPowerMax().Substring(1) + ";";
-                command += "wrmsr 0x610 0x0 0x00dd8" + profile.GetLongPowerMax() + ";";
-            }
-
-            if (profile.HasShortPowerMax())
-            {
-                command += "w16 " + MCHBAR + "a4 0x8" + profile.GetShortPowerMax().Substring(0, 1) + profile.GetShortPowerMax().Substring(1) + ";";
-                command += "wrmsr 0x610 0x0 0x00438" + profile.GetShortPowerMax() + ";";
-            }
-
-            if (profile.HasCPUCore())
-                command += "wrmsr 0x150 0x80000011 0x" + profile.GetVoltageCPU() + ";";
-            if (profile.HasIntelGPU())
-                command += "wrmsr 0x150 0x80000111 0x" + profile.GetVoltageGPU() + ";";
-            if (profile.HasCPUCache())
-                command += "wrmsr 0x150 0x80000211 0x" + profile.GetVoltageCache() + ";";
-            if (profile.HasSystemAgent())
-                command += "wrmsr 0x150 0x80000411 0x" + profile.GetVoltageSA() + ";";
-
-            if (profile.HasPowerBalanceCPU())
-                command += "wrmsr 0x642 0x00000000 0x000000" + profile.GetPowerBalanceCPU() + ";";
-            if (profile.HasPowerBalanceGPU())
-                command += "wrmsr 0x63a 0x00000000 0x000000" + profile.GetPowerBalanceGPU() + ";";
-
-            // command += "w " + MCHBAR + "94 0xFF;";
-            command += "Delay 1000;rwexit\"";
-
-            ProcessStartInfo RWInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                Arguments = command,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = path_rw,
-                Verb = "runas"
-            };
-            Process.Start(RWInfo);
-
-            // update current profile
-            CurrentProfile = profile;
-
-            SendNotification("Power Profile [" + profile.GetName() + "] applied.", true, true);
         }
 
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
@@ -824,6 +762,7 @@ namespace DockerForm
             CurrentForm = this;
             CurrentCulture = CultureInfo.CurrentCulture;
             CurrentTask = new TaskService();
+            CurrentCPU = new CPU();
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
@@ -834,6 +773,7 @@ namespace DockerForm
             path_dependencies = Path.Combine(path_application, "dependencies");
             path_profiles = Path.Combine(path_application, "profiles");
             path_rw = Path.Combine(path_dependencies, "Rw.exe");
+            path_ryz = Path.Combine(path_dependencies, "ryzenadj.exe");
             path_devcon = Path.Combine(path_dependencies, Environment.Is64BitOperatingSystem ? "x64" : "x86", "DevManView.exe");
 
             if (!Directory.Exists(path_database))
@@ -895,7 +835,7 @@ namespace DockerForm
                 td.Triggers.Add(new LogonTrigger());
                 td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
                 myTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
-                LogManager.UpdateLog("Task Scheduler: " + taskName + " was successfully created");
+                LogManager.UpdateLog($"Task Scheduler: {taskName} was successfully created");
             }
 
             if (myTask != null)
@@ -903,51 +843,21 @@ namespace DockerForm
                 if (BootOnStartup && !myTask.Enabled)
                 {
                     myTask.Enabled = true;
-                    LogManager.UpdateLog("Task Scheduler: " + taskName + " was enabled");
+                    LogManager.UpdateLog($"Task Scheduler: {taskName} was enabled");
                 }
                 else if (!BootOnStartup && myTask.Enabled)
                 {
                     myTask.Enabled = false;
-                    LogManager.UpdateLog("Task Scheduler: " + taskName + " was disabled");
+                    LogManager.UpdateLog($"Task Scheduler: {taskName} was disabled");
                 }
             }
 
-            // update MCHBAR
-            string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;Delay 1000;rwexit\"";
-            using (var ProcessOutput = Process.Start(new ProcessStartInfo(path_rw, command)
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true,
-                Verb = "runas"
-            }))
-            {
-                while (!ProcessOutput.StandardOutput.EndOfStream)
-                {
-                    string line = ProcessOutput.StandardOutput.ReadLine();
-
-                    if (!line.Contains("0x"))
-                        continue;
-
-                    MCHBAR = line.GetLast(10);
-                    MCHBAR = MCHBAR.Substring(0, 6) + "59";
-                    break;
-                }
-            };
+            // read processor details
+            CurrentCPU.Initialise();
+            LogManager.UpdateLog($"CPU detected: {CurrentCPU.Name} ({CurrentCPU.MCHBAR})");
 
             // update Database
             UpdateGameList();
-        }
-
-        private string GetProcessorID()
-        {
-            ManagementClass managClass = new ManagementClass("win32_processor");
-            ManagementObjectCollection managCollec = managClass.GetInstances();
-
-            foreach (ManagementObject managObj in managCollec)
-                return managObj.Properties["processorID"].Value.ToString();
-
-            return "";
         }
 
         private static void StartMonitoringProcessCreation()
@@ -1136,62 +1046,40 @@ namespace DockerForm
             AutomaticDetection(DetectedGames, "Universal");
         }
 
-        // The column we are currently using for sorting.
         private ColumnHeader SortingColumn = null;
-        // Sort on this column.
-
         private void GameListView_HeaderClicked(object sender, ColumnClickEventArgs e)
         {
             // Get the new sorting column.
             ColumnHeader new_sorting_column = GameListView.Columns[e.Column];
-
             // Figure out the new sorting order.
             System.Windows.Forms.SortOrder sort_order;
+
             if (SortingColumn == null)
-            {
-                // New column. Sort ascending.
                 sort_order = SortOrder.Ascending;
-            }
             else
             {
                 // See if this is the same column.
                 if (new_sorting_column == SortingColumn)
                 {
-                    // Same column. Switch the sort order.
                     if (SortingColumn.Text.StartsWith("> "))
-                    {
                         sort_order = SortOrder.Descending;
-                    }
                     else
-                    {
                         sort_order = SortOrder.Ascending;
-                    }
                 }
                 else
-                {
-                    // New column. Sort ascending.
                     sort_order = SortOrder.Ascending;
-                }
 
                 // Remove the old sort indicator.
                 SortingColumn.Text = SortingColumn.Text.Substring(2);
             }
 
-            // Display the new sort order.
             SortingColumn = new_sorting_column;
             if (sort_order == SortOrder.Ascending)
-            {
                 SortingColumn.Text = "> " + SortingColumn.Text;
-            }
             else
-            {
                 SortingColumn.Text = "< " + SortingColumn.Text;
-            }
 
-            // Create a comparer.
             GameListView.ListViewItemSorter = new ListViewComparer(e.Column, sort_order);
-
-            // Sort.
             GameListView.Sort();
         }
 

@@ -243,6 +243,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dependencies\ryzenadj.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="dependencies\Rw.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
