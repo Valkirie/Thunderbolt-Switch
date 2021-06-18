@@ -10,7 +10,14 @@ namespace DockerForm
 {
     public class CPU
     {
-        public string Name, Manufacturer, MCHBAR;
+        public enum Manufacturer
+        {
+            Intel = 0,
+            AMD = 1
+        }
+
+        public string Name, MCHBAR;
+        public Manufacturer Constructor;
         private string GetProcessorDetails(string value)
         {
             ManagementClass managClass = new ManagementClass("win32_processor");
@@ -25,15 +32,21 @@ namespace DockerForm
         public CPU()
         {
             Name = GetProcessorDetails("Name");
-            Manufacturer = GetProcessorDetails("Manufacturer");
+
+            switch(GetProcessorDetails("Manufacturer"))
+            {
+                case "GenuineIntel":
+                    Constructor = Manufacturer.Intel;
+                    break;
+            }
         }
 
         public void Initialise()
         {
-            if (Manufacturer == "GenuineIntel")
+            if (Constructor == Manufacturer.Intel)
             {
                 string command = "/Min /Nologo /Stdout /command=\"Delay 1000;rpci32 0 0 0 0x48;Delay 1000;rwexit\"";
-                using (var ProcessOutput = Process.Start(new ProcessStartInfo(Form1.path_rw, command)
+                using (var ProcessOutput = Process.Start(new ProcessStartInfo(MainForm.path_rw, command)
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -67,19 +80,19 @@ namespace DockerForm
                 return;
 
             // skip update on similar profiles
-            if (Form1.CurrentProfile.Equals(profile))
+            if (MainForm.CurrentProfile.Equals(profile))
                 return;
 
             string command = null;
             string tool = null;
 
-            if (Manufacturer == "GenuineIntel")
+            if (Constructor == Manufacturer.Intel)
             {
                 // skip if unsupported platform
                 if (MCHBAR == null || !MCHBAR.Contains("0x"))
                     return;
 
-                tool = Form1.path_rw;
+                tool = MainForm.path_rw;
                 command = "/Min /Nologo /Stdout /command=\"Delay 1000;";
 
                 if (profile.HasLongPowerMax())
@@ -112,13 +125,13 @@ namespace DockerForm
             }
             else
             {
-                tool = Form1.path_ryz;
+                tool = MainForm.path_ryz;
                 command = "";
 
                 if (profile.HasLongPowerMax())
-                    command += $"--slow-limit={profile.TurboBoostLongPowerMax}1000 --stapm-limit={profile.TurboBoostLongPowerMax}1000 ";
+                    command += $"--slow-limit={profile.TurboBoostLongPowerMax}000 --stapm-limit={profile.TurboBoostLongPowerMax}000 ";
                 if (profile.HasShortPowerMax())
-                    command += $"--fast-limit={profile.TurboBoostLongPowerMax}1000 ";
+                    command += $"--fast-limit={profile.TurboBoostLongPowerMax}000 ";
             }
 
             // execute command
@@ -137,8 +150,8 @@ namespace DockerForm
             Process.Start(PowerProcess);
 
             // update current profile
-            Form1.CurrentProfile = profile;
-            Form1.SendNotification($"Power Profile [{profile.GetName()}] applied.", true, true);
+            MainForm.CurrentProfile = profile;
+            MainForm.SendNotification($"Power Profile [{profile.GetName()}] applied.", true, true);
         }
     }
 }
