@@ -34,6 +34,7 @@ namespace DockerForm
             this.tabControlSettings = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.checkBoxMonitorPowerProfiles = new System.Windows.Forms.CheckBox();
             this.checkBoxMonitorHardware = new System.Windows.Forms.CheckBox();
             this.checkBoxSaveOnExit = new System.Windows.Forms.CheckBox();
@@ -71,7 +72,7 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.button1 = new System.Windows.Forms.Button();
+            this.groupBoxPowerBalance = new System.Windows.Forms.GroupBox();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -90,16 +91,18 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.groupBoxPowerBalance.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlSettings
             // 
             this.tabControlSettings.Controls.Add(this.tabGeneral);
             this.tabControlSettings.Controls.Add(this.tabPowerProfiles);
-            this.tabControlSettings.Location = new System.Drawing.Point(12, 12);
+            this.tabControlSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlSettings.Location = new System.Drawing.Point(0, 0);
             this.tabControlSettings.Name = "tabControlSettings";
             this.tabControlSettings.SelectedIndex = 0;
-            this.tabControlSettings.Size = new System.Drawing.Size(759, 501);
+            this.tabControlSettings.Size = new System.Drawing.Size(784, 525);
             this.tabControlSettings.TabIndex = 4;
             // 
             // tabGeneral
@@ -110,7 +113,7 @@ namespace DockerForm
             this.tabGeneral.Location = new System.Drawing.Point(4, 22);
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding(3);
-            this.tabGeneral.Size = new System.Drawing.Size(751, 475);
+            this.tabGeneral.Size = new System.Drawing.Size(776, 499);
             this.tabGeneral.TabIndex = 2;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
@@ -125,10 +128,21 @@ namespace DockerForm
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Location = new System.Drawing.Point(3, 143);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(745, 116);
+            this.groupBox2.Size = new System.Drawing.Size(770, 116);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Environment";
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Location = new System.Drawing.Point(692, 16);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 97);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "Open Settings Location";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // checkBoxMonitorPowerProfiles
             // 
@@ -187,7 +201,7 @@ namespace DockerForm
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(3, 73);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(745, 70);
+            this.groupBox1.Size = new System.Drawing.Size(770, 70);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Interface";
@@ -221,7 +235,7 @@ namespace DockerForm
             this.groupBoxGeneral.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxGeneral.Location = new System.Drawing.Point(3, 3);
             this.groupBoxGeneral.Name = "groupBoxGeneral";
-            this.groupBoxGeneral.Size = new System.Drawing.Size(745, 70);
+            this.groupBoxGeneral.Size = new System.Drawing.Size(770, 70);
             this.groupBoxGeneral.TabIndex = 0;
             this.groupBoxGeneral.TabStop = false;
             this.groupBoxGeneral.Text = "Taskbar";
@@ -250,6 +264,7 @@ namespace DockerForm
             // 
             // tabPowerProfiles
             // 
+            this.tabPowerProfiles.Controls.Add(this.groupBoxPowerBalance);
             this.tabPowerProfiles.Controls.Add(this.groupBoxTriggers);
             this.tabPowerProfiles.Controls.Add(this.groupBoxFIVR);
             this.tabPowerProfiles.Controls.Add(this.ProfilesList);
@@ -257,7 +272,7 @@ namespace DockerForm
             this.tabPowerProfiles.Location = new System.Drawing.Point(4, 22);
             this.tabPowerProfiles.Name = "tabPowerProfiles";
             this.tabPowerProfiles.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPowerProfiles.Size = new System.Drawing.Size(751, 475);
+            this.tabPowerProfiles.Size = new System.Drawing.Size(776, 499);
             this.tabPowerProfiles.TabIndex = 1;
             this.tabPowerProfiles.Text = "Power Profiles";
             this.tabPowerProfiles.UseVisualStyleBackColor = true;
@@ -265,9 +280,10 @@ namespace DockerForm
             // groupBoxTriggers
             // 
             this.groupBoxTriggers.Controls.Add(this.listBoxTriggers);
-            this.groupBoxTriggers.Location = new System.Drawing.Point(530, 323);
+            this.groupBoxTriggers.Enabled = false;
+            this.groupBoxTriggers.Location = new System.Drawing.Point(558, 323);
             this.groupBoxTriggers.Name = "groupBoxTriggers";
-            this.groupBoxTriggers.Size = new System.Drawing.Size(215, 146);
+            this.groupBoxTriggers.Size = new System.Drawing.Size(215, 173);
             this.groupBoxTriggers.TabIndex = 11;
             this.groupBoxTriggers.TabStop = false;
             this.groupBoxTriggers.Text = "Triggers";
@@ -287,7 +303,7 @@ namespace DockerForm
             this.listBoxTriggers.Location = new System.Drawing.Point(3, 16);
             this.listBoxTriggers.Name = "listBoxTriggers";
             this.listBoxTriggers.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.listBoxTriggers.Size = new System.Drawing.Size(209, 127);
+            this.listBoxTriggers.Size = new System.Drawing.Size(209, 154);
             this.listBoxTriggers.TabIndex = 0;
             this.listBoxTriggers.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -301,9 +317,10 @@ namespace DockerForm
             this.groupBoxFIVR.Controls.Add(this.label7);
             this.groupBoxFIVR.Controls.Add(this.label6);
             this.groupBoxFIVR.Controls.Add(this.label5);
-            this.groupBoxFIVR.Location = new System.Drawing.Point(268, 323);
+            this.groupBoxFIVR.Enabled = false;
+            this.groupBoxFIVR.Location = new System.Drawing.Point(296, 323);
             this.groupBoxFIVR.Name = "groupBoxFIVR";
-            this.groupBoxFIVR.Size = new System.Drawing.Size(256, 146);
+            this.groupBoxFIVR.Size = new System.Drawing.Size(256, 173);
             this.groupBoxFIVR.TabIndex = 10;
             this.groupBoxFIVR.TabStop = false;
             this.groupBoxFIVR.Text = "FIVR Control";
@@ -388,6 +405,8 @@ namespace DockerForm
             this.label8.Size = new System.Drawing.Size(108, 13);
             this.label8.TabIndex = 14;
             this.label8.Text = "Intel GPU Offset (mV)";
+            this.toolTip1.SetToolTip(this.label8, "Fully Integrated Voltage Regulator feature lets you change the amount of current " +
+        "sent to your CPU.");
             // 
             // label7
             // 
@@ -397,6 +416,8 @@ namespace DockerForm
             this.label7.Size = new System.Drawing.Size(127, 13);
             this.label7.TabIndex = 13;
             this.label7.Text = "System Agent Offset (mV)";
+            this.toolTip1.SetToolTip(this.label7, "Fully Integrated Voltage Regulator feature lets you change the amount of current " +
+        "sent to your CPU.");
             // 
             // label6
             // 
@@ -406,6 +427,8 @@ namespace DockerForm
             this.label6.Size = new System.Drawing.Size(118, 13);
             this.label6.TabIndex = 12;
             this.label6.Text = "CPU Cache Offset (mV)";
+            this.toolTip1.SetToolTip(this.label6, "Fully Integrated Voltage Regulator feature lets you change the amount of current " +
+        "sent to your CPU.");
             // 
             // label5
             // 
@@ -415,6 +438,8 @@ namespace DockerForm
             this.label5.Size = new System.Drawing.Size(109, 13);
             this.label5.TabIndex = 8;
             this.label5.Text = "CPU Core Offset (mV)";
+            this.toolTip1.SetToolTip(this.label5, "Fully Integrated Voltage Regulator feature lets you change the amount of current " +
+        "sent to your CPU.");
             // 
             // ProfilesList
             // 
@@ -429,7 +454,7 @@ namespace DockerForm
             this.ProfilesList.Margin = new System.Windows.Forms.Padding(2);
             this.ProfilesList.MultiSelect = false;
             this.ProfilesList.Name = "ProfilesList";
-            this.ProfilesList.Size = new System.Drawing.Size(745, 315);
+            this.ProfilesList.Size = new System.Drawing.Size(770, 315);
             this.ProfilesList.TabIndex = 9;
             this.ProfilesList.UseCompatibleStateImageBehavior = false;
             this.ProfilesList.View = System.Windows.Forms.View.Details;
@@ -467,24 +492,21 @@ namespace DockerForm
             // 
             // groupBoxPowerProfile
             // 
-            this.groupBoxPowerProfile.Controls.Add(this.numericUpDown4);
-            this.groupBoxPowerProfile.Controls.Add(this.numericUpDown3);
             this.groupBoxPowerProfile.Controls.Add(this.numericUpDown2);
             this.groupBoxPowerProfile.Controls.Add(this.numericUpDown1);
-            this.groupBoxPowerProfile.Controls.Add(this.label4);
-            this.groupBoxPowerProfile.Controls.Add(this.label3);
             this.groupBoxPowerProfile.Controls.Add(this.label2);
             this.groupBoxPowerProfile.Controls.Add(this.label1);
+            this.groupBoxPowerProfile.Enabled = false;
             this.groupBoxPowerProfile.Location = new System.Drawing.Point(6, 323);
             this.groupBoxPowerProfile.Name = "groupBoxPowerProfile";
-            this.groupBoxPowerProfile.Size = new System.Drawing.Size(256, 146);
+            this.groupBoxPowerProfile.Size = new System.Drawing.Size(284, 83);
             this.groupBoxPowerProfile.TabIndex = 1;
             this.groupBoxPowerProfile.TabStop = false;
             this.groupBoxPowerProfile.Text = "Power Profile";
             // 
             // numericUpDown4
             // 
-            this.numericUpDown4.Location = new System.Drawing.Point(167, 109);
+            this.numericUpDown4.Location = new System.Drawing.Point(194, 44);
             this.numericUpDown4.Maximum = new decimal(new int[] {
             31,
             0,
@@ -502,7 +524,7 @@ namespace DockerForm
             // 
             // numericUpDown3
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point(167, 80);
+            this.numericUpDown3.Location = new System.Drawing.Point(194, 15);
             this.numericUpDown3.Maximum = new decimal(new int[] {
             31,
             0,
@@ -520,7 +542,7 @@ namespace DockerForm
             // 
             // numericUpDown2
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(167, 51);
+            this.numericUpDown2.Location = new System.Drawing.Point(194, 51);
             this.numericUpDown2.Name = "numericUpDown2";
             this.numericUpDown2.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown2.TabIndex = 2;
@@ -533,7 +555,7 @@ namespace DockerForm
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(167, 22);
+            this.numericUpDown1.Location = new System.Drawing.Point(194, 22);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(84, 20);
             this.numericUpDown1.TabIndex = 1;
@@ -547,20 +569,24 @@ namespace DockerForm
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 112);
+            this.label4.Location = new System.Drawing.Point(7, 47);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(105, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = "Power Balance GPU";
+            this.toolTip1.SetToolTip(this.label4, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
+        "et the biggest share of the TDP budget.");
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 83);
+            this.label3.Location = new System.Drawing.Point(7, 18);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(104, 13);
             this.label3.TabIndex = 6;
             this.label3.Text = "Power Balance CPU";
+            this.toolTip1.SetToolTip(this.label3, "Power Balance feature lets you decide whether the Intel CPU or Intel GPU should g" +
+        "et the biggest share of the TDP budget.");
             // 
             // label2
             // 
@@ -570,6 +596,7 @@ namespace DockerForm
             this.label2.Size = new System.Drawing.Size(157, 13);
             this.label2.TabIndex = 1;
             this.label2.Text = "TurboBoostShortPowerMax (W)";
+            this.toolTip1.SetToolTip(this.label2, "Turbo Boost Short Power Max - for burst turbo operation.");
             // 
             // label1
             // 
@@ -579,23 +606,27 @@ namespace DockerForm
             this.label1.Size = new System.Drawing.Size(156, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "TurboBoostLongPowerMax (W)";
+            this.toolTip1.SetToolTip(this.label1, "Turbo Boost Long Power Max - for sustained turbo operation.");
             // 
-            // button1
+            // groupBoxPowerBalance
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.button1.Location = new System.Drawing.Point(667, 16);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 97);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Open Settings Location";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown4);
+            this.groupBoxPowerBalance.Controls.Add(this.label3);
+            this.groupBoxPowerBalance.Controls.Add(this.numericUpDown3);
+            this.groupBoxPowerBalance.Controls.Add(this.label4);
+            this.groupBoxPowerBalance.Enabled = false;
+            this.groupBoxPowerBalance.Location = new System.Drawing.Point(6, 413);
+            this.groupBoxPowerBalance.Name = "groupBoxPowerBalance";
+            this.groupBoxPowerBalance.Size = new System.Drawing.Size(284, 83);
+            this.groupBoxPowerBalance.TabIndex = 12;
+            this.groupBoxPowerBalance.TabStop = false;
+            this.groupBoxPowerBalance.Text = "Power Balance";
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(783, 525);
+            this.ClientSize = new System.Drawing.Size(784, 525);
             this.Controls.Add(this.tabControlSettings);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -631,6 +662,8 @@ namespace DockerForm
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.groupBoxPowerBalance.ResumeLayout(false);
+            this.groupBoxPowerBalance.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -678,5 +711,6 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem MenuItemRemoveSetting;
         private System.Windows.Forms.ToolStripMenuItem MenuItemCreateSetting;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.GroupBox groupBoxPowerBalance;
     }
 }

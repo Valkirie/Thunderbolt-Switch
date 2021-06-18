@@ -173,7 +173,23 @@ namespace DockerForm
             {
                 string ProfileName = item.SubItems[0].Text;
                 if (MainForm.ProfileDB.ContainsKey(ProfileName))
+                {
+                    groupBoxPowerProfile.Enabled = true;
+                    groupBoxTriggers.Enabled = true;
+                    switch (MainForm.CurrentCPU.Constructor)
+                    {
+                        case CPU.Manufacturer.Intel:
+                            groupBoxFIVR.Enabled = true;
+                            groupBoxPowerBalance.Enabled = true;
+                            break;
+                        case CPU.Manufacturer.AMD:
+                            groupBoxFIVR.Enabled = false;
+                            groupBoxPowerBalance.Enabled = false;
+                            break;
+                    }
+
                     MenuItemRemoveSetting.Enabled = true;
+                }
             }
 
             foreach (Control ctrl in groupBoxFIVR.Controls)
