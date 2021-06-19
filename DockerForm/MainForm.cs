@@ -138,7 +138,7 @@ namespace DockerForm
             return false;
         }
 
-        private static void ApplyPowerProfiles()
+        private void ApplyPowerProfiles()
         {
             PowerProfile sum_profile = new PowerProfile();
             foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.RunMe).OrderBy(a => a.ApplyPriority))
@@ -217,9 +217,8 @@ namespace DockerForm
                     CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                     {
                         CurrentForm.UpdateGameDetails(game);
+                        CurrentForm.ApplyPowerProfiles();
                     });
-
-                    ApplyPowerProfiles();
                 }
 
             }
@@ -272,9 +271,8 @@ namespace DockerForm
                     CurrentForm.BeginInvoke((MethodInvoker)delegate ()
                     {
                         CurrentForm.UpdateGameDetails(game);
+                        CurrentForm.ApplyPowerProfiles();
                     });
-
-                    ApplyPowerProfiles();
                 }
             }
             catch (Exception ex)
@@ -396,7 +394,10 @@ namespace DockerForm
             IsHardwarePending = false;
 
             // update form
-            UpdateFormConstructor();
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            {
+                UpdateFormConstructor();
+            });
         }
 
         public static void UpdateMonitorPower()
@@ -416,7 +417,10 @@ namespace DockerForm
             IsPowerPending = false;
 
             // update form
-            UpdateFormConstructor();
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            {
+                UpdateFormConstructor();
+            });
         }
 
         public static void UpdateMonitorScreen()
@@ -448,7 +452,10 @@ namespace DockerForm
                     foreach (PowerProfile profile in ProfileDB.Values)
                         ProfileDB[profile.ProfileGuid].RunMe = CanRunProfile(profile, IsFirstBoot);
 
-                    ApplyPowerProfiles();
+                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                    {
+                        CurrentForm.ApplyPowerProfiles();
+                    });
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
                     if (IsScreenNew) IsScreenNew = false;
@@ -464,36 +471,33 @@ namespace DockerForm
             }
         }
 
-        public static void UpdateFormProfiles()
+        public void UpdateFormProfiles()
         {
             // profiles
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            toolStripMenuItem2.DropDownItems.Clear();
+
+            ToolStripMenuItem currentItem = new ToolStripMenuItem()
             {
-                CurrentForm.toolStripMenuItem2.DropDownItems.Clear();
+                Text = "Current profile",
+                ToolTipText = CurrentProfile.ToString(),
+                Enabled = false
+            };
+            toolStripMenuItem2.DropDownItems.Add(currentItem);
+            toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
 
-                ToolStripMenuItem currentItem = new ToolStripMenuItem()
+            // do not display the default profile
+            foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
+            {
+                ToolStripMenuItem newItem = new ToolStripMenuItem()
                 {
-                    Text = "Current profile",
-                    ToolTipText = CurrentProfile.ToString(),
-                    Enabled = false
+                    Text = profile.ProfileName,
+                    Tag = profile.ProfileGuid,
+                    Checked = profile.RunMe,
+                    ToolTipText = profile.ToString()
                 };
-                CurrentForm.toolStripMenuItem2.DropDownItems.Add(currentItem);
-                CurrentForm.toolStripMenuItem2.DropDownItems.Add(new ToolStripSeparator());
-
-                // do not display the default profile
-                foreach (PowerProfile profile in ProfileDB.Values.Where(a => a.ApplyPriority != -1))
-                {
-                    ToolStripMenuItem newItem = new ToolStripMenuItem()
-                    {
-                        Text = profile.ProfileName,
-                        Tag = profile.ProfileGuid,
-                        Checked = profile.RunMe,
-                        ToolTipText = profile.ToString()
-                    };
-                    newItem.Click += new EventHandler(PowerMenuClickHandler);
-                    CurrentForm.toolStripMenuItem2.DropDownItems.Add(newItem);
-                }
-            });
+                newItem.Click += new EventHandler(PowerMenuClickHandler);
+                toolStripMenuItem2.DropDownItems.Add(newItem);
+            }
         }
 
         public static void UpdateFormConstructor()
@@ -755,7 +759,10 @@ namespace DockerForm
             }
 
             // re-apply values
-            ApplyPowerProfiles();
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            {
+                CurrentForm.ApplyPowerProfiles();
+            });
 
             // update var
             prevFileInfos = fileInfos;
@@ -770,7 +777,10 @@ namespace DockerForm
             item.Checked = !item.Checked;
             ProfileDB[ProfileGuid].RunMe = item.Checked;
 
-            ApplyPowerProfiles();
+            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+            {
+                CurrentForm.ApplyPowerProfiles();
+            });
         }
 
         public int GetIGDBListLength()
