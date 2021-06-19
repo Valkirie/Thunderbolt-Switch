@@ -16,7 +16,7 @@ namespace DockerForm
 {
     public partial class Settings : Form
     {
-        PowerProfile profile;
+        Dictionary<Guid, PowerProfile> Profiles = new Dictionary<Guid, PowerProfile>();
         bool Initialized;
 
         public Settings()
@@ -95,18 +95,11 @@ namespace DockerForm
 
         private void Settings_FormClosing(Object sender, FormClosingEventArgs e)
         {
-            foreach (ListViewItem item in ProfilesList.SelectedItems)
+            foreach (PowerProfile profile in MainForm.ProfileDB.Values)
             {
-                string ProfileName = item.Text;
-                Guid ProfileGuid = (Guid)item.Tag;
-
-                if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
-                {
-                    PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
-                    if (profile.JustCreated)
-                        profile.RunMe = MainForm.CanRunProfile(profile, false);
-                    profile.Serialize();
-                }
+                if (profile.JustCreated)
+                    profile.RunMe = MainForm.CanRunProfile(profile, false);
+                profile.Serialize();
             }
         }
 
@@ -136,43 +129,44 @@ namespace DockerForm
                     continue;
 
                 ProfilesList.Items.Add(newProfile);
+                Profiles.Add(profile.ProfileGuid, profile);
             }
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
 
             // reset before updating
-            profile._ApplyMask = 0;
+            CurrentProfile._ApplyMask = 0;
 
             if (listBoxTriggers.GetSelected(0))
-                profile._ApplyMask |= ProfileMask.OnBattery;
+                CurrentProfile._ApplyMask |= ProfileMask.OnBattery;
             if (listBoxTriggers.GetSelected(1))
-                profile._ApplyMask |= ProfileMask.PluggedIn;
+                CurrentProfile._ApplyMask |= ProfileMask.PluggedIn;
             if (listBoxTriggers.GetSelected(2))
-                profile._ApplyMask |= ProfileMask.ExternalGPU;
+                CurrentProfile._ApplyMask |= ProfileMask.ExternalGPU;
             if (listBoxTriggers.GetSelected(3))
-                profile._ApplyMask |= ProfileMask.ExternalScreen;
+                CurrentProfile._ApplyMask |= ProfileMask.ExternalScreen;
             if (listBoxTriggers.GetSelected(4))
-                profile._ApplyMask |= ProfileMask.OnStartup;
+                CurrentProfile._ApplyMask |= ProfileMask.OnStartup;
             if (listBoxTriggers.GetSelected(5))
-                profile._ApplyMask |= ProfileMask.OnStatusChange;
+                CurrentProfile._ApplyMask |= ProfileMask.OnStatusChange;
             if (listBoxTriggers.GetSelected(6))
-                profile._ApplyMask |= ProfileMask.GameBounds;
+                CurrentProfile._ApplyMask |= ProfileMask.GameBounds;
         }
 
         private void ProfilesList_AfterLabelEdit(object sender, LabelEditEventArgs e)
         {
-            if (profile == null)
-                return;
-
             if (e.Label == null)
                 return;
 
-            profile.ProfileName = e.Label;
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.ProfileName = e.Label;
         }
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -186,7 +180,6 @@ namespace DockerForm
 
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.Text;
                 Guid ProfileGuid = (Guid)item.Tag;
 
                 if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
@@ -222,27 +215,27 @@ namespace DockerForm
                 string ProfileName = item.Text;
                 Guid ProfileGuid = (Guid)item.Tag;
 
-                profile = MainForm.ProfileDB[ProfileGuid];
+                PowerProfile CurrentProfile = Profiles[ProfileGuid];
 
-                bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
-                bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
-                bool isExtGPU = profile._ApplyMask.HasFlag(ProfileMask.ExternalGPU);
-                bool isOnScreen = profile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
-                bool isOnBoot = profile._ApplyMask.HasFlag(ProfileMask.OnStartup);
-                bool isOnStatusChange = profile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
-                bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
+                bool isOnBattery = CurrentProfile._ApplyMask.HasFlag(ProfileMask.OnBattery);
+                bool isPluggedIn = CurrentProfile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
+                bool isExtGPU = CurrentProfile._ApplyMask.HasFlag(ProfileMask.ExternalGPU);
+                bool isOnScreen = CurrentProfile._ApplyMask.HasFlag(ProfileMask.ExternalScreen);
+                bool isOnBoot = CurrentProfile._ApplyMask.HasFlag(ProfileMask.OnStartup);
+                bool isOnStatusChange = CurrentProfile._ApplyMask.HasFlag(ProfileMask.OnStatusChange);
+                bool isGameBounds = CurrentProfile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 // Misc
-                numericUpDown1.Value = profile.HasLongPowerMax() ? decimal.Parse(profile.TurboBoostLongPowerMax) : 0;
-                numericUpDown2.Value = profile.HasShortPowerMax() ? decimal.Parse(profile.TurboBoostShortPowerMax) : 0;
-                numericUpDown3.Value = profile.HasPowerBalanceCPU() ? decimal.Parse(profile.PowerBalanceCPU) : 9;
-                numericUpDown4.Value = profile.HasPowerBalanceGPU() ? decimal.Parse(profile.PowerBalanceGPU) : 13;
+                numericUpDown1.Value = CurrentProfile.HasLongPowerMax() ? decimal.Parse(CurrentProfile.TurboBoostLongPowerMax) : 0;
+                numericUpDown2.Value = CurrentProfile.HasShortPowerMax() ? decimal.Parse(CurrentProfile.TurboBoostShortPowerMax) : 0;
+                numericUpDown3.Value = CurrentProfile.HasPowerBalanceCPU() ? decimal.Parse(CurrentProfile.PowerBalanceCPU) : 9;
+                numericUpDown4.Value = CurrentProfile.HasPowerBalanceGPU() ? decimal.Parse(CurrentProfile.PowerBalanceGPU) : 13;
 
                 // FIVR
-                numericUpDown5.Value = profile.HasCPUCore() ? decimal.Parse(profile.CPUCore) : 0;
-                numericUpDown6.Value = profile.HasCPUCache() ? decimal.Parse(profile.CPUCache) : 0;
-                numericUpDown7.Value = profile.HasSystemAgent() ? decimal.Parse(profile.SystemAgent) : 0;
-                numericUpDown8.Value = profile.HasIntelGPU() ? decimal.Parse(profile.IntelGPU) : 0;
+                numericUpDown5.Value = CurrentProfile.HasCPUCore() ? decimal.Parse(CurrentProfile.CPUCore) : 0;
+                numericUpDown6.Value = CurrentProfile.HasCPUCache() ? decimal.Parse(CurrentProfile.CPUCache) : 0;
+                numericUpDown7.Value = CurrentProfile.HasSystemAgent() ? decimal.Parse(CurrentProfile.SystemAgent) : 0;
+                numericUpDown8.Value = CurrentProfile.HasIntelGPU() ? decimal.Parse(CurrentProfile.IntelGPU) : 0;
 
                 // Triggers
                 listBoxTriggers.ClearSelected();
@@ -260,92 +253,77 @@ namespace DockerForm
                     listBoxTriggers.SetSelected(5, true);
                 if (isGameBounds)
                     listBoxTriggers.SetSelected(6, true);
-                UpdateProfile();
             }
-        }
-
-        private void UpdateProfile()
-        {
-            MainForm.ProfileDB[profile.ProfileGuid] = profile;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.TurboBoostLongPowerMax = numericUpDown1.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.TurboBoostLongPowerMax = numericUpDown1.Value.ToString();
         }
 
         private void numericUpDown2_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.TurboBoostShortPowerMax = numericUpDown2.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.TurboBoostShortPowerMax = numericUpDown2.Value.ToString();
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.PowerBalanceCPU = numericUpDown3.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.PowerBalanceCPU = numericUpDown3.Value.ToString();
         }
 
         private void numericUpDown4_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.PowerBalanceGPU = numericUpDown4.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.PowerBalanceGPU = numericUpDown4.Value.ToString();
         }
 
         private void numericUpDown5_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.CPUCore = numericUpDown5.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.CPUCore = numericUpDown5.Value.ToString();
         }
 
         private void numericUpDown6_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.CPUCache = numericUpDown6.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.CPUCache = numericUpDown6.Value.ToString();
         }
 
         private void numericUpDown7_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.SystemAgent = numericUpDown7.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.SystemAgent = numericUpDown7.Value.ToString();
         }
 
         private void numericUpDown8_ValueChanged(object sender, EventArgs e)
         {
-            if (profile == null)
-                return;
-
-            profile.IntelGPU = numericUpDown8.Value.ToString();
-            UpdateProfile();
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
+            PowerProfile CurrentProfile = Profiles[ProfileGuid];
+            CurrentProfile.IntelGPU = numericUpDown8.Value.ToString();
         }
 
         private void MenuItemRemoveSetting_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.Text;
                 Guid ProfileGuid = (Guid)item.Tag;
 
                 ProfilesList.Items.Remove(item);

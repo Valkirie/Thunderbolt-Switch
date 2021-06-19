@@ -9,6 +9,7 @@
   <PowerBalanceCPU>9</PowerBalanceCPU>
   <PowerBalanceGPU>13</PowerBalanceGPU>
   <ProfileName>default</ProfileName>
-  <ApplyMask>255</ApplyMask>
   <ApplyPriority>-1</ApplyPriority>
+  <ProfileGuid>75a33d10-9052-4ec2-9f2a-92ab13a8addc</ProfileGuid>
+  <ApplyMask>255</ApplyMask>
 </PowerProfile>

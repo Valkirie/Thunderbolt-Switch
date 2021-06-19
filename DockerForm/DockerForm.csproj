@@ -274,7 +274,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="profiles\default.xml">
+    <Content Include="profiles\75a33d10-9052-4ec2-9f2a-92ab13a8addc.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
