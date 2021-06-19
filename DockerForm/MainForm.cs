@@ -66,10 +66,10 @@ namespace DockerForm
 
         // Threading vars
         private static Thread ThreadGPU, ThreadProfile;
-        private static Dictionary<int, string> GameProcesses = new Dictionary<int, string>();
+        private static ConcurrentDictionary<int, string> GameProcesses = new ConcurrentDictionary<int, string>();
 
         // PowerProfile vars
-        public static Dictionary<Guid, PowerProfile> ProfileDB = new Dictionary<Guid, PowerProfile>();
+        public static ConcurrentDictionary<Guid, PowerProfile> ProfileDB = new ConcurrentDictionary<Guid, PowerProfile>();
         public static PowerProfile CurrentProfile = new PowerProfile();
 
         // TaskManager vars
@@ -253,7 +253,7 @@ namespace DockerForm
                     if (game == null)
                         return;
 
-                    GameProcesses.Remove(ProcessID);
+                    GameProcesses.TryRemove(ProcessID, out PathToApp);
 
                     string path_db = GetCurrentState(game);
                     DatabaseManager.UpdateFilesAndRegistries(game, path_db, path_db, true, false, true, path_db);
@@ -715,8 +715,9 @@ namespace DockerForm
                 removeList.Add(ProfileGuid);
 
             // remove obsolete profiles
+            PowerProfile temp;
             foreach (Guid ProfileGuid in removeList)
-                ProfileDB.Remove(ProfileGuid);
+                ProfileDB.TryRemove(ProfileGuid, out temp);
 
             // update games
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
