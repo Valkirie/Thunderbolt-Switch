@@ -69,7 +69,7 @@ namespace DockerForm
         private static Dictionary<int, string> GameProcesses = new Dictionary<int, string>();
 
         // PowerProfile vars
-        public static Dictionary<string, PowerProfile> ProfileDB = new Dictionary<string, PowerProfile>();
+        public static Dictionary<Guid, PowerProfile> ProfileDB = new Dictionary<Guid, PowerProfile>();
         public static PowerProfile CurrentProfile = new PowerProfile();
 
         // TaskManager vars
@@ -208,8 +208,8 @@ namespace DockerForm
 
                     GameProcesses[ProcessID] = PathToApp;
 
-                    foreach (PowerProfile profile in game.Profiles.Values)
-                        ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, false);
+                    foreach (PowerProfile profile in game.PowerProfiles.Values)
+                        ProfileDB[profile.ProfileGuid].RunMe = CanRunProfile(profile, false);
 
                     game.IsRunning = true;
 
@@ -258,8 +258,8 @@ namespace DockerForm
                     string path_db = GetCurrentState(game);
                     DatabaseManager.UpdateFilesAndRegistries(game, path_db, path_db, true, false, true, path_db);
 
-                    foreach (PowerProfile profile in game.Profiles.Values)
-                        ProfileDB[profile.ProfileName].RunMe = false;
+                    foreach (PowerProfile profile in game.PowerProfiles.Values)
+                        ProfileDB[profile.ProfileGuid].RunMe = false;
 
                     game.IsRunning = false;
 
@@ -435,7 +435,7 @@ namespace DockerForm
                 if (IsFirstBoot || IsPowerNew || IsHardwareNew || IsScreenNew)
                 {
                     foreach (PowerProfile profile in ProfileDB.Values)
-                        ProfileDB[profile.ProfileName].RunMe = CanRunProfile(profile, IsFirstBoot);
+                        ProfileDB[profile.ProfileGuid].RunMe = CanRunProfile(profile, IsFirstBoot);
 
                     ApplyPowerProfiles();
                     if (IsPowerNew) IsPowerNew = false;
@@ -475,6 +475,7 @@ namespace DockerForm
                     ToolStripMenuItem newItem = new ToolStripMenuItem()
                     {
                         Text = profile.ProfileName,
+                        Tag = profile.ProfileGuid,
                         Checked = profile.RunMe,
                         ToolTipText = profile.ToString()
                     };
@@ -526,11 +527,10 @@ namespace DockerForm
 
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
-            ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+            ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList(), game.GetProfilesList() }, game.GUID);
             newgame.Tag = newgame.ImageKey;
             newgame.Name = game.Name;
             newgame.Text = game.Name;
-            newgame.ToolTipText = game.GetSettingsList();
 
             if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
             {
@@ -626,11 +626,10 @@ namespace DockerForm
             GameListView.BeginUpdate();
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
-                ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList() }, game.GUID);
+                ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList(), game.GetProfilesList() }, game.GUID);
                 newgame.Tag = newgame.ImageKey;
                 newgame.Name = game.Name;
                 newgame.Text = game.Name;
-                newgame.ToolTipText = game.GetSettingsList();
                 GameListView.Items.Add(newgame);
                 // item.Enabled = game.Enabled;
             }
@@ -662,8 +661,9 @@ namespace DockerForm
             if (prevFileInfos.ContentEquals(fileInfos))
                 return;
 
-            Dictionary<string, PowerProfile> profileList = new Dictionary<string, PowerProfile>();
-            List<string> removeList = new List<string>();
+            Dictionary<Guid, PowerProfile> profileList = new Dictionary<Guid, PowerProfile>();
+            List<Guid> removeList = new List<Guid>();
+            List<string> deletelist = new List<string>();
             foreach (string filename in fileEntries)
             {
                 try
@@ -672,8 +672,18 @@ namespace DockerForm
                     {
                         XmlSerializer formatter = new XmlSerializer(typeof(PowerProfile));
                         PowerProfile profile = (PowerProfile)formatter.Deserialize(reader);
-                        profileList.Add(profile.ProfileName, profile);
-                        reader.Dispose();
+
+                        // ensure backward compatibility with 1.05
+                        if (profile.ProfileGuid == Guid.Empty)
+                        {
+                            profile.ProfileGuid = Guid.NewGuid();
+                            profile.Serialize(false);
+                            deletelist.Add(filename);
+                        }
+                        else
+                        {
+                            profileList.Add(profile.ProfileGuid, profile);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -682,38 +692,43 @@ namespace DockerForm
                 }
             }
 
+            // ensure backward compatibility with 1.05
+            foreach (string filename in deletelist)
+                File.Delete(filename);
+
             // add or update profiles
             foreach (PowerProfile profile in profileList.Values)
             {
                 string ProfileName = profile.ProfileName;
+                Guid ProfileGuid = profile.ProfileGuid;
 
-                bool RunMe = ProfileDB.ContainsKey(ProfileName) ? ProfileDB[ProfileName].RunMe : false;
+                bool RunMe = ProfileDB.ContainsKey(ProfileGuid) ? ProfileDB[ProfileGuid].RunMe : false;
 
-                ProfileDB[ProfileName] = profile;
-                ProfileDB[ProfileName].RunMe = RunMe;
+                ProfileDB[ProfileGuid] = profile;
+                ProfileDB[ProfileGuid].RunMe = RunMe;
 
-                ProfileDB[ProfileName].ComputeHex();
+                ProfileDB[ProfileGuid].ComputeHex();
             }
 
             // insert all removed profiles
-            foreach (string ProfileName in ProfileDB.Keys.Where(a => !profileList.ContainsKey(a)))
-                removeList.Add(ProfileName);
+            foreach (Guid ProfileGuid in ProfileDB.Keys.Where(a => !profileList.ContainsKey(a)))
+                removeList.Add(ProfileGuid);
 
             // remove obsolete profiles
-            foreach (string ProfileName in removeList)
-                ProfileDB.Remove(ProfileName);
+            foreach (Guid ProfileGuid in removeList)
+                ProfileDB.Remove(ProfileGuid);
 
             // update games
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 // remove outdated profiles
-                foreach (string ProfileName in removeList)
-                    game.Profiles.Remove(ProfileName);
+                foreach (Guid ProfileGuid in removeList)
+                    game.PowerProfiles.Remove(ProfileGuid);
 
                 // update associated profiles
                 foreach (PowerProfile profile in ProfileDB.Values)
-                    if (game.Profiles.ContainsKey(profile.ProfileName))
-                        game.Profiles[profile.ProfileName] = profile;
+                    if (game.PowerProfiles.ContainsKey(profile.ProfileGuid))
+                        game.PowerProfiles[profile.ProfileGuid] = profile;
             }
 
             // re-apply values
@@ -727,9 +742,10 @@ namespace DockerForm
         {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
             string ProfileName = item.Text;
+            Guid ProfileGuid = (Guid)item.Tag;
 
             item.Checked = !item.Checked;
-            ProfileDB[ProfileName].RunMe = item.Checked;
+            ProfileDB[ProfileGuid].RunMe = item.Checked;
 
             ApplyPowerProfiles();
         }

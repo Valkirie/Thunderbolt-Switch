@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Serialization;
 
 namespace DockerForm
@@ -54,13 +55,15 @@ namespace DockerForm
 
         [XmlIgnore] public bool RunMe;
         [XmlIgnore] public bool JustCreated;
+        public Guid ProfileGuid;
+        public string ProfileVersion;
 
-        public void Serialize()
+        public void Serialize(bool UpdateProfiles = true)
         {
             // update values
             ComputeHex();
 
-            string filename = Path.Combine(MainForm.path_profiles, ProfileName) + ".xml";
+            string filename = Path.Combine(MainForm.path_profiles, ProfileGuid.ToString()) + ".xml";
             using (FileStream writer = new FileStream(filename, FileMode.Create))
             {
                 XmlSerializer serializer = new XmlSerializer(this.GetType());
@@ -68,7 +71,8 @@ namespace DockerForm
                 writer.Flush();
             }
 
-            MainForm.UpdateProfiles();
+            if(UpdateProfiles)
+                MainForm.UpdateProfiles();
         }
 
         public void Remove()
@@ -142,6 +146,7 @@ namespace DockerForm
         public PowerProfile(string profileName)
         {
             ProfileName = profileName;
+            ProfileGuid = Guid.NewGuid();
             JustCreated = true;
         }
 
@@ -301,7 +306,7 @@ namespace DockerForm
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            // do something
         }
     }
 }

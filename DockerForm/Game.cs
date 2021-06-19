@@ -82,7 +82,10 @@ namespace DockerForm
         public PlatformCode Platform = PlatformCode.Default;
 
         public Dictionary<string, GameSettings> Settings = new Dictionary<string, GameSettings>();
+
+        // ensure backward compatibility with 1.05
         public Dictionary<string, PowerProfile> Profiles = new Dictionary<string, PowerProfile>();
+        public Dictionary<Guid, PowerProfile> PowerProfiles = new Dictionary<Guid, PowerProfile>();
 
         public bool PowerSpecific = false;  // Use power-specific settings (on battery, plugged in)
 
@@ -90,6 +93,10 @@ namespace DockerForm
         [NonSerialized()] public bool IsRunning = false;
         public void SanityCheck()
         {
+            // ensure backward compatibility with 1.05
+            if (PowerProfiles == null)
+                PowerProfiles = new Dictionary<Guid, PowerProfile>();
+
             ErrorCode = ErrorCode.None;
 
             if (!HasReachableFolder())
@@ -104,10 +111,18 @@ namespace DockerForm
 
         public string GetSettingsList()
         {
-            string Profiles = "";
-            foreach(GameSettings settings in Settings.Values)
-                Profiles += settings.FileName + ",";
-            return Profiles.TrimEnd(',');
+            string settings = "";
+            foreach(GameSettings setting in Settings.Values)
+                settings += setting.FileName + ",";
+            return settings.TrimEnd(',');
+        }
+
+        public string GetProfilesList()
+        {
+            string profiles = "";
+            foreach (PowerProfile profile in PowerProfiles.Values)
+                profiles += profile.ProfileName + ",";
+            return profiles.TrimEnd(',');
         }
 
         public string GetCrc()
@@ -139,10 +154,10 @@ namespace DockerForm
             this.Uri = other.Uri;
             this.Version = other.Version;
 
-            this.Profiles = new Dictionary<string, PowerProfile>();
-            if (other.Profiles != null)
-                foreach (PowerProfile profile in other.Profiles.Values)
-                    this.Profiles.Add(profile.ProfileName, profile);
+            this.PowerProfiles = new Dictionary<Guid, PowerProfile>();
+            if (other.PowerProfiles != null)
+                foreach (PowerProfile profile in other.PowerProfiles.Values)
+                    this.PowerProfiles.Add(profile.ProfileGuid, profile);
 
             this.Settings = new Dictionary<string, GameSettings>();
             if (other.Settings != null)
@@ -198,9 +213,6 @@ namespace DockerForm
 
         public void Serialize()
         {
-            // Store the last time this game was updated
-            LastCheck = DateTime.Now;
-
             string tempname = Path.Combine(MainForm.path_database, GUID) + ".tmp";
             string filename = Path.Combine(MainForm.path_database, GUID) + ".dat";
             using (FileStream fs = new FileStream(tempname, FileMode.Create))

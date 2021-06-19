@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Windows.Forms;
+
 namespace DockerForm
 {
     partial class Settings
@@ -522,6 +525,7 @@ namespace DockerForm
             this.ProfilesList.FullRowSelect = true;
             this.ProfilesList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.ProfilesList.HideSelection = false;
+            this.ProfilesList.LabelEdit = true;
             this.ProfilesList.Location = new System.Drawing.Point(3, 3);
             this.ProfilesList.Margin = new System.Windows.Forms.Padding(2);
             this.ProfilesList.MultiSelect = false;
@@ -531,6 +535,7 @@ namespace DockerForm
             this.ProfilesList.UseCompatibleStateImageBehavior = false;
             this.ProfilesList.View = System.Windows.Forms.View.Details;
             this.ProfilesList.SelectedIndexChanged += new System.EventHandler(this.ProfilesList_SelectedIndexChanged);
+            this.ProfilesList.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ProfilesList_AfterLabelEdit);
             // 
             // PowerProfileHeader1
             // 

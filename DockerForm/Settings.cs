@@ -97,10 +97,12 @@ namespace DockerForm
         {
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.SubItems[0].Text;
-                if (MainForm.ProfileDB.ContainsKey(ProfileName))
+                string ProfileName = item.Text;
+                Guid ProfileGuid = (Guid)item.Tag;
+
+                if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
                 {
-                    PowerProfile profile = MainForm.ProfileDB[ProfileName];
+                    PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
                     if (profile.JustCreated)
                         profile.RunMe = MainForm.CanRunProfile(profile, false);
                     profile.Serialize();
@@ -127,6 +129,7 @@ namespace DockerForm
                 bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName }, profile.ProfileName);
+                newProfile.Tag = profile.ProfileGuid;
 
                 // skip default
                 if (profile.ApplyPriority == -1)
@@ -160,6 +163,18 @@ namespace DockerForm
                 profile._ApplyMask |= ProfileMask.GameBounds;
         }
 
+        private void ProfilesList_AfterLabelEdit(object sender, LabelEditEventArgs e)
+        {
+            if (profile == null)
+                return;
+
+            if (e.Label == null)
+                return;
+
+            profile.ProfileName = e.Label;
+            UpdateProfile();
+        }
+
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
             MenuItemRemoveSetting.Enabled = false;
@@ -171,8 +186,10 @@ namespace DockerForm
 
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.SubItems[0].Text;
-                if (MainForm.ProfileDB.ContainsKey(ProfileName))
+                string ProfileName = item.Text;
+                Guid ProfileGuid = (Guid)item.Tag;
+
+                if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
                 {
                     groupBoxPowerProfile.Enabled = true;
                     groupBoxTriggers.Enabled = true;
@@ -202,8 +219,10 @@ namespace DockerForm
 
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.SubItems[0].Text;
-                profile = MainForm.ProfileDB[ProfileName];
+                string ProfileName = item.Text;
+                Guid ProfileGuid = (Guid)item.Tag;
+
+                profile = MainForm.ProfileDB[ProfileGuid];
 
                 bool isOnBattery = profile._ApplyMask.HasFlag(ProfileMask.OnBattery);
                 bool isPluggedIn = profile._ApplyMask.HasFlag(ProfileMask.PluggedIn);
@@ -247,7 +266,7 @@ namespace DockerForm
 
         private void UpdateProfile()
         {
-            MainForm.ProfileDB[profile.ProfileName] = profile;
+            MainForm.ProfileDB[profile.ProfileGuid] = profile;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -326,12 +345,13 @@ namespace DockerForm
         {
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.SubItems[0].Text;
+                string ProfileName = item.Text;
+                Guid ProfileGuid = (Guid)item.Tag;
 
                 ProfilesList.Items.Remove(item);
-                if (MainForm.ProfileDB.ContainsKey(ProfileName))
+                if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
                 {
-                    PowerProfile profile = MainForm.ProfileDB[ProfileName];
+                    PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
                     profile.Remove();
                 }
             }
@@ -346,14 +366,9 @@ namespace DockerForm
                 MessageBox.Show("Profile name can't be empty.");
                 return;
             }
-            else if (MainForm.ProfileDB.ContainsKey(ProfileName))
-            {
-                MessageBox.Show("Profile name has to be unique.");
-                return;
-            }
 
             PowerProfile pP = new PowerProfile(ProfileName);
-            MainForm.ProfileDB[ProfileName] = pP;
+            MainForm.ProfileDB[pP.ProfileGuid] = pP;
 
             ListViewItem newProfile = new ListViewItem(new string[] { pP.ProfileName }, pP.ProfileName);
             ProfilesList.Items.Add(newProfile);

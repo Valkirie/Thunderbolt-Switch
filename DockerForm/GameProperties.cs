@@ -118,6 +118,7 @@ namespace DockerForm
                 bool isGameBounds = profile._ApplyMask.HasFlag(ProfileMask.GameBounds);
 
                 ListViewItem newProfile = new ListViewItem(new string[] { profile.ProfileName, isOnBattery.ToString(), isPluggedIn.ToString(), isExtGPU.ToString(), isOnScreen.ToString() }, profile.ProfileName);
+                newProfile.Tag = profile.ProfileGuid;
 
                 // skip default
                 if (profile.ApplyPriority == -1)
@@ -126,7 +127,7 @@ namespace DockerForm
                 if (!isGameBounds)
                     continue;
 
-                if (gGame.Profiles.ContainsKey(profile.ProfileName))
+                if (gGame.PowerProfiles.ContainsKey(profile.ProfileGuid))
                     newProfile.Checked = true;
 
                 ProfilesList.Items.Add(newProfile);
@@ -160,7 +161,7 @@ namespace DockerForm
                     if (gGame != null)
                     {
                         newGame.Settings = gGame.Settings;
-                        newGame.Profiles = gGame.Profiles;
+                        newGame.PowerProfiles = gGame.PowerProfiles;
                     }
 
                     field_Name.Text = newGame.ProductName;
@@ -472,12 +473,12 @@ namespace DockerForm
             }
 
             // Power Profiles tab
-            gGame.Profiles.Clear();
+            gGame.PowerProfiles.Clear();
             foreach (ListViewItem item in ProfilesList.Items)
             {
-                PowerProfile profile = MainForm.ProfileDB[item.Text];
+                PowerProfile profile = MainForm.ProfileDB[(Guid)item.Tag];
                 if (item.Checked)
-                    gGame.Profiles.Add(profile.ProfileName, profile);
+                    gGame.PowerProfiles.Add(profile.ProfileGuid, profile);
             }
 
             gGame.SanityCheck();
@@ -614,7 +615,8 @@ namespace DockerForm
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
                 string ProfileName = item.SubItems[0].Text;
-                PowerProfile profile = MainForm.ProfileDB[ProfileName];
+                Guid ProfileGuid = (Guid)item.SubItems[0].Tag;
+                PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
 
                 // Misc
                 if (profile.HasLongPowerMax())

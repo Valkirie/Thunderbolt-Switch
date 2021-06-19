@@ -75,6 +75,7 @@ namespace DockerForm
             this.styleDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.styleTileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
+            this.columnProfiles = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -322,7 +323,8 @@ namespace DockerForm
             this.columnDev,
             this.columnVersion,
             this.columnPlayed,
-            this.columnSettings});
+            this.columnSettings,
+            this.columnProfiles});
             this.GameListView.ContextMenuStrip = this.contextMenuStrip3;
             this.GameListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GameListView.FullRowSelect = true;
@@ -419,7 +421,12 @@ namespace DockerForm
             this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
-            // Form1
+            // columnProfiles
+            // 
+            this.columnProfiles.Text = "Profiles";
+            this.columnProfiles.Width = 150;
+            // 
+            // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(924, 591);
             this.Controls.Add(this.GameListView);
@@ -430,7 +437,7 @@ namespace DockerForm
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Thunderbolt Switch";
@@ -493,6 +500,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem styleToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem styleDetailsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem styleTileToolStripMenuItem;
+        private System.Windows.Forms.ColumnHeader columnProfiles;
     }
 }
 
