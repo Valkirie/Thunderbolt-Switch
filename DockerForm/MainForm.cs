@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -213,6 +214,11 @@ namespace DockerForm
 
                     game.IsRunning = true;
 
+                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                    {
+                        CurrentForm.UpdateGameDetails(game);
+                    });
+
                     ApplyPowerProfiles();
                 }
 
@@ -262,6 +268,11 @@ namespace DockerForm
                         ProfileDB[profile.ProfileGuid].RunMe = false;
 
                     game.IsRunning = false;
+
+                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                    {
+                        CurrentForm.UpdateGameDetails(game);
+                    });
 
                     ApplyPowerProfiles();
                 }
@@ -525,10 +536,21 @@ namespace DockerForm
             return -1;
         }
 
+        public void UpdateGameDetails(DockerGame game)
+        {
+            // update game details
+            game.LastCheck = DateTime.Now;
+
+            // update LastCheck on application start
+            int idx = GetListViewIndex(game.GUID);
+            if (idx != -1)
+                GameListView.Items[idx].SubItems[3].Text = game.LastCheck.ToString(CurrentCulture);
+        }
+
         public void InsertOrUpdateGameItem(DockerGame game, bool auto)
         {
             ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList(), game.GetProfilesList() }, game.GUID);
-            newgame.Tag = newgame.ImageKey;
+            newgame.Tag = game.GUID;
             newgame.Name = game.Name;
             newgame.Text = game.Name;
 
@@ -627,7 +649,7 @@ namespace DockerForm
             foreach (DockerGame game in DatabaseManager.GameDB.Values)
             {
                 ListViewItem newgame = new ListViewItem(new string[] { "", game.Company, game.Version, game.LastCheck.ToString(CurrentCulture), game.GetSettingsList(), game.GetProfilesList() }, game.GUID);
-                newgame.Tag = newgame.ImageKey;
+                newgame.Tag = game.GUID;
                 newgame.Name = game.Name;
                 newgame.Text = game.Name;
                 GameListView.Items.Add(newgame);
@@ -1231,6 +1253,7 @@ namespace DockerForm
 
             ListViewItem item = GameListView.SelectedItems[0];
             DockerGame game = DatabaseManager.GameDB[item.ImageKey];
+            UpdateGameDetails(game);
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
