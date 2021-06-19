@@ -1105,6 +1105,16 @@ namespace DockerForm
             mainSettings.ShowDialog();
         }
 
+        private void GameListView_DoubleClick(object sender, MouseEventArgs e)
+        {
+            // skip if not left click
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            // start the game on double click
+            toolStripStartItem_Click(sender, e);
+        }
+
         private void GameListView_Clicked(object sender, MouseEventArgs e)
         {
             // skip if not right click

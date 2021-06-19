@@ -342,6 +342,7 @@ namespace DockerForm
             this.GameListView.View = System.Windows.Forms.View.Tile;
             this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
             this.GameListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
+            this.GameListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.GameListView_DoubleClick);
             // 
             // columnName
             // 
