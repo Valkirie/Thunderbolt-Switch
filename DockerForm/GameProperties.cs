@@ -212,7 +212,7 @@ namespace DockerForm
         {
             foreach (ListViewItem item in SettingsList.SelectedItems)
             {
-                string FileName = item.SubItems[0].Text;
+                string FileName = item.Text;
 
                 SettingsList.Items.Remove(item);
                 if (gGame.Settings.ContainsKey(FileName))
@@ -467,7 +467,7 @@ namespace DockerForm
             // Settings tab
             foreach (ListViewItem item in SettingsList.Items)
             {
-                string FileName = item.SubItems[0].Text;
+                string FileName = item.Text;
                 if (gGame.Settings.ContainsKey(FileName))
                     gGame.Settings[FileName].IsEnabled = item.Checked;
             }
@@ -512,7 +512,7 @@ namespace DockerForm
 
             foreach (ListViewItem item in SettingsList.SelectedItems)
             {
-                string FileName = item.SubItems[0].Text;
+                string FileName = item.Text;
 
                 if (gGame.Settings.ContainsKey(FileName))
                 {
@@ -572,7 +572,7 @@ namespace DockerForm
 
             foreach (ListViewItem item in SettingsList.SelectedItems)
             {
-                string FileName = item.SubItems[0].Text;
+                string FileName = item.Text;
                 gGame.Settings[FileName].data[myPage.Name] = myViewer.Bytes.ToArray();
 
                 break;
@@ -585,7 +585,7 @@ namespace DockerForm
 
             foreach (ListViewItem item in SettingsList.SelectedItems)
             {
-                string FileName = item.SubItems[0].Text;
+                string FileName = item.Text;
                 gGame.Settings[FileName].data[myViewer.Name] = Encoding.ASCII.GetBytes(myViewer.Text);
 
                 break;
@@ -614,8 +614,8 @@ namespace DockerForm
 
             foreach (ListViewItem item in ProfilesList.SelectedItems)
             {
-                string ProfileName = item.SubItems[0].Text;
-                Guid ProfileGuid = (Guid)item.SubItems[0].Tag;
+                string ProfileName = item.Text;
+                Guid ProfileGuid = (Guid)item.Tag;
                 PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
 
                 // Misc
