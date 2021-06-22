@@ -237,6 +237,7 @@
     <Content Include="dependencies\x64\DevManView.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\Sample_0006.wav" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="dependencies\x86\DevManView.exe">
