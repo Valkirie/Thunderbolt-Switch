@@ -59,6 +59,7 @@ namespace DockerForm
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
         public static CPU CurrentCPU;
+        private static SpeechSynthesizer CurrentSynthesizer;
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
