@@ -55,6 +55,7 @@ namespace DockerForm
 
         [XmlIgnore] public bool RunMe;
         [XmlIgnore] public bool JustCreated;
+        [XmlIgnore] public bool JustUpdated;
         public Guid ProfileGuid;
         public string ProfileVersion;
 

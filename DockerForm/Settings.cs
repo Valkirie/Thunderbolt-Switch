@@ -99,7 +99,8 @@ namespace DockerForm
             {
                 if (profile.JustCreated)
                     profile.RunMe = MainForm.CanRunProfile(profile, false);
-                profile.Serialize();
+                if (profile.JustUpdated)
+                    profile.Serialize();
             }
         }
 
@@ -167,6 +168,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.ProfileName = e.Label;
+            CurrentProfile.JustUpdated = true;
         }
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -262,6 +264,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.TurboBoostLongPowerMax = numericUpDown1.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown2_ValueChanged(object sender, EventArgs e)
@@ -270,6 +273,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.TurboBoostShortPowerMax = numericUpDown2.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
@@ -278,6 +282,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.PowerBalanceCPU = numericUpDown3.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown4_ValueChanged(object sender, EventArgs e)
@@ -286,6 +291,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.PowerBalanceGPU = numericUpDown4.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown5_ValueChanged(object sender, EventArgs e)
@@ -294,6 +300,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.CPUCore = numericUpDown5.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown6_ValueChanged(object sender, EventArgs e)
@@ -302,6 +309,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.CPUCache = numericUpDown6.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown7_ValueChanged(object sender, EventArgs e)
@@ -310,6 +318,7 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.SystemAgent = numericUpDown7.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void numericUpDown8_ValueChanged(object sender, EventArgs e)
@@ -318,20 +327,19 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
             PowerProfile CurrentProfile = Profiles[ProfileGuid];
             CurrentProfile.IntelGPU = numericUpDown8.Value.ToString();
+            CurrentProfile.JustUpdated = true;
         }
 
         private void MenuItemRemoveSetting_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in ProfilesList.SelectedItems)
-            {
-                Guid ProfileGuid = (Guid)item.Tag;
+            ListViewItem item = ProfilesList.SelectedItems[0];
+            Guid ProfileGuid = (Guid)item.Tag;
 
-                ProfilesList.Items.Remove(item);
-                if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
-                {
-                    PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
-                    profile.Remove();
-                }
+            ProfilesList.Items.Remove(item);
+            if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
+            {
+                PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
+                profile.Remove();
             }
         }
 
