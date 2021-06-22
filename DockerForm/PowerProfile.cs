@@ -78,7 +78,7 @@ namespace DockerForm
 
         public void Remove()
         {
-            string filename = Path.Combine(MainForm.path_profiles, ProfileName) + ".xml";
+            string filename = Path.Combine(MainForm.path_profiles, ProfileGuid.ToString()) + ".xml";
             if (File.Exists(filename))
                 File.Delete(filename);
 

@@ -336,6 +336,8 @@ namespace DockerForm
             Guid ProfileGuid = (Guid)item.Tag;
 
             ProfilesList.Items.Remove(item);
+            Profiles.Remove(ProfileGuid);
+
             if (MainForm.ProfileDB.ContainsKey(ProfileGuid))
             {
                 PowerProfile profile = MainForm.ProfileDB[ProfileGuid];
@@ -355,8 +357,10 @@ namespace DockerForm
 
             PowerProfile pP = new PowerProfile(ProfileName);
             MainForm.ProfileDB[pP.ProfileGuid] = pP;
+            Profiles[pP.ProfileGuid] = pP;
 
             ListViewItem newProfile = new ListViewItem(new string[] { pP.ProfileName }, pP.ProfileName);
+            newProfile.Tag = pP.ProfileGuid;
             ProfilesList.Items.Add(newProfile);
         }
 
