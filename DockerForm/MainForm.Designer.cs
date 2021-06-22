@@ -428,6 +428,10 @@ namespace DockerForm
             this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 500;
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(924, 591);

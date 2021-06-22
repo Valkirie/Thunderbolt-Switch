@@ -154,7 +154,7 @@ namespace DockerForm
             Process.Start(PowerProcess);
 
             // update current profile
-            string output = $"Power Profile{(profile.Merged != 1 ? "s" : "")}: {profile.GetName()} applied.";
+            string output = $"Power Profile{(profile.Merged != 1 ? "s" : "")}: {profile.GetName()}, applied.";
             MainForm.CurrentProfile = profile;
             MainForm.SendNotification(output, true, true);
 

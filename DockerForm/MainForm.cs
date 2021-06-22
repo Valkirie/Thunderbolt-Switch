@@ -165,10 +165,14 @@ namespace DockerForm
                 CurrentForm.notifyIcon1.ShowBalloonTip(1000);
             }
 
-            // prepare speech lines
-            notifications.Add(input);
+            // avoid speeches duplication
+            if(!notifications.Contains(input))
+                notifications.Add(input);
+
+            // avoid clashes of speeches
+            CurrentSynthesizer.SpeakAsyncCancelAll();
+
             CurrentForm.timer1.Stop();
-            CurrentForm.timer1.Interval = 500;
             CurrentForm.timer1.Tick += new EventHandler(myTimer_Tick);
             CurrentForm.timer1.Start();
         }
@@ -178,13 +182,11 @@ namespace DockerForm
             // read text
             if (SpeechSynthesizer)
             {
-                SpeechSynthesizer ttssynthesizer = new SpeechSynthesizer();
-                ttssynthesizer.SetOutputToDefaultAudioDevice();
-
-                var voices = ttssynthesizer.GetInstalledVoices(new CultureInfo("en-US", false));
+                var voices = CurrentSynthesizer.GetInstalledVoices(new CultureInfo("en-US", false));
                 if (voices.Count > 0)
-                    ttssynthesizer.SelectVoice(voices[0].VoiceInfo.Name);
-                ttssynthesizer.SpeakAsync(String.Join("\n", notifications));
+                    CurrentSynthesizer.SelectVoice(voices[0].VoiceInfo.Name);
+
+                CurrentSynthesizer.SpeakAsync(String.Join("\n", notifications));
                 notifications.Clear();
             }
         }
@@ -866,6 +868,8 @@ namespace DockerForm
             CurrentCulture = CultureInfo.CurrentCulture;
             CurrentTask = new TaskService();
             CurrentCPU = new CPU();
+            CurrentSynthesizer = new SpeechSynthesizer();
+            CurrentSynthesizer.SetOutputToDefaultAudioDevice();
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
