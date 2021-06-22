@@ -160,6 +160,10 @@ namespace DockerForm
             // update current profile
             MainForm.CurrentProfile = profile;
             MainForm.SendNotification($"Power Profile [{profile.GetName()}] applied.", true, true);
+
+            // play sound
+            System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.Sample_0006);
+            player.Play();
         }
     }
 }
