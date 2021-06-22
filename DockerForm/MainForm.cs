@@ -153,6 +153,7 @@ namespace DockerForm
             UpdateFormProfiles();
         }
 
+        public static List<string> notifications = new List<string>();
         public static void SendNotification(string input, bool pushToast = false, bool pushLog = false, bool IsError = false)
         {
             if (pushLog)
@@ -164,6 +165,16 @@ namespace DockerForm
                 CurrentForm.notifyIcon1.ShowBalloonTip(1000);
             }
 
+            // prepare speech lines
+            notifications.Add(input);
+            CurrentForm.timer1.Stop();
+            CurrentForm.timer1.Interval = 500;
+            CurrentForm.timer1.Tick += new EventHandler(myTimer_Tick);
+            CurrentForm.timer1.Start();
+        }
+
+        private static void myTimer_Tick(object sender, EventArgs e)
+        {
             // read text
             if (SpeechSynthesizer)
             {
@@ -173,7 +184,8 @@ namespace DockerForm
                 var voices = ttssynthesizer.GetInstalledVoices(new CultureInfo("en-US", false));
                 if (voices.Count > 0)
                     ttssynthesizer.SelectVoice(voices[0].VoiceInfo.Name);
-                ttssynthesizer.SpeakAsync(input);
+                ttssynthesizer.SpeakAsync(String.Join("\n", notifications));
+                notifications.Clear();
             }
         }
 
@@ -1037,14 +1049,20 @@ namespace DockerForm
             Close();
         }
 
+        FormWindowState CurrentWindowState;
         private void Form1_Resize(object sender, EventArgs e)
         {
+            if (CurrentWindowState == WindowState)
+                return;
+
             if (WindowState == FormWindowState.Minimized)
             {
                 Hide();
                 notifyIcon1.Visible = true;
                 SendNotification(Text + " is running in the background.", !IsFirstBoot);
             }
+
+            CurrentWindowState = WindowState;
         }
 
         private void MenuItemClickHandler(object sender, EventArgs e)

@@ -68,6 +68,7 @@ namespace DockerForm
             this.columnVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPlayed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSettings = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnProfiles = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip3 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.styleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.syleIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,7 +76,7 @@ namespace DockerForm
             this.styleDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.styleTileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
-            this.columnProfiles = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -341,8 +342,8 @@ namespace DockerForm
             this.GameListView.UseCompatibleStateImageBehavior = false;
             this.GameListView.View = System.Windows.Forms.View.Tile;
             this.GameListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.GameListView_HeaderClicked);
-            this.GameListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
             this.GameListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.GameListView_DoubleClick);
+            this.GameListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameListView_Clicked);
             // 
             // columnName
             // 
@@ -368,6 +369,11 @@ namespace DockerForm
             // 
             this.columnSettings.Text = "Settings";
             this.columnSettings.Width = 150;
+            // 
+            // columnProfiles
+            // 
+            this.columnProfiles.Text = "Profiles";
+            this.columnProfiles.Width = 150;
             // 
             // contextMenuStrip3
             // 
@@ -421,11 +427,6 @@ namespace DockerForm
             this.imageList2.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
-            // 
-            // columnProfiles
-            // 
-            this.columnProfiles.Text = "Profiles";
-            this.columnProfiles.Width = 150;
             // 
             // MainForm
             // 
@@ -502,6 +503,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem styleDetailsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem styleTileToolStripMenuItem;
         private System.Windows.Forms.ColumnHeader columnProfiles;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
