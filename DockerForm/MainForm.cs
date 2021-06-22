@@ -214,11 +214,17 @@ namespace DockerForm
 
                     game.IsRunning = true;
 
-                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                    if (CurrentForm.InvokeRequired)
+                        CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                        {
+                            CurrentForm.UpdateGameDetails(game);
+                            CurrentForm.ApplyPowerProfiles();
+                        });
+                    else
                     {
                         CurrentForm.UpdateGameDetails(game);
                         CurrentForm.ApplyPowerProfiles();
-                    });
+                    }
                 }
 
             }
@@ -268,11 +274,17 @@ namespace DockerForm
 
                     game.IsRunning = false;
 
-                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                    if (CurrentForm.InvokeRequired)
+                        CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                        {
+                            CurrentForm.UpdateGameDetails(game);
+                            CurrentForm.ApplyPowerProfiles();
+                        });
+                    else
                     {
                         CurrentForm.UpdateGameDetails(game);
                         CurrentForm.ApplyPowerProfiles();
-                    });
+                    }
                 }
             }
             catch (Exception ex)
@@ -394,10 +406,13 @@ namespace DockerForm
             IsHardwarePending = false;
 
             // update form
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-            {
+            if (CurrentForm.InvokeRequired)
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    UpdateFormConstructor();
+                });
+            else
                 UpdateFormConstructor();
-            });
         }
 
         public static void UpdateMonitorPower()
@@ -417,10 +432,13 @@ namespace DockerForm
             IsPowerPending = false;
 
             // update form
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-            {
+            if (CurrentForm.InvokeRequired)
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    UpdateFormConstructor();
+                });
+            else
                 UpdateFormConstructor();
-            });
         }
 
         public static void UpdateMonitorScreen()
@@ -452,10 +470,14 @@ namespace DockerForm
                     foreach (PowerProfile profile in ProfileDB.Values)
                         ProfileDB[profile.ProfileGuid].RunMe = CanRunProfile(profile, IsFirstBoot);
 
-                    CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-                    {
+                    if (CurrentForm.InvokeRequired)
+                        CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                        {
+                            CurrentForm.ApplyPowerProfiles();
+                        });
+                    else
                         CurrentForm.ApplyPowerProfiles();
-                    });
+
                     if (IsPowerNew) IsPowerNew = false;
                     if (IsHardwareNew) IsHardwareNew = false;
                     if (IsScreenNew) IsScreenNew = false;
@@ -523,13 +545,10 @@ namespace DockerForm
             Icon myIcon = DockStatus ? Properties.Resources.tb3_on : Properties.Resources.tb3_off;
 
             // drawing
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-            {
-                CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
-                CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
-                CurrentForm.notifyIcon1.Icon = myIcon;
-                CurrentForm.Icon = myIcon;
-            });
+            CurrentForm.menuStrip2.Items[0].Text = ConstructorName + " (" + GetCurrentPower() + ")";
+            CurrentForm.undockedToolStripMenuItem.Image = ConstructorLogo;
+            CurrentForm.notifyIcon1.Icon = myIcon;
+            CurrentForm.Icon = myIcon;
         }
 
         public int GetListViewIndex(string GUID)
@@ -759,10 +778,13 @@ namespace DockerForm
             }
 
             // re-apply values
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-            {
+            if (CurrentForm.InvokeRequired)
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    CurrentForm.ApplyPowerProfiles();
+                });
+            else
                 CurrentForm.ApplyPowerProfiles();
-            });
 
             // update var
             prevFileInfos = fileInfos;
@@ -777,10 +799,13 @@ namespace DockerForm
             item.Checked = !item.Checked;
             ProfileDB[ProfileGuid].RunMe = item.Checked;
 
-            CurrentForm.BeginInvoke((MethodInvoker)delegate ()
-            {
+            if (CurrentForm.InvokeRequired)
+                CurrentForm.BeginInvoke((MethodInvoker)delegate ()
+                {
+                    CurrentForm.ApplyPowerProfiles();
+                });
+            else
                 CurrentForm.ApplyPowerProfiles();
-            });
         }
 
         public int GetIGDBListLength()
