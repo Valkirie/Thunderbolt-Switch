@@ -44,10 +44,10 @@ namespace DockerForm
                 if (shellPropertyValues != null && shellPropertyValues.Length > 0)
                 {
                     foreach (string shellPropertyValue in shellPropertyValues)
-                        AppProperties.Add(property.Name, "" + shellPropertyValue);
+                        AppProperties[property.Name] = shellPropertyValue.ToString();
                 }
                 else
-                    AppProperties.Add(property.Name, (string)shellProperty.ValueAsObject);
+                    AppProperties[property.Name] = shellProperty.ValueAsObject.ToString();
             }
 
             return AppProperties;
