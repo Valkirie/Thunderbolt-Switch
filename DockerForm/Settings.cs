@@ -30,6 +30,9 @@ namespace DockerForm
             checkBoxSaveOnExit.Checked = Properties.Settings.Default.SaveOnExit;
             checkBoxMonitorHardware.Checked = Properties.Settings.Default.MonitorHardware;
             checkBoxMonitorPowerProfiles.Checked = Properties.Settings.Default.MonitorProfiles;
+            checkBoxPlaySound.Checked = Properties.Settings.Default.PlaySound;
+            checkBoxSpeechSynthesizer.Checked = Properties.Settings.Default.SpeechSynthesizer;
+
             Initialized = true;
         }
 
@@ -75,6 +78,18 @@ namespace DockerForm
         private void checkBoxMonitorHardware_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.MonitorHardware = checkBoxMonitorHardware.Checked;
+            SaveSettings();
+        }
+
+        private void checkBoxReadNotifications_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.SpeechSynthesizer = checkBoxSpeechSynthesizer.Checked;
+            SaveSettings();
+        }
+
+        private void checkBoxPlaySound_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.PlaySound = checkBoxPlaySound.Checked;
             SaveSettings();
         }
 

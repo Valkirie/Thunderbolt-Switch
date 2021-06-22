@@ -13,6 +13,7 @@ using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Speech.Synthesis;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -52,6 +53,8 @@ namespace DockerForm
         public static int MonitorThreadRefresh;
         public static bool MonitorProfiles = false;
         public static bool MonitorHardware = false;
+        public static bool PlaySound = false;
+        public static bool SpeechSynthesizer = false;
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
@@ -159,6 +162,18 @@ namespace DockerForm
             {
                 CurrentForm.notifyIcon1.BalloonTipText = input;
                 CurrentForm.notifyIcon1.ShowBalloonTip(1000);
+            }
+
+            // read text
+            if (SpeechSynthesizer)
+            {
+                SpeechSynthesizer ttssynthesizer = new SpeechSynthesizer();
+                ttssynthesizer.SetOutputToDefaultAudioDevice();
+
+                var voices = ttssynthesizer.GetInstalledVoices(new CultureInfo("en-US", false));
+                if (voices.Count > 0)
+                    ttssynthesizer.SelectVoice(voices[0].VoiceInfo.Name);
+                ttssynthesizer.SpeakAsync(input);
             }
         }
 
@@ -826,6 +841,8 @@ namespace DockerForm
             MonitorThreadRefresh = Properties.Settings.Default.MonitorThreadRefresh;
             MonitorProfiles = Properties.Settings.Default.MonitorProfiles;
             MonitorHardware = Properties.Settings.Default.MonitorHardware;
+            PlaySound = Properties.Settings.Default.PlaySound;
+            SpeechSynthesizer = Properties.Settings.Default.SpeechSynthesizer;
         }
 
         public MainForm()

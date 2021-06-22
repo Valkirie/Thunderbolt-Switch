@@ -76,6 +76,8 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBoxPlaySound = new System.Windows.Forms.CheckBox();
+            this.checkBoxSpeechSynthesizer = new System.Windows.Forms.CheckBox();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -129,7 +131,7 @@ namespace DockerForm
             this.groupBox2.Controls.Add(this.checkBoxSaveOnExit);
             this.groupBox2.Controls.Add(this.checkBoxMonitorProcesses);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Location = new System.Drawing.Point(3, 143);
+            this.groupBox2.Location = new System.Drawing.Point(3, 190);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(770, 116);
             this.groupBox2.TabIndex = 2;
@@ -199,12 +201,14 @@ namespace DockerForm
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.checkBoxSpeechSynthesizer);
+            this.groupBox1.Controls.Add(this.checkBoxPlaySound);
             this.groupBox1.Controls.Add(this.checkBoxToastNotifications);
             this.groupBox1.Controls.Add(this.checkBoxBootOnStartup);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(3, 73);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(770, 70);
+            this.groupBox1.Size = new System.Drawing.Size(770, 117);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Interface";
@@ -534,8 +538,8 @@ namespace DockerForm
             this.ProfilesList.TabIndex = 9;
             this.ProfilesList.UseCompatibleStateImageBehavior = false;
             this.ProfilesList.View = System.Windows.Forms.View.Details;
-            this.ProfilesList.SelectedIndexChanged += new System.EventHandler(this.ProfilesList_SelectedIndexChanged);
             this.ProfilesList.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ProfilesList_AfterLabelEdit);
+            this.ProfilesList.SelectedIndexChanged += new System.EventHandler(this.ProfilesList_SelectedIndexChanged);
             // 
             // PowerProfileHeader1
             // 
@@ -627,6 +631,28 @@ namespace DockerForm
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             this.toolTip1.SetToolTip(this.label1, "Turbo Boost Long Power Max - for sustained turbo operation.");
             // 
+            // checkBoxPlaySound
+            // 
+            this.checkBoxPlaySound.AutoSize = true;
+            this.checkBoxPlaySound.Location = new System.Drawing.Point(6, 68);
+            this.checkBoxPlaySound.Name = "checkBoxPlaySound";
+            this.checkBoxPlaySound.Size = new System.Drawing.Size(219, 17);
+            this.checkBoxPlaySound.TabIndex = 2;
+            this.checkBoxPlaySound.Text = "Play a sound on power profile application";
+            this.checkBoxPlaySound.UseVisualStyleBackColor = true;
+            this.checkBoxPlaySound.CheckedChanged += new System.EventHandler(this.checkBoxPlaySound_CheckedChanged);
+            // 
+            // checkBoxReadNotifications
+            // 
+            this.checkBoxSpeechSynthesizer.AutoSize = true;
+            this.checkBoxSpeechSynthesizer.Location = new System.Drawing.Point(6, 91);
+            this.checkBoxSpeechSynthesizer.Name = "checkBoxReadNotifications";
+            this.checkBoxSpeechSynthesizer.Size = new System.Drawing.Size(233, 17);
+            this.checkBoxSpeechSynthesizer.TabIndex = 3;
+            this.checkBoxSpeechSynthesizer.Text = "Use speech synthesizer to read notifications";
+            this.checkBoxSpeechSynthesizer.UseVisualStyleBackColor = true;
+            this.checkBoxSpeechSynthesizer.CheckedChanged += new System.EventHandler(this.checkBoxReadNotifications_CheckedChanged);
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -717,5 +743,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem MenuItemCreateSetting;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBoxPowerBalance;
+        private CheckBox checkBoxSpeechSynthesizer;
+        private CheckBox checkBoxPlaySound;
     }
 }

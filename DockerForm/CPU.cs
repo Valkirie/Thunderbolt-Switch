@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
+using System.Media;
 
 namespace DockerForm
 {
@@ -158,12 +154,16 @@ namespace DockerForm
             Process.Start(PowerProcess);
 
             // update current profile
+            string output = $"Power Profile{(profile.Merged != 1 ? "s" : "")}: {profile.GetName()} applied.";
             MainForm.CurrentProfile = profile;
-            MainForm.SendNotification($"Power Profile [{profile.GetName()}] applied.", true, true);
+            MainForm.SendNotification(output, true, true);
 
             // play sound
-            System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.Sample_0006);
-            player.Play();
+            if (MainForm.PlaySound)
+            {
+                SoundPlayer player = new SoundPlayer(Properties.Resources.Sample_0006);
+                player.Play();
+            }
         }
     }
 }

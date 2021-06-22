@@ -56,6 +56,7 @@ namespace DockerForm
         [XmlIgnore] public bool RunMe;
         [XmlIgnore] public bool JustCreated;
         [XmlIgnore] public bool JustUpdated;
+        [XmlIgnore] public int Merged = 0;
         public Guid ProfileGuid;
         public string ProfileVersion;
 
@@ -225,7 +226,7 @@ namespace DockerForm
             }
         }
 
-        public void DigestProfile(PowerProfile profile, bool Merging)
+        public void DigestProfile(PowerProfile profile, bool isMerged)
         {
             if (profile.HasLongPowerMax())
                 TurboBoostLongPowerMax = profile.TurboBoostLongPowerMax;
@@ -246,8 +247,14 @@ namespace DockerForm
             if (profile.HasPowerBalanceGPU())
                 PowerBalanceGPU = profile.PowerBalanceGPU;
 
-            if (Merging)
-                ProfileName += (ProfileName.Equals("") ? "" : ",") + profile.ProfileName;
+            if (isMerged)
+            {
+                if (profile.ApplyPriority != -1)
+                {
+                    ProfileName += (ProfileName.Equals("") ? "" : " & ") + profile.ProfileName;
+                    Merged++;
+                }
+            }
             else
             {
                 ProfileName = profile.ProfileName;
