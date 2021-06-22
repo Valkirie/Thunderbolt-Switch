@@ -16,7 +16,7 @@ namespace DockerForm
             AMD = 1
         }
 
-        public string Name, MCHBAR;
+        public string Name, Manuf, MCHBAR;
         public Manufacturer Constructor;
         private string GetProcessorDetails(string value)
         {
@@ -32,11 +32,15 @@ namespace DockerForm
         public CPU()
         {
             Name = GetProcessorDetails("Name");
+            Manuf = GetProcessorDetails("Manufacturer");
 
-            switch(GetProcessorDetails("Manufacturer"))
+            switch (Manuf)
             {
                 case "GenuineIntel":
                     Constructor = Manufacturer.Intel;
+                    break;
+                case "AuthenticAMD":
+                    Constructor = Manufacturer.AMD;
                     break;
             }
         }
@@ -66,6 +70,10 @@ namespace DockerForm
                         break;
                     }
                 };
+            }
+            else if (Constructor == Manufacturer.AMD)
+            {
+                // do something
             }
             else
             {
@@ -123,7 +131,7 @@ namespace DockerForm
 
                 command += "Delay 1000;rwexit\"";
             }
-            else
+            else if (Constructor == Manufacturer.AMD)
             {
                 tool = MainForm.path_ryz;
                 command = "";
