@@ -11,6 +11,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Speech.Synthesis;
@@ -68,6 +70,7 @@ namespace DockerForm
         // Form vars
         private static MainForm CurrentForm;
         private static CultureInfo CurrentCulture;
+        public static ResourceManager CurrentResource;
 
         // Threading vars
         private static Thread ThreadGPU, ThreadProfile;
@@ -172,24 +175,19 @@ namespace DockerForm
 
             // avoid clashes of speeches
             CurrentSynthesizer.SpeakAsyncCancelAll();
-
-            CurrentForm.timer1.Stop();
-            CurrentForm.timer1.Tick += new EventHandler(myTimer_Tick);
-            CurrentForm.timer1.Start();
         }
 
         private static void myTimer_Tick(object sender, EventArgs e)
         {
+            // skip if empty
+            if (notifications.Count == 0)
+                return;
+
             // read text
             if (SpeechSynthesizer)
-            {
-                var voices = CurrentSynthesizer.GetInstalledVoices(new CultureInfo("en-US", false));
-                if (voices.Count > 0)
-                    CurrentSynthesizer.SelectVoice(voices[0].VoiceInfo.Name);
-
                 CurrentSynthesizer.SpeakAsync(String.Join("\n", notifications));
-                notifications.Clear();
-            }
+
+            notifications.Clear();
         }
 
         static private bool ProcessExists(int id)
@@ -266,13 +264,15 @@ namespace DockerForm
 
         static void startWatch_Stopped(object sender, StoppedEventArgs e)
         {
-            LogManager.UpdateLog("The startWatcher has stopped. Disposing it.");
+            string content = string.Format(CurrentResource.GetString("WatcherStop"), "startWatcher");
+            LogManager.UpdateLog(content);
             ((ManagementEventWatcher)sender).Dispose();
         }
 
         static void startWatch_Disposed(object sender, EventArgs e)
         {
-            LogManager.UpdateLog("The startWatcher has been disposed. Restarting it.");
+            string content = string.Format(CurrentResource.GetString("WatcherDispose"), "startWatcher");
+            LogManager.UpdateLog(content);
             StartMonitoringProcessCreation();
         }
 
@@ -325,13 +325,15 @@ namespace DockerForm
 
         static void stopWatch_Stopped(object sender, StoppedEventArgs e)
         {
-            LogManager.UpdateLog("The stopWatcher has stopped. Disposing it.");
+            string content = string.Format(CurrentResource.GetString("WatcherStop"), "stopWatcher");
+            LogManager.UpdateLog(content);
             ((ManagementEventWatcher)sender).Dispose();
         }
 
         static void stopWatch_Disposed(object sender, EventArgs e)
         {
-            LogManager.UpdateLog("The stopWatcher has been disposed. Restarting it.");
+            string content = string.Format(CurrentResource.GetString("WatcherDispose"), "stopWatcher");
+            LogManager.UpdateLog(content);
             StartMonitoringProcessTermination();
         }
 
@@ -422,10 +424,14 @@ namespace DockerForm
             // hardware has changed
             if (IsHardwareNew && !IsFirstBoot)
             {
+                string content = string.Empty;
+
                 if (VideoControllers.ContainsKey(Type.Discrete))
-                    SendNotification(VideoControllers[Type.Discrete].Name + " detected.", true, true);
+                    content = string.Format(CurrentResource.GetString("VideoControllerDetected"), VideoControllers[Type.Discrete].Name);
                 else if (VideoControllers.ContainsKey(Type.Internal))
-                    SendNotification(VideoControllers[Type.Internal].Name + " detected.", true, true);
+                    content = string.Format(CurrentResource.GetString("VideoControllerDetected"), VideoControllers[Type.Internal].Name);
+
+                SendNotification(content, true, true);
 
                 DatabaseManager.UpdateFilesAndRegistries(false, true);
                 DatabaseManager.UpdateFilesAndRegistries(true, false);
@@ -453,8 +459,8 @@ namespace DockerForm
             // Power Status has changed
             if (IsPowerNew && !IsFirstBoot)
             {
-                LogManager.UpdateLog("Power Status: " + GetCurrentPower());
-                SendNotification("Device is " + GetCurrentPower() + ".", true);
+                string content = string.Format(CurrentResource.GetString("PowerStatus"), GetCurrentPower());
+                SendNotification(content, true, true);
             }
 
             // update status
@@ -615,7 +621,9 @@ namespace DockerForm
 
                 GameListView.Items.Add(newgame);
                 DatabaseManager.GameDB[game.GUID] = game;
-                LogManager.UpdateLog("[" + game.Name + "] profile has been added to the database");
+
+                string content = string.Format(CurrentResource.GetString("DatabaseCreate"), game.Name);
+                LogManager.UpdateLog(content);
             }
             else
             {
@@ -650,9 +658,8 @@ namespace DockerForm
                 }
 
                 // update the current database
-                DockerGame list_game = DatabaseManager.GameDB[game.GUID];
-                // ((exListBoxItem)GameList.Items[idx]).Enabled = list_game.Enabled;
-                LogManager.UpdateLog("[" + list_game.Name + "] profile has been updated");
+                string content = string.Format(CurrentResource.GetString("DatabaseUpdate"), game.Name);
+                LogManager.UpdateLog(content);
             }
 
             // update current title
@@ -869,8 +876,11 @@ namespace DockerForm
             CurrentCulture = CultureInfo.CurrentCulture;
             CurrentTask = new TaskService();
             CurrentCPU = new CPU();
+
             CurrentSynthesizer = new SpeechSynthesizer();
             CurrentSynthesizer.SetOutputToDefaultAudioDevice();
+
+            CurrentForm.CurrentTimer.Tick += new EventHandler(myTimer_Tick);
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
@@ -892,6 +902,19 @@ namespace DockerForm
 
             if (!Directory.Exists(path_profiles))
                 Directory.CreateDirectory(path_profiles);
+
+            // language settings
+            switch(CurrentCulture.Name)
+            {
+                case "fr-FR":
+                    CurrentResource = new ResourceManager($"DockerForm.Resources.{CurrentCulture.Name}", Assembly.GetExecutingAssembly());
+                    break;
+
+                default:
+                case "en-US":
+                    CurrentResource = new ResourceManager($"DockerForm.Resources.en-US", Assembly.GetExecutingAssembly());
+                    break;
+            }
 
             // configurable settings
             settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
@@ -943,7 +966,8 @@ namespace DockerForm
                 td.Triggers.Add(new LogonTrigger());
                 td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
                 myTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
-                LogManager.UpdateLog($"Task Scheduler: {taskName} was successfully created");
+
+                LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerCreate"), taskName));
             }
 
             if (myTask != null)
@@ -951,18 +975,20 @@ namespace DockerForm
                 if (BootOnStartup && !myTask.Enabled)
                 {
                     myTask.Enabled = true;
-                    LogManager.UpdateLog($"Task Scheduler: {taskName} was enabled");
+                    LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerEnable"), taskName));
                 }
                 else if (!BootOnStartup && myTask.Enabled)
                 {
                     myTask.Enabled = false;
-                    LogManager.UpdateLog($"Task Scheduler: {taskName} was disabled");
+                    LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerDisable"), taskName));
                 }
             }
 
             // read processor details
             CurrentCPU.Initialise();
-            LogManager.UpdateLog($"CPU detected: {CurrentCPU.Name} ({CurrentCPU.Manuf})");
+
+            string content = string.Format(CurrentResource.GetString("DetectionCPU"), CurrentCPU.Name, CurrentCPU.Manuf);
+            LogManager.UpdateLog(content);
 
             // update Database
             UpdateGameList();
@@ -976,7 +1002,8 @@ namespace DockerForm
             startWatcher.Disposed += new EventHandler(startWatch_Disposed);
             startWatcher.Start();
 
-            LogManager.UpdateLog("The startWatcher has been created.");
+            string content = string.Format(CurrentResource.GetString("WatcherStart"), "startWatcher");
+            LogManager.UpdateLog(content);
         }
 
         private static void StartMonitoringProcessTermination()
@@ -987,7 +1014,8 @@ namespace DockerForm
             stopWatcher.Disposed += new EventHandler(stopWatch_Disposed);
             stopWatcher.Start();
 
-            LogManager.UpdateLog("The stopWatcher has been created.");
+            string content = string.Format(CurrentResource.GetString("WatcherStart"), "stopWatcher");
+            LogManager.UpdateLog(content);
         }
 
         private void Form1_Shown(object sender, System.EventArgs e)
@@ -1064,7 +1092,9 @@ namespace DockerForm
             {
                 Hide();
                 notifyIcon1.Visible = true;
-                SendNotification(Text + " is running in the background.", !IsFirstBoot);
+
+                string content = CurrentResource.GetString("BackgroundRun");
+                SendNotification(content, !IsFirstBoot);
             }
 
             CurrentWindowState = WindowState;
@@ -1367,7 +1397,8 @@ namespace DockerForm
                 if (imageList2.Images.ContainsKey(game.GUID))
                     imageList2.Images.RemoveByKey(item.ImageKey);
 
-                LogManager.UpdateLog("[" + game.Name + "] has been removed from the database");
+                string content = string.Format(CurrentResource.GetString("DatabaseRemove"), game.Name);
+                LogManager.UpdateLog(content);
             }
         }
 
@@ -1382,7 +1413,10 @@ namespace DockerForm
                 if (!DatabaseManager.GameDB.ContainsKey(game.GUID))
                     currentSettings.ShowDialog();
                 else
-                    SendNotification(game.Name + " already exists in your current database", true);
+                {
+                    string content = string.Format(CurrentResource.GetString("DatabaseAlreadyExist"), game.Name);
+                    SendNotification(content, true);
+                }
             }
         }
 

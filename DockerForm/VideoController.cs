@@ -229,7 +229,8 @@ namespace DockerForm
                 Verb = "runas"
             }))
             {
-                LogManager.UpdateLog($"Device [{Name}] has been enabled.");
+                string content = string.Format(MainForm.CurrentResource.GetString("DeviceEnable"), Name);
+                LogManager.UpdateLog(content);
                 return true;
             }
         }
@@ -247,7 +248,8 @@ namespace DockerForm
                 Verb = "runas"
             }))
             {
-                LogManager.UpdateLog($"Device [{Name}] has been disabled.");
+                string content = string.Format(MainForm.CurrentResource.GetString("DeviceDisable"), Name);
+                LogManager.UpdateLog(content);
                 ErrorCode = 22;
                 return true;
             }

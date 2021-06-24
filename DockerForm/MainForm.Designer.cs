@@ -76,7 +76,7 @@ namespace DockerForm
             this.styleDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.styleTileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.CurrentTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -428,9 +428,10 @@ namespace DockerForm
             this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
-            // timer1
+            // CurrentTimer
             // 
-            this.timer1.Interval = 500;
+            this.CurrentTimer.Enabled = true;
+            this.CurrentTimer.Interval = 1000;
             // 
             // MainForm
             // 
@@ -507,7 +508,7 @@ namespace DockerForm
         private System.Windows.Forms.ToolStripMenuItem styleDetailsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem styleTileToolStripMenuItem;
         private System.Windows.Forms.ColumnHeader columnProfiles;
-        private System.Windows.Forms.Timer timer1;
+        public System.Windows.Forms.Timer CurrentTimer;
     }
 }
 

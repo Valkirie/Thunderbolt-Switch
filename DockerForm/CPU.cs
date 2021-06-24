@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Management;
 using System.Media;
 
@@ -79,10 +80,6 @@ namespace DockerForm
 
         public void SetPowerProfile(PowerProfile profile)
         {
-            // skip check on empty profile
-            if (profile.ProfileName == "")
-                return;
-
             // skip update on similar profiles
             if (MainForm.CurrentProfile.Equals(profile))
                 return;
@@ -154,9 +151,11 @@ namespace DockerForm
             Process.Start(PowerProcess);
 
             // update current profile
-            string output = $"Power Profile{(profile.Merged != 1 ? "s" : "")}: {profile.GetName()}, applied.";
+            string multiple = profile.Merged > 1 ? "s" : "";
+            string content = string.Format(MainForm.CurrentResource.GetString("PowerProfileApplied"), multiple, profile.GetName());
+
             MainForm.CurrentProfile = profile;
-            MainForm.SendNotification(output, true, true);
+            MainForm.SendNotification(content, true, true);
 
             // play sound
             if (MainForm.PlaySound)

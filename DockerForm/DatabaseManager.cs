@@ -73,7 +73,7 @@ namespace DockerForm
                 }
             }
 
-            return String.Empty;
+            return string.Empty;
         }
 
         public static void UpdateFileAndRegistry(DockerGame game, string path_dest, string path_game, bool updateDB, bool updateFILE, bool pushToast, string crc_value, GameSettings setting)
@@ -86,7 +86,8 @@ namespace DockerForm
                 if (!File.Exists(filename))
                 {
                     setting.IsEnabled = false;
-                    LogManager.UpdateLog("[" + game.Name + "] settings disabled for file [" + file + "] [" + path_dest + "]");
+                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsDisabled"), game.Name, file, path_dest, "file");
+                    LogManager.UpdateLog(content);
                     return;
                 }
 
@@ -94,7 +95,8 @@ namespace DockerForm
                 if (updateDB)
                 {
                     setting.data[path_game] = File.ReadAllBytes(filename);
-                    LogManager.UpdateLog("[" + game.Name + "] database updated for file [" + file + "] [" + path_game + "]");
+                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, file, path_game, "file");
+                    LogManager.UpdateLog(content);
                 }
 
                 // 2. Restore proper settings
@@ -104,11 +106,13 @@ namespace DockerForm
                     {
                         File.WriteAllBytes(filename, setting.data[path_dest]);
                         File.SetLastWriteTime(filename, game.LastCheck);
-                        LogManager.UpdateLog("[" + game.Name + "] settings updated for file [" + file + "] [" + path_dest + "]");
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsUpdate"), game.Name, file, path_dest, "file");
+                        LogManager.UpdateLog(content);
                     }
                     else
                     {
-                        LogManager.UpdateLog("[" + game.Name + "] settings update skipped for file [" + file + "] [" + path_dest + "]");
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsSkipped"), game.Name, file, path_dest, "file");
+                        LogManager.UpdateLog(content);
                     }
                 }
             }
@@ -121,7 +125,8 @@ namespace DockerForm
                 if (!File.Exists(tempfile))
                 {
                     setting.IsEnabled = false;
-                    LogManager.UpdateLog("[" + game.Name + "] settings disabled registry entry " + filename + " [" + path_dest + "]");
+                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsDisabled"), game.Name, filename, path_dest, "registry entry");
+                    LogManager.UpdateLog(content);
                     return;
                 }
 
@@ -129,7 +134,8 @@ namespace DockerForm
                 if (updateDB)
                 {
                     setting.data[path_game] = File.ReadAllBytes(tempfile);
-                    LogManager.UpdateLog("[" + game.Name + "] database updated for registry entry " + filename + " [" + path_game + "]");
+                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, filename, path_game, "registry entry");
+                    LogManager.UpdateLog(content);
                 }
 
                 // 2. Restore proper settings
@@ -139,11 +145,13 @@ namespace DockerForm
                     {
                         File.WriteAllBytes(tempfile, setting.data[path_dest]);
                         RegistryManager.RestoreKey(tempfile);
-                        LogManager.UpdateLog("[" + game.Name + "] settings updated for registry entry " + filename + " [" + path_dest + "]");
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsUpdate"), game.Name, filename, path_dest, "registry entry");
+                        LogManager.UpdateLog(content);
                     }
                     else
                     {
-                        LogManager.UpdateLog("[" + game.Name + "] settings update skipped for registry entry " + filename + " [" + path_dest + "]");
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsSkipped"), game.Name, filename, path_dest, "registry entry");
+                        LogManager.UpdateLog(content);
                     }
                 }
 
@@ -160,7 +168,8 @@ namespace DockerForm
             game.SetCrc(crc_value);
             game.Serialize();
 
-            MainForm.SendNotification(game.Name + " settings have been updated", pushToast);
+            string content = string.Format(MainForm.CurrentResource.GetString("DatabaseUpdate"), game.Name);
+            MainForm.SendNotification(content, pushToast);
         }
 
         public static void UpdateFilesAndRegistries(bool updateFILE, bool updateDB)
@@ -210,12 +219,20 @@ namespace DockerForm
 
                 if (game.ErrorCode != ErrorCode.None)
                 {
+                    string content = string.Empty;
                     switch (game.ErrorCode)
                     {
-                        case ErrorCode.MissingExecutable: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable executable", true); break;
-                        case ErrorCode.MissingFolder: LogManager.UpdateLog("[" + game.Name + "]" + " has an unreachable folder", true); break;
-                        case ErrorCode.MissingSettings: LogManager.UpdateLog("[" + game.Name + "]" + " has no settings defined", true); break;
+                        case ErrorCode.MissingExecutable:
+                            content = string.Format(MainForm.CurrentResource.GetString("ErrorUnreachableExe"), game.Name);
+                            break;
+                        case ErrorCode.MissingFolder:
+                            content = string.Format(MainForm.CurrentResource.GetString("ErrorUnreachableFolder"), game.Name);
+                            break;
+                        case ErrorCode.MissingSettings:
+                            content = string.Format(MainForm.CurrentResource.GetString("ErrorNoSettings"), game.Name);
+                            break;
                     }
+                    LogManager.UpdateLog(content, true);
 
                     continue;
                 }
@@ -264,15 +281,18 @@ namespace DockerForm
 
                     if (path_db != crc_value)
                     {
-                        MainForm.SendNotification("[" + game.Name + "] CRC missmatch detected for [" + file.Name + "]", true, true, true);
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseMissmatch"), game.Name, file.Name);
+                        MainForm.SendNotification(content, true, true, true);
                         UpdateFileAndRegistry(game, path_db, crc_value, true, true, false, path_db, setting);
                     }
                     else if (!Equality(fileBytes, fileDBBytes))
                     {
-                        MainForm.SendNotification("[" + game.Name + "] database sync conflict detected for [" + file.Name + "]", true, true, true);
+                        string title = string.Format(MainForm.CurrentResource.GetString("DatabasConflictTitle"));
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseConflict"), game.Name, file.Name);
+                        MainForm.SendNotification(content, true, true, true);
 
                         DialogBox dialogBox = new DialogBox();
-                        dialogBox.UpdateDialogBox("Database Sync Conflict", game.Name, game.LastCheck, file);
+                        dialogBox.UpdateDialogBox(title, game.Name, game.LastCheck, file);
                         DialogResult dialogResult = dialogBox.ShowDialog();
 
                         bool result = (dialogResult == DialogResult.Yes);

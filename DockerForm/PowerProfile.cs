@@ -102,7 +102,7 @@ namespace DockerForm
 
         public string GetName()
         {
-            return ProfileName;
+            return ProfileName.Equals("") ? MainForm.CurrentResource.GetString("PowerProfileDefault") : ProfileName;
         }
 
         public string GetLongPowerMax()
