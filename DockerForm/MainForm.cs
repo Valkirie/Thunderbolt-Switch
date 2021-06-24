@@ -61,6 +61,7 @@ namespace DockerForm
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
         public static CPU CurrentCPU;
+        private static GlobalKeyboardHook _globalKeyboardHook;
         private static SpeechSynthesizer CurrentSynthesizer;
 
         // Folder vars
@@ -867,6 +868,32 @@ namespace DockerForm
             SpeechSynthesizer = Properties.Settings.Default.SpeechSynthesizer;
         }
 
+        private List<Keys> KeyboardHookTriggers;
+        private List<Keys> KeyboardHookListener;
+        private void OnKeyPressed(object sender, GlobalKeyboardHookEventArgs e)
+        {
+            Keys loggedKey = e.KeyboardData.Key;
+            int loggedVkCode = e.KeyboardData.VirtualCode;
+
+            if (e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyDown)
+            {
+                // start listening keyboard
+                if (KeyboardHookTriggers.Contains(loggedKey))
+                    KeyboardHookListener.Add(loggedKey);
+            }
+            else if (e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyDown)
+            {
+                // stop listening keyboard
+                if (KeyboardHookTriggers.Contains(loggedKey))
+                {
+                    foreach (PowerProfile profile in ProfileDB.Values)
+                    {
+
+                    }
+                }
+            }
+        }
+
         public MainForm()
         {
             InitializeComponent();
@@ -881,6 +908,11 @@ namespace DockerForm
             CurrentSynthesizer.SetOutputToDefaultAudioDevice();
 
             CurrentForm.CurrentTimer.Tick += new EventHandler(myTimer_Tick);
+
+            KeyboardHookTriggers = new List<Keys>() { Keys.LControlKey, Keys.RControlKey };
+            KeyboardHookListener = new List<Keys>();
+            _globalKeyboardHook = new GlobalKeyboardHook(new Keys[] { Keys.LControlKey, Keys.RControlKey, Keys.A, Keys.B });
+            _globalKeyboardHook.KeyboardPressed += OnKeyPressed;
 
             // folder settings
             path_application = AppDomain.CurrentDomain.BaseDirectory;
