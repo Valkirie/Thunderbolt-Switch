@@ -17,7 +17,6 @@ namespace DockerForm
     public partial class Settings : Form
     {
         Dictionary<Guid, PowerProfile> Profiles = new Dictionary<Guid, PowerProfile>();
-        bool Initialized;
 
         public Settings()
         {
@@ -32,80 +31,57 @@ namespace DockerForm
             checkBoxMonitorPowerProfiles.Checked = Properties.Settings.Default.MonitorProfiles;
             checkBoxPlaySound.Checked = Properties.Settings.Default.PlaySound;
             checkBoxSpeechSynthesizer.Checked = Properties.Settings.Default.SpeechSynthesizer;
-
-            Initialized = true;
         }
 
         private void checkBoxPowerSpecific_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.MinimizeOnStartup = checkBoxMinimizeOnStartup.Checked;
-            SaveSettings();
         }
 
         private void checkBoxMinimizeOnClosing_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.MinimizeOnClosing = checkBoxMinimizeOnClosing.Checked;
-            SaveSettings();
         }
 
         private void checkBoxBootOnStartup_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.BootOnStartup = checkBoxBootOnStartup.Checked;
-            SaveSettings();
+            MainForm.UpdateTask();
         }
 
         private void checkBoxToastNotifications_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.ToastNotifications = checkBoxToastNotifications.Checked;
-            SaveSettings();
         }
 
         private void checkBoxMonitorProcesses_CheckedChanged(object sender, EventArgs e)
         {
-            if(Initialized)
-                MessageBox.Show("Restarting the application is required to update this setting.");
-
             Properties.Settings.Default.MonitorProcesses = checkBoxMonitorProcesses.Checked;
-            SaveSettings();
         }
 
         private void checkBoxSaveOnExit_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.SaveOnExit = checkBoxSaveOnExit.Checked;
-            SaveSettings();
         }
 
         private void checkBoxMonitorHardware_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.MonitorHardware = checkBoxMonitorHardware.Checked;
-            SaveSettings();
         }
 
         private void checkBoxReadNotifications_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.SpeechSynthesizer = checkBoxSpeechSynthesizer.Checked;
-            SaveSettings();
         }
 
         private void checkBoxPlaySound_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.PlaySound = checkBoxPlaySound.Checked;
-            SaveSettings();
         }
 
         private void checkBoxMonitorPowerProfiles_CheckedChanged(object sender, EventArgs e)
         {
-            if(Initialized)
-                MessageBox.Show("Restarting the application is required to update this setting.");
-
             Properties.Settings.Default.MonitorProfiles = checkBoxMonitorPowerProfiles.Checked;
-            SaveSettings();
-        }
-
-        private void SaveSettings()
-        {
-            Properties.Settings.Default.Save();
-            MainForm.UpdateSettings();
         }
 
         private void Settings_FormClosing(Object sender, FormClosingEventArgs e)
@@ -117,6 +93,9 @@ namespace DockerForm
                 if (profile.JustUpdated)
                     profile.Serialize();
             }
+
+            Properties.Settings.Default.Save();
+            MainForm.UpdateSettings();
         }
 
         private void Settings_Load(object sender, EventArgs e)

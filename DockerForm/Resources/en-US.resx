@@ -193,12 +193,12 @@
     <value>{0} has been detected.</value>
   </data>
   <data name="WatcherDispose" xml:space="preserve">
-    <value>The {0} has been disposed. Restarting it.</value>
+    <value>The {0} has been disposed.</value>
   </data>
   <data name="WatcherStart" xml:space="preserve">
     <value>The {0} has been created.</value>
   </data>
   <data name="WatcherStop" xml:space="preserve">
-    <value>The {0} has stopped. Disposing it.</value>
+    <value>The {0} has stopped.</value>
   </data>
 </root>

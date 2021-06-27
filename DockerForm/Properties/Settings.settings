@@ -29,9 +29,60 @@
     <Setting Name="SaveOnExit" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="MonitorThreadRefresh" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="MonitorProfiles" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="MainWindowWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">940</Value>
+    </Setting>
+    <Setting Name="MainWindowHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">630</Value>
+    </Setting>
+    <Setting Name="ColumnNameWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">300</Value>
+    </Setting>
+    <Setting Name="ColumnDevWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">200</Value>
+    </Setting>
+    <Setting Name="ColumnVersionWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="ColumnPlayedWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">140</Value>
+    </Setting>
+    <Setting Name="MainWindowX" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MainWindowY" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ColumnSettingsWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">150</Value>
+    </Setting>
+    <Setting Name="MonitorHardware" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="GameListStyle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Tile</Value>
+    </Setting>
+    <Setting Name="SmallImageHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">32</Value>
+    </Setting>
+    <Setting Name="SmallImageWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">24</Value>
+    </Setting>
+    <Setting Name="SpeechSynthesizer" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PlaySound" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="Blacklist" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+&lt;ArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
   &lt;string&gt;Microsoft.FlightDashboard&lt;/string&gt;
   &lt;string&gt;Microsoft.GamingServices&lt;/string&gt;
   &lt;string&gt;Microsoft.MicrosoftStickyNotes&lt;/string&gt;
@@ -85,57 +136,6 @@
   &lt;string&gt;NVIDIA Control Panel&lt;/string&gt;
   &lt;string&gt;Realtek Audio Control&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
-    </Setting>
-    <Setting Name="MonitorThreadRefresh" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2000</Value>
-    </Setting>
-    <Setting Name="MonitorProfiles" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="MainWindowWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">940</Value>
-    </Setting>
-    <Setting Name="MainWindowHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">630</Value>
-    </Setting>
-    <Setting Name="ColumnNameWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">300</Value>
-    </Setting>
-    <Setting Name="ColumnDevWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">200</Value>
-    </Setting>
-    <Setting Name="ColumnVersionWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100</Value>
-    </Setting>
-    <Setting Name="ColumnPlayedWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">140</Value>
-    </Setting>
-    <Setting Name="MainWindowX" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="MainWindowY" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="ColumnSettingsWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">150</Value>
-    </Setting>
-    <Setting Name="MonitorHardware" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="GameListStyle" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Tile</Value>
-    </Setting>
-    <Setting Name="SmallImageHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">32</Value>
-    </Setting>
-    <Setting Name="SmallImageWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">24</Value>
-    </Setting>
-    <Setting Name="SpeechSynthesizer" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PlaySound" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

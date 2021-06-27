@@ -197,7 +197,7 @@
     <value>{0} détecté.</value>
   </data>
   <data name="WatcherDispose" xml:space="preserve">
-    <value>{0} redémarre.</value>
+    <value>{0} supprimé.</value>
   </data>
   <data name="WatcherStart" xml:space="preserve">
     <value>{0} crée.</value>

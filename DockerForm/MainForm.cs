@@ -59,7 +59,7 @@ namespace DockerForm
         public static bool SpeechSynthesizer = false;
 
         // Devices vars
-        public static Dictionary<Type, VideoController> VideoControllers = new Dictionary<Type, VideoController>();
+        public static Dictionary<Type, VideoController> VideoControllers;
         public static CPU CurrentCPU;
         private static GlobalKeyboardHook _globalKeyboardHook;
         private static SpeechSynthesizer CurrentSynthesizer;
@@ -75,14 +75,16 @@ namespace DockerForm
 
         // Threading vars
         private static Thread ThreadGPU, ThreadProfile;
-        private static ConcurrentDictionary<int, string> GameProcesses = new ConcurrentDictionary<int, string>();
+        private static ManagementEventWatcher startWatcher;
+        private static ManagementEventWatcher stopWatcher;
+        private static ConcurrentDictionary<int, string> GameProcesses;
 
         // PowerProfile vars
-        public static ConcurrentDictionary<Guid, PowerProfile> ProfileDB = new ConcurrentDictionary<Guid, PowerProfile>();
-        public static PowerProfile CurrentProfile = new PowerProfile();
+        public static ConcurrentDictionary<Guid, PowerProfile> ProfileDB;
+        public static PowerProfile CurrentProfile;
 
         // TaskManager vars
-        private static TaskService CurrentTask;
+        private static Task CurrentTask;
         private const string taskName = "ThunderboltSwitch";
 
         [DllImport("user32.dll")]
@@ -274,7 +276,8 @@ namespace DockerForm
         {
             string content = string.Format(CurrentResource.GetString("WatcherDispose"), "startWatcher");
             LogManager.UpdateLog(content);
-            StartMonitoringProcessCreation();
+            if(MonitorProcesses)
+                StartMonitoringProcessCreation();
         }
 
         static void stopWatch_EventArrived(object sender, EventArrivedEventArgs e)
@@ -335,7 +338,8 @@ namespace DockerForm
         {
             string content = string.Format(CurrentResource.GetString("WatcherDispose"), "stopWatcher");
             LogManager.UpdateLog(content);
-            StartMonitoringProcessTermination();
+            if(MonitorProcesses)
+                StartMonitoringProcessTermination();
         }
 
         public static string GetCurrentState(DockerGame game)
@@ -866,6 +870,24 @@ namespace DockerForm
             MonitorHardware = Properties.Settings.Default.MonitorHardware;
             PlaySound = Properties.Settings.Default.PlaySound;
             SpeechSynthesizer = Properties.Settings.Default.SpeechSynthesizer;
+
+            if (Properties.Settings.Default.MonitorProcesses)
+            {
+                StartMonitoringProcessCreation();
+                StartMonitoringProcessTermination();
+            }
+            else
+            {
+                StopMonitoringProcessCreation();
+                StopMonitoringProcessTermination();
+            }
+
+            if (Properties.Settings.Default.MonitorProfiles)
+                StartMonitoringProfils();
+            else
+                StopMonitoringProfils();
+
+            UpdateTask();
         }
 
         private List<Keys> KeyboardHookTriggers;
@@ -901,11 +923,16 @@ namespace DockerForm
             // initialize vars
             CurrentForm = this;
             CurrentCulture = CultureInfo.CurrentCulture;
-            CurrentTask = new TaskService();
             CurrentCPU = new CPU();
-
             CurrentSynthesizer = new SpeechSynthesizer();
             CurrentSynthesizer.SetOutputToDefaultAudioDevice();
+            
+            GameProcesses = new ConcurrentDictionary<int, string>();
+            ProfileDB = new ConcurrentDictionary<Guid, PowerProfile>();
+            CurrentProfile = new PowerProfile();
+            VideoControllers = new Dictionary<Type, VideoController>();
+
+            ThreadGPU = new Thread(MonitorThread);
 
             CurrentForm.CurrentTimer.Tick += new EventHandler(myTimer_Tick);
 
@@ -951,9 +978,20 @@ namespace DockerForm
             // configurable settings
             settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             settingsToolStripMenuItem.AutoToolTip = true;
+
+            // read processor details
+            CurrentCPU.Initialise();
+            string content = string.Format(CurrentResource.GetString("DetectionCPU"), CurrentCPU.Name, CurrentCPU.Manuf);
+            LogManager.UpdateLog(content);
+
+            // update Settings
+            DefineTask();
             UpdateSettings();
 
-            // position and size settings
+            // update Database
+            UpdateGameList();
+
+            // update Position and Size
             imageList1.ImageSize = new Size(Properties.Settings.Default.ImageWidth, Properties.Settings.Default.ImageHeight);
             imageList2.ImageSize = new Size(Properties.Settings.Default.SmallImageWidth, Properties.Settings.Default.SmallImageHeight);
             Location = new Point(Properties.Settings.Default.MainWindowX, Properties.Settings.Default.MainWindowY);
@@ -964,7 +1002,7 @@ namespace DockerForm
             columnPlayed.Width = Properties.Settings.Default.ColumnPlayedWidth;
             columnSettings.Width = Properties.Settings.Default.ColumnSettingsWidth;
 
-            switch(Properties.Settings.Default.GameListStyle)
+            switch (Properties.Settings.Default.GameListStyle)
             {
                 case "List":
                     GameListView.View = View.List; break;
@@ -979,56 +1017,52 @@ namespace DockerForm
                     GameListView.View = View.Tile; break;
             }
 
-            if (MinimizeOnStartup)
+            if (Properties.Settings.Default.MinimizeOnStartup)
             {
                 WindowState = FormWindowState.Minimized;
                 ShowInTaskbar = false;
             }
+        }
 
-            Task myTask = CurrentTask.FindTask(taskName);
-            if (myTask == null)
+        private static void DefineTask()
+        {
+            TaskService TaskServ = new TaskService();
+            CurrentTask = TaskServ.FindTask(taskName);
+
+            TaskDefinition td = TaskService.Instance.NewTask();
+            td.Principal.RunLevel = TaskRunLevel.Highest;
+            td.Principal.LogonType = TaskLogonType.InteractiveToken;
+            td.Settings.DisallowStartIfOnBatteries = false;
+            td.Settings.StopIfGoingOnBatteries = false;
+            td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
+            td.Settings.Enabled = false;
+            td.Triggers.Add(new LogonTrigger());
+            td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
+            CurrentTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
+
+            LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerCreate"), taskName));
+        }
+
+        public static void UpdateTask()
+        {
+            if (CurrentTask == null)
+                return;
+
+            if (BootOnStartup && !CurrentTask.Enabled)
             {
-                TaskDefinition td = TaskService.Instance.NewTask();
-                td.Principal.RunLevel = TaskRunLevel.Highest;
-                td.Principal.LogonType = TaskLogonType.InteractiveToken;
-                td.Settings.DisallowStartIfOnBatteries = false;
-                td.Settings.StopIfGoingOnBatteries = false;
-                td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-                td.Settings.Enabled = false;
-                td.Triggers.Add(new LogonTrigger());
-                td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
-                myTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
-
-                LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerCreate"), taskName));
+                CurrentTask.Enabled = true;
+                LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerEnable"), taskName));
             }
-
-            if (myTask != null)
+            else if (!BootOnStartup && CurrentTask.Enabled)
             {
-                if (BootOnStartup && !myTask.Enabled)
-                {
-                    myTask.Enabled = true;
-                    LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerEnable"), taskName));
-                }
-                else if (!BootOnStartup && myTask.Enabled)
-                {
-                    myTask.Enabled = false;
-                    LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerDisable"), taskName));
-                }
+                CurrentTask.Enabled = false;
+                LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerDisable"), taskName));
             }
-
-            // read processor details
-            CurrentCPU.Initialise();
-
-            string content = string.Format(CurrentResource.GetString("DetectionCPU"), CurrentCPU.Name, CurrentCPU.Manuf);
-            LogManager.UpdateLog(content);
-
-            // update Database
-            UpdateGameList();
         }
 
         private static void StartMonitoringProcessCreation()
         {
-            ManagementEventWatcher startWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStartTrace");
+            startWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStartTrace");
             startWatcher.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
             startWatcher.Stopped += new StoppedEventHandler(startWatch_Stopped);
             startWatcher.Disposed += new EventHandler(startWatch_Disposed);
@@ -1040,7 +1074,7 @@ namespace DockerForm
 
         private static void StartMonitoringProcessTermination()
         {
-            ManagementEventWatcher stopWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStopTrace");
+            stopWatcher = new ManagementEventWatcher("SELECT * FROM Win32_ProcessStopTrace");
             stopWatcher.EventArrived += new EventArrivedEventHandler(stopWatch_EventArrived);
             stopWatcher.Stopped += new StoppedEventHandler(stopWatch_Stopped);
             stopWatcher.Disposed += new EventHandler(stopWatch_Disposed);
@@ -1050,27 +1084,43 @@ namespace DockerForm
             LogManager.UpdateLog(content);
         }
 
+        private static void StopMonitoringProcessCreation()
+        {
+            if (startWatcher != null)
+                startWatcher.Stop();
+        }
+
+        private static void StopMonitoringProcessTermination()
+        {
+            if(stopWatcher != null)
+                stopWatcher.Stop();
+        }
+
+        public static void StartMonitoringProfils()
+        {
+            if (ThreadProfile != null)
+                return;
+
+            ThreadProfile = new Thread(ProfilesMonitorThread);
+            ThreadProfile.Start();
+        }
+
+        public static void StopMonitoringProfils()
+        {
+            if (ThreadProfile == null)
+                ThreadProfile.Abort();
+        }
+
         private void Form1_Shown(object sender, System.EventArgs e)
         {
-            // Monitor processes
-            if (MonitorProcesses)
-            {
-                StartMonitoringProcessCreation();
-                StartMonitoringProcessTermination();
-            }
-
             // update ProfileDB
             UpdateProfiles();
 
             // Monitor power profiles
             if (MonitorProfiles)
-            {
-                ThreadProfile = new Thread(ProfilesMonitorThread);
-                ThreadProfile.Start();
-            }
+                StartMonitoringProfils();
 
             // search for GPUs
-            ThreadGPU = new Thread(MonitorThread);
             ThreadGPU.Start();
 
             // Monitor Power Status
