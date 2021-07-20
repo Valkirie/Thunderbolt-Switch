@@ -96,6 +96,7 @@ namespace DockerForm
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBoxPowerProfileSpecific = new System.Windows.Forms.CheckBox();
             this.SettingMenuStrip.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GameIcon)).BeginInit();
@@ -412,6 +413,7 @@ namespace DockerForm
             // 
             // groupBoxGeneral
             // 
+            this.groupBoxGeneral.Controls.Add(this.checkBoxPowerProfileSpecific);
             this.groupBoxGeneral.Controls.Add(this.checkBoxPowerSpecific);
             this.groupBoxGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxGeneral.Location = new System.Drawing.Point(3, 3);
@@ -683,6 +685,17 @@ namespace DockerForm
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
+            // checkBoxPowerProfileSpecific
+            // 
+            this.checkBoxPowerProfileSpecific.AutoSize = true;
+            this.checkBoxPowerProfileSpecific.Location = new System.Drawing.Point(6, 47);
+            this.checkBoxPowerProfileSpecific.Name = "checkBoxPowerProfileSpecific";
+            this.checkBoxPowerProfileSpecific.Size = new System.Drawing.Size(209, 19);
+            this.checkBoxPowerProfileSpecific.TabIndex = 1;
+            this.checkBoxPowerProfileSpecific.Text = "Use power-profile-specific settings";
+            this.checkBoxPowerProfileSpecific.UseVisualStyleBackColor = true;
+            this.checkBoxPowerProfileSpecific.CheckedChanged += new System.EventHandler(this.checkBoxPowerProfileSpecific_CheckedChanged);
+            // 
             // GameProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -789,5 +802,6 @@ namespace DockerForm
         private Label label6;
         private Label label5;
         private ColumnHeader PowerProfileHeader6;
+        private CheckBox checkBoxPowerProfileSpecific;
     }
 }

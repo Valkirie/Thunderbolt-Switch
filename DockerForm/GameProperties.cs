@@ -23,6 +23,9 @@ namespace DockerForm
 
         // Game vars
         DockerGame gGame;
+        
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
 
         public bool GetIsReady()
         {
@@ -48,12 +51,9 @@ namespace DockerForm
 
         void TabControl_HandleCreated(object sender, System.EventArgs e)
         {
-            // Send TCM_SETMINTABWIDTH
             SendMessage((sender as TabControl).Handle, 0x1300 + 49, IntPtr.Zero, (IntPtr)4);
         }
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
-
+        
         public GameProperties(MainForm form)
         {
             InitializeComponent();
@@ -103,6 +103,7 @@ namespace DockerForm
 
             // General tab
             checkBoxPowerSpecific.Checked = gGame.PowerSpecific;
+            checkBoxPowerProfileSpecific.Checked = gGame.PowerProfileSpecific;
 
             // Power Profiles tab
             groupBoxPowerProfile.Enabled = MainForm.MonitorProcesses;
@@ -597,9 +598,15 @@ namespace DockerForm
             gGame.PowerSpecific = checkBoxPowerSpecific.Checked;
         }
 
+        private void checkBoxPowerProfileSpecific_CheckedChanged(object sender, EventArgs e)
+        {
+            gGame.PowerProfileSpecific = checkBoxPowerProfileSpecific.Checked;
+        }
+
         private void Settings_Load(object sender, EventArgs e)
         {
-            toolTip1.SetToolTip(checkBoxPowerSpecific, "Use specific settings when device power status changes (on battery, plugged in)");
+            toolTip1.SetToolTip(checkBoxPowerSpecific, "Use specific game settings based on device power status (on battery, plugged in)");
+            toolTip1.SetToolTip(checkBoxPowerProfileSpecific, "Use specific game settings based on device power profile");
         }
 
         private void ProfilesList_SelectedIndexChanged(object sender, EventArgs e)

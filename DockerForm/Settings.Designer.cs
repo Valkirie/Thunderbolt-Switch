@@ -43,6 +43,9 @@ namespace DockerForm
             this.checkBoxSaveOnExit = new System.Windows.Forms.CheckBox();
             this.checkBoxMonitorProcesses = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.comboBoxLanguage = new System.Windows.Forms.ComboBox();
+            this.checkBoxSpeechSynthesizer = new System.Windows.Forms.CheckBox();
+            this.checkBoxPlaySound = new System.Windows.Forms.CheckBox();
             this.checkBoxToastNotifications = new System.Windows.Forms.CheckBox();
             this.checkBoxBootOnStartup = new System.Windows.Forms.CheckBox();
             this.groupBoxGeneral = new System.Windows.Forms.GroupBox();
@@ -76,8 +79,8 @@ namespace DockerForm
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBoxPlaySound = new System.Windows.Forms.CheckBox();
-            this.checkBoxSpeechSynthesizer = new System.Windows.Forms.CheckBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.comboBoxVoices = new System.Windows.Forms.ComboBox();
             this.tabControlSettings.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -131,7 +134,7 @@ namespace DockerForm
             this.groupBox2.Controls.Add(this.checkBoxSaveOnExit);
             this.groupBox2.Controls.Add(this.checkBoxMonitorProcesses);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Location = new System.Drawing.Point(3, 190);
+            this.groupBox2.Location = new System.Drawing.Point(3, 223);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(770, 116);
             this.groupBox2.TabIndex = 2;
@@ -201,6 +204,9 @@ namespace DockerForm
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.comboBoxVoices);
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.comboBoxLanguage);
             this.groupBox1.Controls.Add(this.checkBoxSpeechSynthesizer);
             this.groupBox1.Controls.Add(this.checkBoxPlaySound);
             this.groupBox1.Controls.Add(this.checkBoxToastNotifications);
@@ -208,15 +214,50 @@ namespace DockerForm
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(3, 73);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(770, 117);
+            this.groupBox1.Size = new System.Drawing.Size(770, 150);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Interface";
             // 
+            // comboBoxLanguage
+            // 
+            this.comboBoxLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxLanguage.FormattingEnabled = true;
+            this.comboBoxLanguage.Items.AddRange(new object[] {
+            "en-US",
+            "fr-FR"});
+            this.comboBoxLanguage.Location = new System.Drawing.Point(67, 19);
+            this.comboBoxLanguage.Name = "comboBoxLanguage";
+            this.comboBoxLanguage.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxLanguage.TabIndex = 4;
+            this.comboBoxLanguage.SelectedIndexChanged += new System.EventHandler(this.comboBoxLanguage_SelectedIndexChanged);
+            // 
+            // checkBoxSpeechSynthesizer
+            // 
+            this.checkBoxSpeechSynthesizer.AutoSize = true;
+            this.checkBoxSpeechSynthesizer.Location = new System.Drawing.Point(6, 119);
+            this.checkBoxSpeechSynthesizer.Name = "checkBoxSpeechSynthesizer";
+            this.checkBoxSpeechSynthesizer.Size = new System.Drawing.Size(233, 17);
+            this.checkBoxSpeechSynthesizer.TabIndex = 3;
+            this.checkBoxSpeechSynthesizer.Text = "Use speech synthesizer to read notifications";
+            this.checkBoxSpeechSynthesizer.UseVisualStyleBackColor = true;
+            this.checkBoxSpeechSynthesizer.CheckedChanged += new System.EventHandler(this.checkBoxReadNotifications_CheckedChanged);
+            // 
+            // checkBoxPlaySound
+            // 
+            this.checkBoxPlaySound.AutoSize = true;
+            this.checkBoxPlaySound.Location = new System.Drawing.Point(6, 96);
+            this.checkBoxPlaySound.Name = "checkBoxPlaySound";
+            this.checkBoxPlaySound.Size = new System.Drawing.Size(219, 17);
+            this.checkBoxPlaySound.TabIndex = 2;
+            this.checkBoxPlaySound.Text = "Play a sound on power profile application";
+            this.checkBoxPlaySound.UseVisualStyleBackColor = true;
+            this.checkBoxPlaySound.CheckedChanged += new System.EventHandler(this.checkBoxPlaySound_CheckedChanged);
+            // 
             // checkBoxToastNotifications
             // 
             this.checkBoxToastNotifications.AutoSize = true;
-            this.checkBoxToastNotifications.Location = new System.Drawing.Point(6, 45);
+            this.checkBoxToastNotifications.Location = new System.Drawing.Point(6, 73);
             this.checkBoxToastNotifications.Name = "checkBoxToastNotifications";
             this.checkBoxToastNotifications.Size = new System.Drawing.Size(166, 17);
             this.checkBoxToastNotifications.TabIndex = 1;
@@ -227,7 +268,7 @@ namespace DockerForm
             // checkBoxBootOnStartup
             // 
             this.checkBoxBootOnStartup.AutoSize = true;
-            this.checkBoxBootOnStartup.Location = new System.Drawing.Point(6, 22);
+            this.checkBoxBootOnStartup.Location = new System.Drawing.Point(6, 50);
             this.checkBoxBootOnStartup.Name = "checkBoxBootOnStartup";
             this.checkBoxBootOnStartup.Size = new System.Drawing.Size(309, 17);
             this.checkBoxBootOnStartup.TabIndex = 0;
@@ -631,27 +672,25 @@ namespace DockerForm
             this.label1.Text = "TurboBoostLongPowerMax (W)";
             this.toolTip1.SetToolTip(this.label1, "Turbo Boost Long Power Max - for sustained turbo operation.");
             // 
-            // checkBoxPlaySound
+            // label9
             // 
-            this.checkBoxPlaySound.AutoSize = true;
-            this.checkBoxPlaySound.Location = new System.Drawing.Point(6, 68);
-            this.checkBoxPlaySound.Name = "checkBoxPlaySound";
-            this.checkBoxPlaySound.Size = new System.Drawing.Size(219, 17);
-            this.checkBoxPlaySound.TabIndex = 2;
-            this.checkBoxPlaySound.Text = "Play a sound on power profile application";
-            this.checkBoxPlaySound.UseVisualStyleBackColor = true;
-            this.checkBoxPlaySound.CheckedChanged += new System.EventHandler(this.checkBoxPlaySound_CheckedChanged);
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 22);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(55, 13);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "Language";
             // 
-            // checkBoxReadNotifications
+            // comboBoxVoices
             // 
-            this.checkBoxSpeechSynthesizer.AutoSize = true;
-            this.checkBoxSpeechSynthesizer.Location = new System.Drawing.Point(6, 91);
-            this.checkBoxSpeechSynthesizer.Name = "checkBoxReadNotifications";
-            this.checkBoxSpeechSynthesizer.Size = new System.Drawing.Size(233, 17);
-            this.checkBoxSpeechSynthesizer.TabIndex = 3;
-            this.checkBoxSpeechSynthesizer.Text = "Use speech synthesizer to read notifications";
-            this.checkBoxSpeechSynthesizer.UseVisualStyleBackColor = true;
-            this.checkBoxSpeechSynthesizer.CheckedChanged += new System.EventHandler(this.checkBoxReadNotifications_CheckedChanged);
+            this.comboBoxVoices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxVoices.FormattingEnabled = true;
+            this.comboBoxVoices.Location = new System.Drawing.Point(194, 19);
+            this.comboBoxVoices.Name = "comboBoxVoices";
+            this.comboBoxVoices.Size = new System.Drawing.Size(270, 21);
+            this.comboBoxVoices.Sorted = true;
+            this.comboBoxVoices.TabIndex = 6;
+            this.comboBoxVoices.SelectedIndexChanged += new System.EventHandler(this.comboBoxVoices_SelectedIndexChanged);
             // 
             // Settings
             // 
@@ -745,5 +784,8 @@ namespace DockerForm
         private System.Windows.Forms.GroupBox groupBoxPowerBalance;
         private CheckBox checkBoxSpeechSynthesizer;
         private CheckBox checkBoxPlaySound;
+        private ComboBox comboBoxLanguage;
+        private Label label9;
+        private ComboBox comboBoxVoices;
     }
 }

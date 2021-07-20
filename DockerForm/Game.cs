@@ -88,6 +88,7 @@ namespace DockerForm
         public Dictionary<Guid, PowerProfile> PowerProfiles = new Dictionary<Guid, PowerProfile>();
 
         public bool PowerSpecific = false;  // Use power-specific settings (on battery, plugged in)
+        public bool PowerProfileSpecific = false;  // Use power-profile-specific settings
 
         [NonSerialized()] public ErrorCode ErrorCode = ErrorCode.None;
         [NonSerialized()] public bool IsRunning = false;

@@ -27,20 +27,21 @@ namespace DockerForm
     {
         // Global vars
         public static bool prevDockStatus = false;
-        public static bool DockStatus = false;
-        public static bool IsFirstBoot = true;
+        public static bool prevPowerStatus = false;
+        public static int prevScreenCount;
+
         public static bool IsHardwareNew = false;
+        public static bool IsPowerNew = false;
+        public static bool IsScreenNew = false;
+
+        public static bool DockStatus = false;              // is device plugged to an external GPU
+        public static bool PowerStatus;                     // is device plugged or running on battery
+        public static int ScreenCount;
+
+        public static bool IsFirstBoot = true;
         public static bool IsHardwarePending = true;
         public static bool IsPowerPending = true;
         public static bool IsScreenPending = true;
-        public static VideoController CurrentController;
-        public static bool prevPowerStatus;
-        public static bool PowerStatus;
-        public static bool IsPowerNew = false;
-        public static int prevScreenCount;
-        public static int ScreenCount;
-        public static bool IsScreenNew = false;
-        public static bool IsRunning = true;
 
         // Configurable vars
         public static bool MinimizeOnStartup = false;
@@ -60,9 +61,10 @@ namespace DockerForm
 
         // Devices vars
         public static Dictionary<Type, VideoController> VideoControllers;
+        public static VideoController CurrentController;
         public static CPU CurrentCPU;
-        private static GlobalKeyboardHook _globalKeyboardHook;
-        private static SpeechSynthesizer CurrentSynthesizer;
+        static GlobalKeyboardHook _globalKeyboardHook;
+        public static SpeechSynthesizer CurrentSynthesizer;
 
         // Folder vars
         public static string path_application, path_database, path_dependencies, path_profiles;
@@ -70,7 +72,7 @@ namespace DockerForm
 
         // Form vars
         private static MainForm CurrentForm;
-        private static CultureInfo CurrentCulture;
+        public static CultureInfo CurrentCulture;
         public static ResourceManager CurrentResource;
 
         // Threading vars
@@ -78,6 +80,7 @@ namespace DockerForm
         private static ManagementEventWatcher startWatcher;
         private static ManagementEventWatcher stopWatcher;
         private static ConcurrentDictionary<int, string> GameProcesses;
+        public static bool IsRunning = true;
 
         // PowerProfile vars
         public static ConcurrentDictionary<Guid, PowerProfile> ProfileDB;
@@ -344,12 +347,15 @@ namespace DockerForm
 
         public static string GetCurrentState(DockerGame game)
         {
+            // Intel(R) Iris(R) Plus Graphics
             string state = CurrentController.Name;
 
-            // Intel(R) Iris(R) Plus Graphics
             // Intel(R) Iris(R) Plus Graphics (on battery)
             if (!DockStatus && !PowerStatus && game.PowerSpecific)
                 state += " (" + GetCurrentPower() + ")";
+            // Intel(R) Iris(R) Plus Graphics (...)
+            else if (game.PowerProfileSpecific)
+                state += " (" + CurrentProfile.GetName() + ")";
 
             return state;
         }
@@ -855,6 +861,33 @@ namespace DockerForm
             return IGDBListLength;
         }
 
+        public static void UpdateCurrentCulture()
+        {
+            string Culture = Properties.Settings.Default.Culture;
+
+            switch (Culture)
+            {
+                default:
+                    CurrentCulture = CultureInfo.CurrentCulture;
+                    CurrentResource = new ResourceManager($"DockerForm.Resources.en-US", Assembly.GetExecutingAssembly());
+                    break;
+                // supported languages
+                case "en-US":
+                case "fr-FR":
+                    CurrentCulture = new CultureInfo(Culture);
+                    CurrentResource = new ResourceManager($"DockerForm.Resources.{CurrentCulture.Name}", Assembly.GetExecutingAssembly());
+                    break;
+            }
+
+            try
+            {
+                string CultureVoice = Properties.Settings.Default.CultureVoice;
+                CultureVoice = CultureVoice.Split('-')[0].TrimEnd();
+                CurrentSynthesizer.SelectVoice(CultureVoice);
+            }
+            catch {}
+        }
+
         public static void UpdateSettings()
         {
             MinimizeOnStartup = Properties.Settings.Default.MinimizeOnStartup;
@@ -870,6 +903,7 @@ namespace DockerForm
             MonitorHardware = Properties.Settings.Default.MonitorHardware;
             PlaySound = Properties.Settings.Default.PlaySound;
             SpeechSynthesizer = Properties.Settings.Default.SpeechSynthesizer;
+            UpdateCurrentCulture();
 
             if (Properties.Settings.Default.MonitorProcesses)
             {
@@ -922,11 +956,13 @@ namespace DockerForm
 
             // initialize vars
             CurrentForm = this;
-            CurrentCulture = CultureInfo.CurrentCulture;
             CurrentCPU = new CPU();
             CurrentSynthesizer = new SpeechSynthesizer();
             CurrentSynthesizer.SetOutputToDefaultAudioDevice();
-            
+
+            // culture settings
+            UpdateCurrentCulture();
+
             GameProcesses = new ConcurrentDictionary<int, string>();
             ProfileDB = new ConcurrentDictionary<Guid, PowerProfile>();
             CurrentProfile = new PowerProfile();
@@ -961,19 +997,6 @@ namespace DockerForm
 
             if (!Directory.Exists(path_profiles))
                 Directory.CreateDirectory(path_profiles);
-
-            // language settings
-            switch(CurrentCulture.Name)
-            {
-                case "fr-FR":
-                    CurrentResource = new ResourceManager($"DockerForm.Resources.{CurrentCulture.Name}", Assembly.GetExecutingAssembly());
-                    break;
-
-                default:
-                case "en-US":
-                    CurrentResource = new ResourceManager($"DockerForm.Resources.en-US", Assembly.GetExecutingAssembly());
-                    break;
-            }
 
             // configurable settings
             settingsToolStripMenuItem.ToolTipText = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;

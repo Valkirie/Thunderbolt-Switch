@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,7 @@ namespace DockerForm
     public partial class Settings : Form
     {
         Dictionary<Guid, PowerProfile> Profiles = new Dictionary<Guid, PowerProfile>();
+        bool Initialized = false;
 
         public Settings()
         {
@@ -31,6 +33,18 @@ namespace DockerForm
             checkBoxMonitorPowerProfiles.Checked = Properties.Settings.Default.MonitorProfiles;
             checkBoxPlaySound.Checked = Properties.Settings.Default.PlaySound;
             checkBoxSpeechSynthesizer.Checked = Properties.Settings.Default.SpeechSynthesizer;
+
+            comboBoxVoices.Items.Clear();
+            foreach (InstalledVoice voice in MainForm.CurrentSynthesizer.GetInstalledVoices())
+            {
+                VoiceInfo info = voice.VoiceInfo;
+                string voiceline = $"{info.Name} - {info.Culture}";
+                comboBoxVoices.Items.Add(voiceline);
+            }
+            comboBoxVoices.SelectedItem = Properties.Settings.Default.CultureVoice;
+            comboBoxLanguage.SelectedItem = Properties.Settings.Default.Culture;
+
+            Initialized = true;
         }
 
         private void checkBoxPowerSpecific_CheckedChanged(object sender, EventArgs e)
@@ -363,6 +377,30 @@ namespace DockerForm
             string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             FileInfo fileinfo = new FileInfo(path);
             Process.Start(fileinfo.DirectoryName);
+        }
+
+        private void comboBoxLanguage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // change language settings
+            if (Properties.Settings.Default.Culture == comboBoxLanguage.Text)
+                return;
+
+            Properties.Settings.Default.Culture = comboBoxLanguage.Text;
+
+            for (int i = 0; i < comboBoxVoices.Items.Count; i++)
+            {
+                string value = comboBoxVoices.GetItemText(comboBoxVoices.Items[i]);
+                if (value.Contains(comboBoxLanguage.Text))
+                    comboBoxVoices.SelectedItem = value;
+            }
+
+            if (Initialized)
+                MessageBox.Show("The software needs to restart to apply your language settings to the UI.");
+        }
+
+        private void comboBoxVoices_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.CultureVoice = comboBoxVoices.Text;
         }
     }
 }
