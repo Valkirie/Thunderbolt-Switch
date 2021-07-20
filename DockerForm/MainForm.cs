@@ -1130,7 +1130,7 @@ namespace DockerForm
 
         public static void StopMonitoringProfils()
         {
-            if (ThreadProfile == null)
+            if (ThreadProfile != null)
                 ThreadProfile.Abort();
         }
 
