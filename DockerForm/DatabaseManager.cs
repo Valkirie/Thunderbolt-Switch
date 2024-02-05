@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.VisualBasic;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
@@ -80,10 +81,10 @@ namespace DockerForm
         {
             string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
             string file = Path.GetFileName(filename);
-
+            string gamefile = game.Uri + '\\' + game.Executable;
             if (setting.Type == SettingsType.File)
             {
-                if (!File.Exists(filename))
+                if (!File.Exists(filename) && !File.Exists(gamefile)) //If Game No Longer Exist 
                 {
                     setting.IsEnabled = false;
                     string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsDisabled"), game.Name, file, path_dest, "file");
@@ -92,7 +93,7 @@ namespace DockerForm
                 }
 
                 // 1. Save current settings
-                if (updateDB)
+                if (updateDB && File.Exists(filename))
                 {
                     setting.data[path_game] = File.ReadAllBytes(filename);
                     string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, file, path_game, "file");
@@ -102,17 +103,21 @@ namespace DockerForm
                 // 2. Restore proper settings
                 if (updateFILE)
                 {
-                    if (setting.data.ContainsKey(path_dest))
-                    {
-                        File.WriteAllBytes(filename, setting.data[path_dest]);
-                        File.SetLastWriteTime(filename, game.LastCheck);
-                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsUpdate"), game.Name, file, path_dest, "file");
-                        LogManager.UpdateLog(content);
-                    }
+                    if (setting.removeunused != null && setting.removeunused.ContainsKey(path_dest) && setting.removeunused[path_dest] == true) File.Delete(filename);
                     else
                     {
-                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsSkipped"), game.Name, file, path_dest, "file");
-                        LogManager.UpdateLog(content);
+                        if (setting.data.ContainsKey(path_dest))
+                        {
+                            File.WriteAllBytes(filename, setting.data[path_dest]);
+                            File.SetLastWriteTime(filename, game.LastCheck);
+                            string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsUpdate"), game.Name, file, path_dest, "file");
+                            LogManager.UpdateLog(content);
+                        }
+                        else
+                        {
+                            string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsSkipped"), game.Name, file, path_dest, "file");
+                            LogManager.UpdateLog(content);
+                        }
                     }
                 }
             }
@@ -122,7 +127,7 @@ namespace DockerForm
                 string tempfile = Path.Combine(MainForm.path_application, "temp.reg");
                 RegistryManager.ExportKey(filename, tempfile);
 
-                if (!File.Exists(tempfile))
+                if (!File.Exists(tempfile) && !File.Exists(gamefile))
                 {
                     setting.IsEnabled = false;
                     string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsDisabled"), game.Name, filename, path_dest, "registry entry");
@@ -246,14 +251,15 @@ namespace DockerForm
                     byte[] fileBytes = null, fileDBBytes = null;
 
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
+                    string gamefile = game.Uri + '\\' + game.Executable;
 
-                    if (!File.Exists(filename))
+                    if (!File.Exists(filename) && !File.Exists(gamefile))
                     {
                         setting.IsEnabled = false;
                         continue;
                     }
 
-                    if (setting.Type == SettingsType.File)
+                    if (setting.Type == SettingsType.File && File.Exists(filename))
                     {
                         file = new FileInfo(filename);
 

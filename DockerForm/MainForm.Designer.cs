@@ -86,6 +86,7 @@ namespace DockerForm
             // 
             // menuStrip1
             // 
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
@@ -93,7 +94,7 @@ namespace DockerForm
             this.settingsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(924, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1109, 43);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -102,13 +103,13 @@ namespace DockerForm
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 37);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(93, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(141, 34);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -118,13 +119,13 @@ namespace DockerForm
             this.findAGameToolStripMenuItem,
             this.automaticDetectionToolStripMenuItem});
             this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
-            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(102, 37);
             this.databaseToolStripMenuItem.Text = "Database";
             // 
             // findAGameToolStripMenuItem
             // 
             this.findAGameToolStripMenuItem.Name = "findAGameToolStripMenuItem";
-            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.findAGameToolStripMenuItem.Size = new System.Drawing.Size(277, 34);
             this.findAGameToolStripMenuItem.Text = "Select Manually";
             this.findAGameToolStripMenuItem.ToolTipText = "Select a game to add to your library.";
             this.findAGameToolStripMenuItem.Click += new System.EventHandler(this.findAGameToolStripMenuItem_Click);
@@ -138,7 +139,7 @@ namespace DockerForm
             this.battleNetToolStripMenuItem,
             this.steamToolStripMenuItem});
             this.automaticDetectionToolStripMenuItem.Name = "automaticDetectionToolStripMenuItem";
-            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.automaticDetectionToolStripMenuItem.Size = new System.Drawing.Size(277, 34);
             this.automaticDetectionToolStripMenuItem.Text = "Automatic Detection";
             this.automaticDetectionToolStripMenuItem.ToolTipText = "We will search all supported games and allow you to select two that you wish to a" +
     "dd.";
@@ -146,52 +147,53 @@ namespace DockerForm
             // UniversalMenuItem3
             // 
             this.UniversalMenuItem3.Name = "UniversalMenuItem3";
-            this.UniversalMenuItem3.Size = new System.Drawing.Size(155, 22);
+            this.UniversalMenuItem3.Size = new System.Drawing.Size(236, 34);
             this.UniversalMenuItem3.Text = "Universal";
             this.UniversalMenuItem3.Click += new System.EventHandler(this.UniversalMenuItem3_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(152, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(233, 6);
             // 
             // microsoftStoreToolStripMenuItem
             // 
             this.microsoftStoreToolStripMenuItem.Name = "microsoftStoreToolStripMenuItem";
-            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.microsoftStoreToolStripMenuItem.Size = new System.Drawing.Size(236, 34);
             this.microsoftStoreToolStripMenuItem.Text = "Microsoft Store";
             this.microsoftStoreToolStripMenuItem.Click += new System.EventHandler(this.microsoftStoreToolStripMenuItem_Click);
             // 
             // battleNetToolStripMenuItem
             // 
             this.battleNetToolStripMenuItem.Name = "battleNetToolStripMenuItem";
-            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.battleNetToolStripMenuItem.Size = new System.Drawing.Size(236, 34);
             this.battleNetToolStripMenuItem.Text = "Battle.net";
             this.battleNetToolStripMenuItem.Click += new System.EventHandler(this.battleNetToolStripMenuItem_Click);
             // 
             // steamToolStripMenuItem
             // 
             this.steamToolStripMenuItem.Name = "steamToolStripMenuItem";
-            this.steamToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.steamToolStripMenuItem.Size = new System.Drawing.Size(236, 34);
             this.steamToolStripMenuItem.Text = "Steam";
             this.steamToolStripMenuItem.Click += new System.EventHandler(this.steamToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(92, 37);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // menuStrip2
             // 
             this.menuStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.menuStrip2.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undockedToolStripMenuItem});
-            this.menuStrip2.Location = new System.Drawing.Point(0, 559);
+            this.menuStrip2.Location = new System.Drawing.Point(0, 666);
             this.menuStrip2.Name = "menuStrip2";
-            this.menuStrip2.Size = new System.Drawing.Size(924, 32);
+            this.menuStrip2.Size = new System.Drawing.Size(1109, 43);
             this.menuStrip2.TabIndex = 2;
             this.menuStrip2.Text = "menuStrip2";
             // 
@@ -199,7 +201,7 @@ namespace DockerForm
             // 
             this.undockedToolStripMenuItem.Image = global::DockerForm.Properties.Resources.intel;
             this.undockedToolStripMenuItem.Name = "undockedToolStripMenuItem";
-            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(95, 28);
+            this.undockedToolStripMenuItem.Size = new System.Drawing.Size(128, 37);
             this.undockedToolStripMenuItem.Text = "Reading...";
             // 
             // contextMenuStrip1
@@ -216,61 +218,61 @@ namespace DockerForm
             this.toolStripSeparator2,
             this.navigateToIGDBEntryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(198, 154);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(270, 214);
             // 
             // toolStripStartItem
             // 
             this.toolStripStartItem.Name = "toolStripStartItem";
-            this.toolStripStartItem.Size = new System.Drawing.Size(197, 22);
+            this.toolStripStartItem.Size = new System.Drawing.Size(269, 32);
             this.toolStripStartItem.Text = "Start";
             this.toolStripStartItem.Click += new System.EventHandler(this.toolStripStartItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(194, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(266, 6);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(269, 32);
             this.openToolStripMenuItem.Text = "Open Game location";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenGameFolder);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(197, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(269, 32);
             this.toolStripMenuItem1.Text = "Open Settings Location";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(194, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(266, 6);
             // 
             // removeTheGameToolStripMenuItem
             // 
             this.removeTheGameToolStripMenuItem.Name = "removeTheGameToolStripMenuItem";
-            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.removeTheGameToolStripMenuItem.Size = new System.Drawing.Size(269, 32);
             this.removeTheGameToolStripMenuItem.Text = "Remove Title";
             this.removeTheGameToolStripMenuItem.Click += new System.EventHandler(this.removeTheGameToolStripMenuItem_Click);
             // 
             // propertiesToolStripMenuItem
             // 
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(269, 32);
             this.propertiesToolStripMenuItem.Text = "Properties";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(194, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(266, 6);
             // 
             // navigateToIGDBEntryToolStripMenuItem
             // 
             this.navigateToIGDBEntryToolStripMenuItem.Name = "navigateToIGDBEntryToolStripMenuItem";
-            this.navigateToIGDBEntryToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.navigateToIGDBEntryToolStripMenuItem.Size = new System.Drawing.Size(269, 32);
             this.navigateToIGDBEntryToolStripMenuItem.Text = "Navigate to IGDB entry";
             this.navigateToIGDBEntryToolStripMenuItem.Click += new System.EventHandler(this.navigateToIGDBEntryToolStripMenuItem_Click);
             // 
@@ -290,23 +292,23 @@ namespace DockerForm
             this.toolStripSeparator3,
             this.exittoolStripStartItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(145, 54);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(188, 74);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(144, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(187, 32);
             this.toolStripMenuItem2.Text = "Power Profile";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(141, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(184, 6);
             // 
             // exittoolStripStartItem
             // 
             this.exittoolStripStartItem.Name = "exittoolStripStartItem";
-            this.exittoolStripStartItem.Size = new System.Drawing.Size(144, 22);
+            this.exittoolStripStartItem.Size = new System.Drawing.Size(187, 32);
             this.exittoolStripStartItem.Text = "Exit";
             this.exittoolStripStartItem.Click += new System.EventHandler(this.exittoolStripStartItem_Click);
             // 
@@ -331,11 +333,11 @@ namespace DockerForm
             this.GameListView.FullRowSelect = true;
             this.GameListView.HideSelection = false;
             this.GameListView.LargeImageList = this.imageList1;
-            this.GameListView.Location = new System.Drawing.Point(0, 24);
+            this.GameListView.Location = new System.Drawing.Point(0, 52);
             this.GameListView.Margin = new System.Windows.Forms.Padding(2);
             this.GameListView.MultiSelect = false;
             this.GameListView.Name = "GameListView";
-            this.GameListView.Size = new System.Drawing.Size(924, 535);
+            this.GameListView.Size = new System.Drawing.Size(1109, 606);
             this.GameListView.SmallImageList = this.imageList2;
             this.GameListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.GameListView.TabIndex = 9;
@@ -377,6 +379,7 @@ namespace DockerForm
             // 
             // contextMenuStrip3
             // 
+            this.contextMenuStrip3.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.styleToolStripMenuItem,
             this.syleIconsToolStripMenuItem,
@@ -384,41 +387,41 @@ namespace DockerForm
             this.styleDetailsToolStripMenuItem,
             this.styleTileToolStripMenuItem});
             this.contextMenuStrip3.Name = "contextMenuStrip3";
-            this.contextMenuStrip3.Size = new System.Drawing.Size(166, 114);
+            this.contextMenuStrip3.Size = new System.Drawing.Size(221, 164);
             this.contextMenuStrip3.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip3_Opening);
             // 
             // styleToolStripMenuItem
             // 
             this.styleToolStripMenuItem.Name = "styleToolStripMenuItem";
-            this.styleToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.styleToolStripMenuItem.Size = new System.Drawing.Size(220, 32);
             this.styleToolStripMenuItem.Text = "Style: List";
             this.styleToolStripMenuItem.Click += new System.EventHandler(this.styleToolStripMenuItem_Click);
             // 
             // syleIconsToolStripMenuItem
             // 
             this.syleIconsToolStripMenuItem.Name = "syleIconsToolStripMenuItem";
-            this.syleIconsToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.syleIconsToolStripMenuItem.Size = new System.Drawing.Size(220, 32);
             this.syleIconsToolStripMenuItem.Text = "Style: Large Icons";
             this.syleIconsToolStripMenuItem.Click += new System.EventHandler(this.syleIconsToolStripMenuItem_Click);
             // 
             // styleToolStripMenuItem1
             // 
             this.styleToolStripMenuItem1.Name = "styleToolStripMenuItem1";
-            this.styleToolStripMenuItem1.Size = new System.Drawing.Size(165, 22);
+            this.styleToolStripMenuItem1.Size = new System.Drawing.Size(220, 32);
             this.styleToolStripMenuItem1.Text = "Style: Small Icons";
             this.styleToolStripMenuItem1.Click += new System.EventHandler(this.styleToolStripMenuItem1_Click);
             // 
             // styleDetailsToolStripMenuItem
             // 
             this.styleDetailsToolStripMenuItem.Name = "styleDetailsToolStripMenuItem";
-            this.styleDetailsToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.styleDetailsToolStripMenuItem.Size = new System.Drawing.Size(220, 32);
             this.styleDetailsToolStripMenuItem.Text = "Style: Details";
             this.styleDetailsToolStripMenuItem.Click += new System.EventHandler(this.styleDetailsToolStripMenuItem_Click);
             // 
             // styleTileToolStripMenuItem
             // 
             this.styleTileToolStripMenuItem.Name = "styleTileToolStripMenuItem";
-            this.styleTileToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.styleTileToolStripMenuItem.Size = new System.Drawing.Size(220, 32);
             this.styleTileToolStripMenuItem.Text = "Style: Tile";
             this.styleTileToolStripMenuItem.Click += new System.EventHandler(this.styleTileToolStripMenuItem_Click);
             // 
