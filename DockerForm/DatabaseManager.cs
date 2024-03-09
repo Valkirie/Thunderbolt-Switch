@@ -95,9 +95,12 @@ namespace DockerForm
                 // 1. Save current settings
                 if (updateDB && File.Exists(filename))
                 {
-                    setting.data[path_game] = File.ReadAllBytes(filename);
-                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, file, path_game, "file");
-                    LogManager.UpdateLog(content);
+                    if(!(setting.lockedprofile != null && setting.lockedprofile.ContainsKey(path_game) && setting.lockedprofile[path_game] == true)) // If Profile is locked then skip save current settings
+                    {
+                        setting.data[path_game] = File.ReadAllBytes(filename);
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, file, path_game, "file");
+                        LogManager.UpdateLog(content);
+                    }
                 }
 
                 // 2. Restore proper settings
@@ -138,9 +141,12 @@ namespace DockerForm
                 // 1. Save current settings
                 if (updateDB)
                 {
-                    setting.data[path_game] = File.ReadAllBytes(tempfile);
-                    string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, filename, path_game, "registry entry");
-                    LogManager.UpdateLog(content);
+                    if (!(setting.lockedprofile != null && setting.lockedprofile.ContainsKey(path_game) && setting.lockedprofile[path_game] == true))
+                    {
+                        setting.data[path_game] = File.ReadAllBytes(tempfile);
+                        string content = string.Format(MainForm.CurrentResource.GetString("DatabaseFileUpdate"), game.Name, filename, path_game, "registry entry");
+                        LogManager.UpdateLog(content);
+                    }
                 }
 
                 // 2. Restore proper settings

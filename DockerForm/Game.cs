@@ -21,6 +21,7 @@ namespace DockerForm
         public string Uri;
         public bool IsRelative;
         public Dictionary<string, Boolean> removeunused = new Dictionary<string, Boolean>();
+        public Dictionary<string, Boolean> lockedprofile = new Dictionary<string, Boolean>();
         public Dictionary<string, byte[]> data = new Dictionary<string, byte[]>();
 
         public GameSettings(string _filename, SettingsType _type, string _uri, bool _enabled, bool _relative)

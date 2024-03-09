@@ -576,9 +576,32 @@ namespace DockerForm
                             UnusedCheckbox.CheckedChanged += UnusedCheckbox_CheckedChanged;
                             myPage.Controls.Add(UnusedCheckbox);
                         }
+
+                        CheckBox LockedProfile = new CheckBox()
+                        {
+                            Name = data.Key,
+                            Text = "Lock this Profile",
+                            Dock = DockStyle.Top,
+                            Checked = gGame.Settings[FileName].lockedprofile != null && gGame.Settings[FileName].lockedprofile.ContainsKey(data.Key) ? gGame.Settings[FileName].lockedprofile[data.Key] : false
+                        };
+                        LockedProfile.CheckedChanged += LockedProfile_CheckedChanged;
+                        myPage.Controls.Add(LockedProfile);
+
                         tabSettingsDesc.TabPages.Add(myPage);
                     }
                 }
+                break;
+            }
+        }
+
+        private void LockedProfile_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox LockedProfile = (CheckBox)sender;
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.Text;
+                gGame.Settings[FileName].lockedprofile[LockedProfile.Name] = LockedProfile.Checked;
+
                 break;
             }
         }
