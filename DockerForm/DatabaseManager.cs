@@ -259,7 +259,7 @@ namespace DockerForm
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
                     string gamefile = game.Uri + '\\' + game.Executable;
 
-                    if (!File.Exists(filename) && !File.Exists(gamefile))
+                    if ((!File.Exists(filename) && !File.Exists(gamefile)) || !File.Exists(gamefile))
                     {
                         setting.IsEnabled = false;
                         continue;
