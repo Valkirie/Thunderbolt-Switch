@@ -433,7 +433,7 @@ namespace DockerForm
             IsHardwareNew = prevDockStatus != DockStatus;
 
             // hardware has changed
-            if (IsHardwareNew && !IsFirstBoot)
+            if ((IsHardwareNew && !IsFirstBoot) || IsFirstBoot) // Add GPU check at first boot as well
             {
                 string content = string.Empty;
 
@@ -443,7 +443,6 @@ namespace DockerForm
                     content = string.Format(CurrentResource.GetString("VideoControllerDetected"), VideoControllers[Type.Internal].Name);
 
                 SendNotification(content, true, true);
-
                 DatabaseManager.UpdateFilesAndRegistries(false, true);
                 DatabaseManager.UpdateFilesAndRegistries(true, false);
             }
