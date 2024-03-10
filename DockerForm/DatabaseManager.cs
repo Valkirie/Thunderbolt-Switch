@@ -84,7 +84,7 @@ namespace DockerForm
             string gamefile = game.Uri + '\\' + game.Executable;
             if (setting.Type == SettingsType.File)
             {
-                if (!File.Exists(filename) && !File.Exists(gamefile)) //If Game No Longer Exist 
+                if (!File.Exists(filename) && !File.Exists(gamefile)) //If both file & Game exe No Longer Exist 
                 {
                     setting.IsEnabled = false;
                     string content = string.Format(MainForm.CurrentResource.GetString("DatabaseSettingsDisabled"), game.Name, file, path_dest, "file");
@@ -227,6 +227,9 @@ namespace DockerForm
             foreach (DockerGame game in GameDB.Values)
             {
                 string path_db = MainForm.GetCurrentState(game);
+                string gamefile = game.Uri + '\\' + game.Executable;
+
+                if (!File.Exists(gamefile)) continue;
 
                 if (game.ErrorCode != ErrorCode.None)
                 {
@@ -257,9 +260,11 @@ namespace DockerForm
                     byte[] fileBytes = null, fileDBBytes = null;
 
                     string filename = Environment.ExpandEnvironmentVariables(setting.GetUri(game));
-                    string gamefile = game.Uri + '\\' + game.Executable;
 
-                    if ((!File.Exists(filename) && !File.Exists(gamefile)) || !File.Exists(gamefile))
+                    MessageBox.Show(gamefile + " " + File.Exists(gamefile).ToString());
+                    MessageBox.Show(filename + " " + File.Exists(filename).ToString());
+
+                    if (!File.Exists(filename) && !File.Exists(gamefile))
                     {
                         setting.IsEnabled = false;
                         continue;
