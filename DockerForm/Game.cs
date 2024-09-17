@@ -20,6 +20,8 @@ namespace DockerForm
         public string FileName;
         public string Uri;
         public bool IsRelative;
+        public Dictionary<string, Boolean> removeunused = new Dictionary<string, Boolean>();
+        public Dictionary<string, Boolean> lockedprofile = new Dictionary<string, Boolean>();
         public Dictionary<string, byte[]> data = new Dictionary<string, byte[]>();
 
         public GameSettings(string _filename, SettingsType _type, string _uri, bool _enabled, bool _relative)
@@ -181,7 +183,6 @@ namespace DockerForm
                 Version = AppProperties.ContainsKey("FileVersion") ? AppProperties["FileVersion"] : "1.0.0.0";
                 Company = AppProperties.ContainsKey("Company") ? AppProperties["Company"] : AppProperties.ContainsKey("Copyright") ? AppProperties["Copyright"] : "Unknown";
                 Name = ProductName;
-                GUID = "0x" + Math.Abs((Executable + ProductName).GetHashCode()).ToString();
 
                 FileInfo fileInfo = new FileInfo(filePath);
                 Uri = fileInfo.DirectoryName.ToLower();
@@ -190,6 +191,7 @@ namespace DockerForm
                 string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
                 FolderName = System.Text.RegularExpressions.Regex.Replace(ProductName, invalidRegStr, "_").Replace(" ", "");
+                GUID = "0x" + Math.Abs((Uri + Executable + ProductName).GetHashCode()).ToString();
             }
             catch (Exception ex)
             {

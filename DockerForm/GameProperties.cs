@@ -1,4 +1,5 @@
 ﻿using Be.Windows.Forms;
+using DockerForm.Properties;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections;
@@ -8,9 +9,13 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
+using System.Windows.Input;
+using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace DockerForm
 {
@@ -47,6 +52,7 @@ namespace DockerForm
         private void InitializeForm()
         {
             tabSettingsDesc.HandleCreated += new System.EventHandler(TabControl_HandleCreated);
+            tabSettingsDesc.MouseDoubleClick += tabSettingsDesc_DoubleClick;
         }
 
         void TabControl_HandleCreated(object sender, System.EventArgs e)
@@ -296,6 +302,7 @@ namespace DockerForm
                         byte[] s_file = System.IO.File.ReadAllBytes(file);
                         GameSettings newSetting = new GameSettings(FileName, SettingsType.File, FilePath, true, IsRelative);
                         newSetting.data[MainForm.GetCurrentState(gGame)] = s_file;
+                        //newSetting.removeunused[MainForm.GetCurrentState(gGame)] = false;
                         gGame.Settings[FileName] = newSetting;
                     }
                 }
@@ -321,6 +328,7 @@ namespace DockerForm
             {
                 byte[] s_file = System.IO.File.ReadAllBytes(FileTemp);
                 newSetting.data[MainForm.GetCurrentState(gGame)] = s_file;
+                //newSetting.removeunused[MainForm.GetCurrentState(gGame)] = false;
                 newSetting.IsEnabled = true;
                 listViewItem1.Checked = true;
             }
@@ -510,11 +518,10 @@ namespace DockerForm
         {
             MenuItemRemoveSetting.Enabled = false;
             tabSettingsDesc.TabPages.Clear();
-
+            tabSettingsDesc.ShowToolTips = true;
             foreach (ListViewItem item in SettingsList.SelectedItems)
             {
                 string FileName = item.Text;
-
                 if (gGame.Settings.ContainsKey(FileName))
                 {
                     MenuItemRemoveSetting.Enabled = true;
@@ -524,6 +531,7 @@ namespace DockerForm
                         TabPage myPage = new TabPage();
                         myPage.Text = data.Key;
                         myPage.Name = data.Key;
+                        myPage.ToolTipText = "Double click to change GPU name";
 
                         string myLanguage = GetLanguage(FileName);
                         if (myLanguage != null)
@@ -556,12 +564,51 @@ namespace DockerForm
                             myViewer.ByteProvider.Changed += ByteProvider_Changed;
                             myPage.Controls.Add(myViewer);
                         }
+                        if (gGame.Settings[FileName].Type == SettingsType.File)
+                        {
+                            CheckBox UnusedCheckbox = new CheckBox()
+                            {
+                                Name = data.Key,
+                                Text = "Remove file on this GPU Profile",
+                                Dock = DockStyle.Top,
+                                Checked = gGame.Settings[FileName].removeunused != null && gGame.Settings[FileName].removeunused.ContainsKey(data.Key) ? gGame.Settings[FileName].removeunused[data.Key] : false
+                            };
+                            UnusedCheckbox.CheckedChanged += UnusedCheckbox_CheckedChanged;
+                            myPage.Controls.Add(UnusedCheckbox);
+                        }
+
+                        CheckBox LockedProfile = new CheckBox()
+                        {
+                            Name = data.Key,
+                            Text = "Lock this Profile",
+                            Dock = DockStyle.Top,
+                            Checked = gGame.Settings[FileName].lockedprofile != null && gGame.Settings[FileName].lockedprofile.ContainsKey(data.Key) ? gGame.Settings[FileName].lockedprofile[data.Key] : false
+                        };
+                        LockedProfile.CheckedChanged += LockedProfile_CheckedChanged;
+                        myPage.Controls.Add(LockedProfile);
 
                         tabSettingsDesc.TabPages.Add(myPage);
                     }
                 }
                 break;
             }
+        }
+
+        private void LockedProfile_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox LockedProfile = (CheckBox)sender;
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.Text;
+                gGame.Settings[FileName].lockedprofile[LockedProfile.Name] = LockedProfile.Checked;
+
+                break;
+            }
+        }
+
+        private void GPUname_MouseDoubleClick(object sender, EventArgs e)
+        {
+            ((TextBox)sender).Text = MainForm.CurrentController.Name;
         }
 
         private void ByteProvider_Changed(object sender, EventArgs e)
@@ -580,6 +627,35 @@ namespace DockerForm
             }
         }
 
+        private void tabSettingsDesc_DoubleClick(object sender, EventArgs e)
+        {
+            TabControl tabControl = (TabControl)sender;
+            string currentGPUname = tabControl.TabPages[tabControl.SelectedIndex].Text;
+            string newGPUname = Interaction.InputBox("Input new GPU name to change", "Change from '" + currentGPUname + "'", MainForm.CurrentController.Name);
+            
+            if (newGPUname == "")
+                return;
+
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.Text;
+
+                Dictionary<string, byte[]> data = gGame.Settings[FileName].data;
+
+                byte[] value;
+                if (data.TryGetValue(currentGPUname, out value))
+                {
+                    gGame.Settings[FileName].data.Remove(currentGPUname);
+                    if (data.ContainsKey(newGPUname)) gGame.Settings[FileName].data.Remove(newGPUname); // Delete existed GPU name and replaced with current edit one
+                    gGame.Settings[FileName].data.Add(newGPUname, value);
+                }
+
+                break;
+            }
+
+            SettingsList.SelectedItems.Clear();
+        }
+        
         private void MyViewer_TextChanged(object sender, EventArgs e)
         {
             RichTextBox myViewer = (RichTextBox)sender;
@@ -588,6 +664,17 @@ namespace DockerForm
             {
                 string FileName = item.Text;
                 gGame.Settings[FileName].data[myViewer.Name] = Encoding.ASCII.GetBytes(myViewer.Text);
+
+                break;
+            }
+        }
+        private void UnusedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox UnusedCheckbox = (CheckBox)sender;
+            foreach (ListViewItem item in SettingsList.SelectedItems)
+            {
+                string FileName = item.Text;
+                gGame.Settings[FileName].removeunused[UnusedCheckbox.Name] = UnusedCheckbox.Checked;
 
                 break;
             }

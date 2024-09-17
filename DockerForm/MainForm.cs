@@ -345,7 +345,7 @@ namespace DockerForm
                 StartMonitoringProcessTermination();
         }
 
-        public static string GetCurrentState(DockerGame game)
+        public static string GetCurrentState(DockerGame game) // Get Current GPU State
         {
             // Intel(R) Iris(R) Plus Graphics
             string state = CurrentController.Name;
@@ -433,7 +433,7 @@ namespace DockerForm
             IsHardwareNew = prevDockStatus != DockStatus;
 
             // hardware has changed
-            if (IsHardwareNew && !IsFirstBoot)
+            if ((IsHardwareNew && !IsFirstBoot) || IsFirstBoot) // Add GPU check at first boot as well
             {
                 string content = string.Empty;
 
@@ -443,7 +443,6 @@ namespace DockerForm
                     content = string.Format(CurrentResource.GetString("VideoControllerDetected"), VideoControllers[Type.Internal].Name);
 
                 SendNotification(content, true, true);
-
                 DatabaseManager.UpdateFilesAndRegistries(false, true);
                 DatabaseManager.UpdateFilesAndRegistries(true, false);
             }
@@ -1060,7 +1059,7 @@ namespace DockerForm
             td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
             td.Settings.Enabled = false;
             td.Triggers.Add(new LogonTrigger());
-            td.Actions.Add(new ExecAction(Path.Combine(path_application, "DockerForm.exe")));
+            td.Actions.Add(new ExecAction(Path.Combine(path_application, System.AppDomain.CurrentDomain.FriendlyName)));
             CurrentTask = TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, td);
 
             LogManager.UpdateLog(string.Format(CurrentResource.GetString("SchedulerCreate"), taskName));
